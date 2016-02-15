@@ -1,0 +1,288 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>mdlmstr2nmat</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="mdlmstr2nmat.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>mdlmstr2nmat</h1><!--introduction--><pre>From code written by Ken Schutte
+see http://www.kenschutte.com/midi for example</pre><pre>Modified by Ed Large and M. Stauffer to return note list
+in the Midi Toolbox 'nmat' format, with these columns
+for each note:
+ Onset (beats) (calc'ed solely from ticks-per-quarter-note)
+ Duration beats
+ Channel
+ MIDI pitch
+ mIdI velocity
+ Onset (sec)
+ Duration (sec)</pre><pre>NOTE
+This routine will NOT skip silence at begin of the midi file, as it
+appears happens in matlab-midi's midiInfo. If the first note-on
+in the file is not at tick 0, it will be converted to a non-zero
+onset beat and time.</pre><pre>Usage:</pre><pre>nmat = midi2nmat(midi)
+Where 'midi' is a matlab-midi structure as returned by readmidi.</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">find tempo changes</a></li><li><a href="#4">Enter MIDI data into nmat matrices</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> nmat = mdlmstr2nmat(midi)
+</pre><h2>find tempo changes<a name="3"></a></h2><pre class="codeinput">tempos = [];
+tempos_time = [];
+<span class="keyword">for</span> i=1:length(midi.track)
+  cumtime=0;
+  <span class="keyword">for</span> j=1:length(midi.track(i).messages)
+    cumtime = cumtime+midi.track(i).messages(j).deltatime;
+    <span class="keyword">if</span> (midi.track(i).messages(j).midimeta==0 &amp;&amp; midi.track(i).messages(j).type==81)
+      tempos_time(end+1) = cumtime; <span class="comment">%#ok&lt;AGROW&gt;</span>
+      d = midi.track(i).messages(j).data;
+      tempos(end+1) =  d(1)*16^4 + d(2)*16^2 + d(3); <span class="comment">%#ok&lt;AGROW&gt;</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">%initialize output</span>
+nmat = zeros(1,7);
+</pre><h2>Enter MIDI data into nmat matrices<a name="4"></a></h2><pre class="codeinput">current_tempo = 500000;  <span class="comment">% default tempo</span>
+<span class="keyword">for</span> i=1:length(midi.track)
+  cumtime=0;
+  seconds=0;
+  <span class="keyword">for</span> j=1:length(midi.track(i).messages)
+
+    deltatime = midi.track(i).messages(j).deltatime;
+    chan      = midi.track(i).messages(j).chan;
+    data      = midi.track(i).messages(j).data;
+    type      = midi.track(i).messages(j).type;
+    midimeta  = midi.track(i).messages(j).midimeta;
+
+    cumtime = cumtime + deltatime;
+    beat = cumtime / midi.ticks_per_quarter_note;
+    seconds = seconds + deltatime*1e-6*current_tempo/midi.ticks_per_quarter_note;
+        <span class="comment">%MGS Possibly rounding errors here with long sequences?</span>
+        <span class="comment">%Should instead calc delta-seconds from start in seconds of current tempo?</span>
+
+    <span class="comment">%Tempo change?</span>
+    [mx ind] = max(find(cumtime &gt;= tempos_time));
+    current_tempo = tempos(ind);
+
+    <span class="comment">% find start/stop of notes:</span>
+    <span class="comment">% note on with vel&gt;0:</span>
+    <span class="keyword">if</span> (midimeta==1 &amp;&amp; type==144 &amp;&amp; data(2)&gt;0)
+
+      <span class="comment">%NMAT column format from 'midi toolbox'</span>
+      nmat(end+1,1) = beat; <span class="comment">% Onset (beats)</span>
+      nmat(end,2) = -1;     <span class="comment">% Duration (beats)</span>
+      nmat(end,3) = chan;   <span class="comment">% Channel</span>
+      nmat(end,4) = data(1);<span class="comment">% MIDI Pitch</span>
+      nmat(end,5) = data(2);<span class="comment">% MIDI Velocity</span>
+      nmat(end,6) = seconds;<span class="comment">% Onset (sec)</span>
+      nmat(end,7) = -1;     <span class="comment">% Duration (sec)</span>
+
+    <span class="keyword">elseif</span> (midimeta==1 &amp;&amp; ( (type==144 &amp;&amp; data(2)==0) || type==128 ))
+      <span class="comment">%note-off</span>
+
+      <span class="comment">%find matching note-on to update its values</span>
+      ind = find((<span class="keyword">...</span>
+        (nmat(:,3)==chan) + <span class="keyword">...</span>
+        (nmat(:,4)==data(1)) + <span class="keyword">...</span>
+        (nmat(:,2)==-1)<span class="keyword">...</span><span class="comment">   %i.e., hasn't been matched yet</span>
+        )==3);
+
+      <span class="keyword">if</span> (length(ind)==0)
+        warning(<span class="string">'note-off with no matching note-on. skipping.'</span>);
+      <span class="keyword">elseif</span> (length(ind)&gt;1)
+       	<span class="comment">%??? not sure about this...</span>
+        disp(<span class="string">'warning: found mulitple note-on matches for note-off, taking first...'</span>);
+        ind = ind(1);
+      <span class="keyword">else</span>
+        <span class="comment">%set duration values</span>
+        nmat(ind,2) = beat - nmat(ind,1);
+        nmat(ind,7) = seconds - nmat(ind,6);
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span> <span class="comment">%track</span>
+<span class="keyword">end</span> <span class="comment">%all tracks</span>
+
+<span class="comment">%check for unmatched note-ons</span>
+<span class="keyword">if</span> any(nmat == -1)
+    warning(<span class="string">'one or more unmatched note-ons'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">%remove init row</span>
+nmat = nmat(2:end,:);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% mdlmstr2nmat
+%  From code written by Ken Schutte
+%  see http://www.kenschutte.com/midi for example
+%
+%  Modified by Ed Large and M. Stauffer to return note list
+%  in the Midi Toolbox 'nmat' format, with these columns
+%  for each note:
+%   Onset (beats) (calc'ed solely from ticks-per-quarter-note)
+%   Duration beats
+%   Channel
+%   MIDI pitch
+%   mIdI velocity
+%   Onset (sec)
+%   Duration (sec)
+%  
+%  NOTE
+%  This routine will NOT skip silence at begin of the midi file, as it
+%  appears happens in matlab-midi's midiInfo. If the first note-on
+%  in the file is not at tick 0, it will be converted to a non-zero
+%  onset beat and time.
+%
+%  Usage:
+%
+%  nmat = midi2nmat(midi)
+%  Where 'midi' is a matlab-midi structure as returned by readmidi.
+
+%%
+function nmat = mdlmstr2nmat(midi)
+
+
+
+%% find tempo changes
+tempos = [];
+tempos_time = [];
+for i=1:length(midi.track)
+  cumtime=0;
+  for j=1:length(midi.track(i).messages)
+    cumtime = cumtime+midi.track(i).messages(j).deltatime;
+    if (midi.track(i).messages(j).midimeta==0 && midi.track(i).messages(j).type==81)      
+      tempos_time(end+1) = cumtime; %#ok<AGROW>
+      d = midi.track(i).messages(j).data;
+      tempos(end+1) =  d(1)*16^4 + d(2)*16^2 + d(3); %#ok<AGROW>
+    end
+  end
+end
+
+%initialize output
+nmat = zeros(1,7);
+
+%% Enter MIDI data into nmat matrices
+current_tempo = 500000;  % default tempo
+for i=1:length(midi.track)
+  cumtime=0;
+  seconds=0;
+  for j=1:length(midi.track(i).messages)
+
+    deltatime = midi.track(i).messages(j).deltatime;
+    chan      = midi.track(i).messages(j).chan;
+    data      = midi.track(i).messages(j).data;
+    type      = midi.track(i).messages(j).type;
+    midimeta  = midi.track(i).messages(j).midimeta;
+    
+    cumtime = cumtime + deltatime;
+    beat = cumtime / midi.ticks_per_quarter_note;
+    seconds = seconds + deltatime*1e-6*current_tempo/midi.ticks_per_quarter_note;
+        %MGS Possibly rounding errors here with long sequences? 
+        %Should instead calc delta-seconds from start in seconds of current tempo?
+        
+    %Tempo change?
+    [mx ind] = max(find(cumtime >= tempos_time));
+    current_tempo = tempos(ind);
+    
+    % find start/stop of notes:
+    % note on with vel>0:
+    if (midimeta==1 && type==144 && data(2)>0)
+
+      %NMAT column format from 'midi toolbox' 
+      nmat(end+1,1) = beat; % Onset (beats) 
+      nmat(end,2) = -1;     % Duration (beats)
+      nmat(end,3) = chan;   % Channel
+      nmat(end,4) = data(1);% MIDI Pitch
+      nmat(end,5) = data(2);% MIDI Velocity
+      nmat(end,6) = seconds;% Onset (sec)
+      nmat(end,7) = -1;     % Duration (sec) 
+
+    elseif (midimeta==1 && ( (type==144 && data(2)==0) || type==128 ))
+      %note-off
+      
+      %find matching note-on to update its values
+      ind = find((...
+        (nmat(:,3)==chan) + ...
+        (nmat(:,4)==data(1)) + ...
+        (nmat(:,2)==-1)...   %i.e., hasn't been matched yet
+        )==3);
+
+      if (length(ind)==0)
+        warning('note-off with no matching note-on. skipping.');
+      elseif (length(ind)>1)
+       	%??? not sure about this...
+        disp('warning: found mulitple note-on matches for note-off, taking first...');
+        ind = ind(1);
+      else
+        %set duration values
+        nmat(ind,2) = beat - nmat(ind,1);
+        nmat(ind,7) = seconds - nmat(ind,6);
+      end
+    end
+  end %track
+end %all tracks
+
+%check for unmatched note-ons
+if any(nmat == -1)
+    warning('one or more unmatched note-ons');
+end
+
+%remove init row
+nmat = nmat(2:end,:);
+
+##### SOURCE END #####
+--></body></html>

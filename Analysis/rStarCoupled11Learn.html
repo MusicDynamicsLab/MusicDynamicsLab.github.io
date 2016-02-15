@@ -1,0 +1,279 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>rStarCoupled11Learn</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="rStarCoupled11Learn.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>rStarCoupled11Learn</h1><!--introduction--><pre class="language-matlab">[rStar, AStar, psiStar, stability, stabType] = rStarCoupled11Learn(alpha, beta1, lambda, mu1, kappa, Omega, All)
+</pre><pre>Finds r*, A*, psi*, stability (1 or 0), and stability type (0-4)
+numerically for two oscillators (truncated after the cubic term)
+connected via a plastic 1:1 coupling. Omega is the difference
+between the oscillators' natural frequencies in radian.
+Set the optional input argument 'All' to 1 (or any nonzero value)
+to get both stable and unstable fixed points. (Default for All is 0,
+that is, rStarDriven11Learn outputs only stable fixed points.)</pre><pre>stability: 1 = stable, 0 = unstable</pre><pre>stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
+1 = unstable spiral, 0 = saddle point</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Equation</a></li><li><a href="#3">Check input arguments</a></li><li><a href="#4">Get symmetric steady-state connection amplitudes numerically</a></li><li><a href="#5">Get oscillator amplitudes</a></li><li><a href="#6">Get relative phases</a></li><li><a href="#7">Eliminate extraneous solutions</a></li><li><a href="#8">Get stability type from Jacobian matrix</a></li><li><a href="#9">Prepare output</a></li></ul></div><h2>Equation<a name="1"></a></h2><p><img src="rStarCoupled11Learn_eq31202.png" alt="$$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +&#xA;\beta_1|z_1|^2\right) + c_{12}z_2$$"></p><p><img src="rStarCoupled11Learn_eq21962.png" alt="$$\frac{dz_2}{dt} = z_2\left(\alpha + \textrm{i}\omega_2 +&#xA;\beta_1|z_2|^2\right) + c_{21}z_1$$"></p><p><img src="rStarCoupled11Learn_eq27990.png" alt="$$\frac{dc_{12}}{dt} = c_{12}\left(\lambda + \mu_1|c_{12}|^2\right) +&#xA;\kappa z_1\bar{z_2}$$"></p><p><img src="rStarCoupled11Learn_eq90426.png" alt="$$\frac{dc_{21}}{dt} = c_{21}\left(\lambda + \mu_1|c_{21}|^2\right) +&#xA;\kappa z_2\bar{z_1}$$"></p><pre class="codeinput"><span class="keyword">function</span> [rStar, AStar, psiStar, stability, stabType] = <span class="keyword">...</span>
+  rStarCoupled11Learn(a, b1, l, m1, ka, W, All)
+</pre><h2>Check input arguments<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> nargin &lt; 7
+  All = 0; <span class="comment">% default: only stable points</span>
+<span class="keyword">end</span>
+</pre><h2>Get symmetric steady-state connection amplitudes numerically<a name="4"></a></h2><pre class="codeinput">A = sqrt(roots([power(b1,2)*power(m1,2)*power(-4*b1 + ka*m1,2),<span class="keyword">...</span>
+  2*b1*m1*(4*b1 - ka*m1)*(4*power(b1,2)*l + power(ka,2)*m1 - <span class="keyword">...</span>
+  2*b1*ka*(2 + a*m1 + l*m1)),16*power(b1,4)*power(l,2) + <span class="keyword">...</span>
+  power(ka,4)*power(m1,2) - 2*b1*power(ka,3)*m1*(4 + 4*a*m1 + 3*l*m1) - <span class="keyword">...</span>
+  8*power(b1,3)*ka*(3*power(l,2)*m1 + 4*l*(1 + a*m1) - m1*power(W,2)) + <span class="keyword">...</span>
+  2*power(b1,2)*power(ka,2)*(8 + 16*l*m1 + 2*power(a,2)*power(m1,2) + <span class="keyword">...</span>
+  3*power(l,2)*power(m1,2) + 2*a*m1*(8 + 3*l*m1) + power(m1,2)*power(W,2)),<span class="keyword">...</span>
+  ka*(2*power(ka,3)*l*m1 + power(a,2)*ka*<span class="keyword">...</span>
+  (-(power(ka,2)*power(m1,2)) + 8*power(b1,2)*(-2 + l*m1)) - <span class="keyword">...</span>
+  8*power(b1,3)*(power(l,3) - l*power(W,2)) - <span class="keyword">...</span>
+  2*b1*power(ka,2)*(4*l + 3*power(l,2)*m1 + m1*power(W,2)) + <span class="keyword">...</span>
+  4*power(b1,2)*ka*(4*power(l,2) + power(l,3)*m1 - 2*power(W,2) + <span class="keyword">...</span>
+  l*m1*power(W,2)) - 4*a*(4*power(b1,3)*power(l,2) - power(ka,3)*m1 + <span class="keyword">...</span>
+  4*b1*power(ka,2)*(1 + l*m1) - <span class="keyword">...</span>
+  power(b1,2)*ka*(8*l + 3*power(l,2)*m1 + m1*power(W,2)))),<span class="keyword">...</span>
+  power(ka,2)*(-4*power(a,3)*ka*(-4*b1 + ka*m1) + <span class="keyword">...</span>
+  power(ka*l - b1*(power(l,2) + power(W,2)),2) + <span class="keyword">...</span>
+  power(a,2)*(power(ka,2)*(4 - 2*l*m1) + <span class="keyword">...</span>
+  4*power(b1,2)*(power(l,2) + power(W,2))) + <span class="keyword">...</span>
+  4*a*(power(ka,2)*l + b1*ka*(-2*power(l,2) + power(W,2)) + <span class="keyword">...</span>
+  power(b1,2)*l*(power(l,2) + power(W,2)))),<span class="keyword">...</span>
+  -(power(a,2)*power(ka,4)*(4*power(a,2) + 4*a*l + power(l,2) + power(W,2)))]));
+A = A(find(imag(A)==0));
+</pre><h2>Get oscillator amplitudes<a name="5"></a></h2><pre class="codeinput">r = [sqrt((-a - sqrt(a^2+4*b1*A.^2.*(l+m1*A.^2)/ka))/(2*b1));
+  sqrt((-a + sqrt(a^2+4*b1*A.^2.*(l+m1*A.^2)/ka))/(2*b1))];
+A = [A;A];
+ind = find(imag(r)==0);
+r = r(ind); A = A(ind);
+</pre><h2>Get relative phases<a name="6"></a></h2><pre class="codeinput">psi = -sign(W)*acos(-(a+b1*r.^2)./A);
+ind = find(~isnan(psi));
+r = r(ind); A = A(ind); psi = psi(ind);
+</pre><h2>Eliminate extraneous solutions<a name="7"></a></h2><pre class="codeinput">ind = find(abs(a*r+b1*r.^3+A.*r.*cos(psi)) &lt; eps(<span class="string">'single'</span>));
+r = r(ind); A = A(ind); psi = psi(ind);
+ind = find(abs(-W-(ka*r.^2./A+2*A).*sin(psi)) &lt; eps(<span class="string">'single'</span>));
+r = r(ind); A = A(ind); psi = psi(ind);
+</pre><h2>Get stability type from Jacobian matrix<a name="8"></a></h2><pre class="codeinput">stabType = zeros(size(r));
+<span class="keyword">for</span> n = 1:length(r)
+  J = zeros(3);
+  J(1,1) = a + 3*b1*r(n)^2 + A(n)*cos(psi(n));
+  J(1,2) = r(n)*cos(psi(n));
+  J(1,3) = -A(n)*r(n)*sin(psi(n));
+  J(2,1) = 2*ka*r(n)*cos(psi(n));
+  J(2,2) = l + 3*m1*A(n)^2;
+  J(2,3) = -ka*r(n)^2*sin(psi(n));
+  J(3,1) = -2*ka*r(n)*sin(psi(n))/A(n);
+  J(3,2) = (ka*r(n)^2/A(n)^2 - 2)*sin(psi(n));
+  J(3,3) = -(ka*r(n)^2/A(n) + 2*A(n))*cos(psi(n));
+  <span class="keyword">if</span> ~any(isnan(J(:)))
+    ev = eig(J);
+    <span class="keyword">if</span> isreal(ev) &amp;&amp; all(ev &lt; 0)
+      stabType(n) = 4; <span class="comment">% stable node</span>
+    <span class="keyword">elseif</span> all(real(ev) &lt; 0)
+      stabType(n) = 3; <span class="comment">% stable spiral</span>
+    <span class="keyword">elseif</span> isreal(ev) &amp;&amp; all(ev &gt; 0)
+      stabType(n) = 2; <span class="comment">% unstable node</span>
+    <span class="keyword">elseif</span> all(real(ev) &gt; 0)
+      stabType(n) = 1; <span class="comment">% unstable spiral</span>
+    <span class="keyword">end</span> <span class="comment">% saddle pt otherwise</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable</span>
+</pre><h2>Prepare output<a name="9"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable fixed points</span>
+  rStar = r;
+  AStar = A;
+  psiStar = psi;
+<span class="keyword">else</span> <span class="comment">% stable points only</span>
+  indStab = find(stability);
+  rStar = r(indStab);
+  AStar = A(indStab);
+  psiStar = psi(indStab);
+  stability = stability(indStab);
+  stabType = stabType(indStab);
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% rStarCoupled11Learn
+%   [rStar, AStar, psiStar, stability, stabType] = rStarCoupled11Learn(alpha, beta1, lambda, mu1, kappa, Omega, All)
+%
+%  Finds r*, A*, psi*, stability (1 or 0), and stability type (0-4)
+%  numerically for two oscillators (truncated after the cubic term)
+%  connected via a plastic 1:1 coupling. Omega is the difference
+%  between the oscillators' natural frequencies in radian.
+%  Set the optional input argument 'All' to 1 (or any nonzero value)
+%  to get both stable and unstable fixed points. (Default for All is 0,
+%  that is, rStarDriven11Learn outputs only stable fixed points.)
+%
+%  stability: 1 = stable, 0 = unstable
+%
+%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
+%  1 = unstable spiral, 0 = saddle point
+
+%% Equation
+% $$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +
+% \beta_1|z_1|^2\right) + c_{12}z_2$$
+% 
+% $$\frac{dz_2}{dt} = z_2\left(\alpha + \textrm{i}\omega_2 +
+% \beta_1|z_2|^2\right) + c_{21}z_1$$
+% 
+% $$\frac{dc_{12}}{dt} = c_{12}\left(\lambda + \mu_1|c_{12}|^2\right) +
+% \kappa z_1\bar{z_2}$$
+% 
+% $$\frac{dc_{21}}{dt} = c_{21}\left(\lambda + \mu_1|c_{21}|^2\right) +
+% \kappa z_2\bar{z_1}$$
+
+function [rStar, AStar, psiStar, stability, stabType] = ...
+  rStarCoupled11Learn(a, b1, l, m1, ka, W, All)
+
+%% Check input arguments
+if nargin < 7
+  All = 0; % default: only stable points
+end
+
+%% Get symmetric steady-state connection amplitudes numerically
+A = sqrt(roots([power(b1,2)*power(m1,2)*power(-4*b1 + ka*m1,2),...
+  2*b1*m1*(4*b1 - ka*m1)*(4*power(b1,2)*l + power(ka,2)*m1 - ...
+  2*b1*ka*(2 + a*m1 + l*m1)),16*power(b1,4)*power(l,2) + ...
+  power(ka,4)*power(m1,2) - 2*b1*power(ka,3)*m1*(4 + 4*a*m1 + 3*l*m1) - ...
+  8*power(b1,3)*ka*(3*power(l,2)*m1 + 4*l*(1 + a*m1) - m1*power(W,2)) + ...
+  2*power(b1,2)*power(ka,2)*(8 + 16*l*m1 + 2*power(a,2)*power(m1,2) + ...
+  3*power(l,2)*power(m1,2) + 2*a*m1*(8 + 3*l*m1) + power(m1,2)*power(W,2)),...
+  ka*(2*power(ka,3)*l*m1 + power(a,2)*ka*...
+  (-(power(ka,2)*power(m1,2)) + 8*power(b1,2)*(-2 + l*m1)) - ...
+  8*power(b1,3)*(power(l,3) - l*power(W,2)) - ...
+  2*b1*power(ka,2)*(4*l + 3*power(l,2)*m1 + m1*power(W,2)) + ...
+  4*power(b1,2)*ka*(4*power(l,2) + power(l,3)*m1 - 2*power(W,2) + ...
+  l*m1*power(W,2)) - 4*a*(4*power(b1,3)*power(l,2) - power(ka,3)*m1 + ...
+  4*b1*power(ka,2)*(1 + l*m1) - ...
+  power(b1,2)*ka*(8*l + 3*power(l,2)*m1 + m1*power(W,2)))),...
+  power(ka,2)*(-4*power(a,3)*ka*(-4*b1 + ka*m1) + ...
+  power(ka*l - b1*(power(l,2) + power(W,2)),2) + ...
+  power(a,2)*(power(ka,2)*(4 - 2*l*m1) + ...
+  4*power(b1,2)*(power(l,2) + power(W,2))) + ...
+  4*a*(power(ka,2)*l + b1*ka*(-2*power(l,2) + power(W,2)) + ...
+  power(b1,2)*l*(power(l,2) + power(W,2)))),...
+  -(power(a,2)*power(ka,4)*(4*power(a,2) + 4*a*l + power(l,2) + power(W,2)))]));
+A = A(find(imag(A)==0));
+
+%% Get oscillator amplitudes
+r = [sqrt((-a - sqrt(a^2+4*b1*A.^2.*(l+m1*A.^2)/ka))/(2*b1));
+  sqrt((-a + sqrt(a^2+4*b1*A.^2.*(l+m1*A.^2)/ka))/(2*b1))];
+A = [A;A];
+ind = find(imag(r)==0);
+r = r(ind); A = A(ind);
+
+%% Get relative phases
+psi = -sign(W)*acos(-(a+b1*r.^2)./A);
+ind = find(~isnan(psi));
+r = r(ind); A = A(ind); psi = psi(ind);
+
+%% Eliminate extraneous solutions
+ind = find(abs(a*r+b1*r.^3+A.*r.*cos(psi)) < eps('single'));
+r = r(ind); A = A(ind); psi = psi(ind);
+ind = find(abs(-W-(ka*r.^2./A+2*A).*sin(psi)) < eps('single'));
+r = r(ind); A = A(ind); psi = psi(ind);
+
+%% Get stability type from Jacobian matrix
+stabType = zeros(size(r));
+for n = 1:length(r)
+  J = zeros(3);
+  J(1,1) = a + 3*b1*r(n)^2 + A(n)*cos(psi(n));
+  J(1,2) = r(n)*cos(psi(n));
+  J(1,3) = -A(n)*r(n)*sin(psi(n));
+  J(2,1) = 2*ka*r(n)*cos(psi(n));
+  J(2,2) = l + 3*m1*A(n)^2;
+  J(2,3) = -ka*r(n)^2*sin(psi(n));
+  J(3,1) = -2*ka*r(n)*sin(psi(n))/A(n);
+  J(3,2) = (ka*r(n)^2/A(n)^2 - 2)*sin(psi(n));
+  J(3,3) = -(ka*r(n)^2/A(n) + 2*A(n))*cos(psi(n));
+  if ~any(isnan(J(:)))
+    ev = eig(J);
+    if isreal(ev) && all(ev < 0)
+      stabType(n) = 4; % stable node
+    elseif all(real(ev) < 0)
+      stabType(n) = 3; % stable spiral
+    elseif isreal(ev) && all(ev > 0)
+      stabType(n) = 2; % unstable node
+    elseif all(real(ev) > 0)
+      stabType(n) = 1; % unstable spiral
+    end % saddle pt otherwise
+  end
+end
+stability = (stabType >= 3); % 1 = stable, 0 = unstable
+
+%% Prepare output
+if All % both stable and unstable fixed points
+  rStar = r;
+  AStar = A;
+  psiStar = psi;
+else % stable points only
+  indStab = find(stability);
+  rStar = r(indStab);
+  AStar = A(indStab);
+  psiStar = psi(indStab);
+  stability = stability(indStab);
+  stabType = stabType(indStab);
+end
+
+##### SOURCE END #####
+--></body></html>

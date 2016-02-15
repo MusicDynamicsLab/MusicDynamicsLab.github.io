@@ -1,0 +1,230 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>rStarDriven11</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="rStarDriven11.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>rStarDriven11</h1><!--introduction--><pre class="language-matlab">[rStar, psiStar, stability, stabType] = rStarDriven11(alpha, beta1, beta2, epsilon, forcing amplitude,Omega, All)
+</pre><pre>Finds r*, psi*, stability (1 or 0), and stability type (0-4) numerically
+for a canonical oscillator driven by a single sinusoidal input. Omega
+refers to the difference between the oscillator's natural frequency
+and the input frequency in radian.
+Set the optional input argument 'All' to 1 (or any nonzero value)
+to get both stable and unstable fixed points. (Default for All is 0,
+that is, rStarDriven11 outputs only stable fixed points.)</pre><pre>stability: 1 = stable, 0 = unstable</pre><pre>stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
+1 = unstable spiral, 0 = saddle point</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Equation</a></li><li><a href="#3">Check input arguments</a></li><li><a href="#4">Find steady-state amplitudes numerically</a></li><li><a href="#5">Find corresponding relative phrases</a></li><li><a href="#6">Get Jacobian matrix</a></li><li><a href="#7">Calculate stability type</a></li><li><a href="#8">Prepare output</a></li></ul></div><h2>Equation<a name="1"></a></h2><p><img src="rStarDriven11_eq10722.png" alt="$$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega +&#xA;\beta_1 |z|^2 + \frac{\epsilon\beta_2|z|^4}&#xA;{1-\epsilon |z|^2}\right) + Fe^{\textrm{i}\theta}$$"></p><p>where <img src="rStarDriven11_eq03045.png" alt="$z = re^{\textrm{i}\phi}, \psi = \phi - \theta, \theta = \omega_0t + \theta_0,$"> and <img src="rStarDriven11_eq38587.png" alt="$\Omega = \omega - \omega_0$"></p><pre class="codeinput"><span class="keyword">function</span> [rStar, psiStar, stability, stabType] = <span class="keyword">...</span>
+  rStarDriven11(a, b1, b2, e, F, W, All)
+</pre><pre class="codeinput">warning = 0; <span class="comment">% set to 1 to get warnings about the solutions</span>
+</pre><h2>Check input arguments<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> F &lt;= 0
+  error(<span class="string">'F must be positive'</span>)
+<span class="keyword">end</span>
+<span class="keyword">if</span> nargin &lt; 7
+  All = 0; <span class="comment">% default: output stable fixed points only</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> b2 == 0 &amp;&amp; e ~= 0
+  e = 0; <span class="comment">% set epsilon = 0 when b2 = 0 to avoid problem in root finding</span>
+<span class="keyword">end</span>
+</pre><h2>Find steady-state amplitudes numerically<a name="4"></a></h2><pre class="codeinput">r = sqrt(roots([ (b1-b2)^2*e^2,<span class="keyword">...</span>
+                  -2*(b1-b2)*(b1-a*e)*e,<span class="keyword">...</span>
+                  b1^2-4*a*b1*e+(e*a^2+2*a*b2+e*W^2)*e,<span class="keyword">...</span>
+                  -2*a^2*e+2*a*b1-(e*F^2+2*W^2)*e,<span class="keyword">...</span>
+                  a^2+2*e*F^2+W^2,<span class="keyword">...</span>
+                  -F^2]));
+r = r(find(abs(imag(r)) &lt; eps(<span class="string">'single'</span>))); <span class="comment">% take only real roots</span>
+r = real(r);
+r = sort(unique(r),<span class="string">'descend'</span>); <span class="comment">% remove multiple roots</span>
+<span class="keyword">if</span> b2
+  r = r(find(r &lt; 1/sqrt(e))); <span class="comment">% take r's below the asymptote</span>
+<span class="keyword">end</span>
+</pre><h2>Find corresponding relative phrases<a name="5"></a></h2><pre class="codeinput">signPsi = (W &gt;= 0)*2 - 1; <span class="comment">% sign of psi</span>
+psi = signPsi*acos(-(a*r + b1*r.^3 + b2*e*r.^5./(1-e*r.^2))/F);
+<span class="keyword">if</span> warning
+  maxImag = max(abs(imag(psi)));
+  <span class="keyword">if</span>  maxImag &gt; eps(<span class="string">'single'</span>)*100
+    disp([<span class="string">'Warning: significant nonzero imaginary part in psi ('</span><span class="keyword">...</span>
+      num2str(maxImag) <span class="string">') for W = '</span> num2str(W)])
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+psi = real(psi);
+</pre><h2>Get Jacobian matrix<a name="6"></a></h2><pre class="codeinput">J11 = a + 3*b1*r.^2 + e*b2*r.^4.*(5-3*e*r.^2)./(1-e*r.^2).^2;
+J12 = -F*sin(psi);
+J21 = F*sin(psi)./r.^2;
+J22 = -F*cos(psi)./r;
+delta = J11.*J22 - J12.*J21; <span class="comment">% determinant of Jacobian</span>
+tau = J11 + J22; <span class="comment">% trace of Jacobian</span>
+chDet = tau.^2 - 4*delta; <span class="comment">% determinant of characteristic eq</span>
+</pre><h2>Calculate stability type<a name="7"></a></h2><p>4 = stable node, 3 = stable spiral, 2 = unstable node, 1 = unstable spiral, 0 = saddle point</p><pre class="codeinput">stabType = 2*sign(delta) -1*sign(tau) + .5*sign(chDet) + .5;
+stabType(find(stabType &lt; 0)) = 0;
+stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable</span>
+</pre><h2>Prepare output<a name="8"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable fixed points</span>
+  rStar = r;
+  psiStar = psi;
+<span class="keyword">else</span> <span class="comment">% only stable fixed points</span>
+  indStab = find(stability);
+  rStar = r(indStab);
+  psiStar = psi(indStab);
+  stability = stability(indStab);
+  stabType = stabType(indStab);
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% rStarDriven11
+%   [rStar, psiStar, stability, stabType] = rStarDriven11(alpha, beta1, beta2, epsilon, forcing amplitude,Omega, All)
+%   
+%
+%  Finds r*, psi*, stability (1 or 0), and stability type (0-4) numerically
+%  for a canonical oscillator driven by a single sinusoidal input. Omega
+%  refers to the difference between the oscillator's natural frequency
+%  and the input frequency in radian.
+%  Set the optional input argument 'All' to 1 (or any nonzero value)
+%  to get both stable and unstable fixed points. (Default for All is 0,
+%  that is, rStarDriven11 outputs only stable fixed points.)
+%
+%  stability: 1 = stable, 0 = unstable
+%
+%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
+%  1 = unstable spiral, 0 = saddle point
+
+%% Equation
+% $$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega + 
+% \beta_1 |z|^2 + \frac{\epsilon\beta_2|z|^4}
+% {1-\epsilon |z|^2}\right) + Fe^{\textrm{i}\theta}$$
+%
+% where $z = re^{\textrm{i}\phi}, \psi = \phi - \theta,
+% \theta = \omega_0t + \theta_0,$ and $\Omega = \omega - \omega_0$
+
+function [rStar, psiStar, stability, stabType] = ...
+  rStarDriven11(a, b1, b2, e, F, W, All)
+
+warning = 0; % set to 1 to get warnings about the solutions
+
+
+
+%% Check input arguments
+if F <= 0
+  error('F must be positive')
+end
+if nargin < 7
+  All = 0; % default: output stable fixed points only
+end
+if b2 == 0 && e ~= 0
+  e = 0; % set epsilon = 0 when b2 = 0 to avoid problem in root finding
+end
+
+%% Find steady-state amplitudes numerically
+r = sqrt(roots([ (b1-b2)^2*e^2,...
+                  -2*(b1-b2)*(b1-a*e)*e,...
+                  b1^2-4*a*b1*e+(e*a^2+2*a*b2+e*W^2)*e,...
+                  -2*a^2*e+2*a*b1-(e*F^2+2*W^2)*e,...
+                  a^2+2*e*F^2+W^2,...
+                  -F^2]));
+r = r(find(abs(imag(r)) < eps('single'))); % take only real roots
+r = real(r);
+r = sort(unique(r),'descend'); % remove multiple roots
+if b2
+  r = r(find(r < 1/sqrt(e))); % take r's below the asymptote
+end
+
+%% Find corresponding relative phrases
+signPsi = (W >= 0)*2 - 1; % sign of psi
+psi = signPsi*acos(-(a*r + b1*r.^3 + b2*e*r.^5./(1-e*r.^2))/F);
+if warning
+  maxImag = max(abs(imag(psi)));
+  if  maxImag > eps('single')*100
+    disp(['Warning: significant nonzero imaginary part in psi ('...
+      num2str(maxImag) ') for W = ' num2str(W)])
+  end
+end
+psi = real(psi);
+
+%% Get Jacobian matrix
+J11 = a + 3*b1*r.^2 + e*b2*r.^4.*(5-3*e*r.^2)./(1-e*r.^2).^2;
+J12 = -F*sin(psi);
+J21 = F*sin(psi)./r.^2;
+J22 = -F*cos(psi)./r;
+delta = J11.*J22 - J12.*J21; % determinant of Jacobian
+tau = J11 + J22; % trace of Jacobian
+chDet = tau.^2 - 4*delta; % determinant of characteristic eq
+
+%% Calculate stability type
+% 4 = stable node, 3 = stable spiral, 2 = unstable node,
+% 1 = unstable spiral, 0 = saddle point
+stabType = 2*sign(delta) -1*sign(tau) + .5*sign(chDet) + .5;
+stabType(find(stabType < 0)) = 0;
+stability = (stabType >= 3); % 1 = stable, 0 = unstable
+
+%% Prepare output
+if All % both stable and unstable fixed points
+  rStar = r;
+  psiStar = psi;
+else % only stable fixed points
+  indStab = find(stability);
+  rStar = r(indStab);
+  psiStar = psi(indStab);
+  stability = stability(indStab);
+  stabType = stabType(indStab);
+end
+
+##### SOURCE END #####
+--></body></html>

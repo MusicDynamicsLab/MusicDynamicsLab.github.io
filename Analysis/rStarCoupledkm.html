@@ -1,0 +1,291 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>rStarCoupledkm</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="rStarCoupledkm.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>rStarCoupledkm</h1><!--introduction--><pre class="language-matlab">[r1Star, r2Star, psiStar, stability, stabType] = rStarCoupledkm(alpha, beta1, beta2, epsilon, coupling strength, Omega, k, m, All)
+</pre><pre>Finds r1*, r2*, psi*, stability (1 or 0), and stability type (0-4)
+numerically for two canonical oscillators coupled via nonlinear monomial
+for k:m mode-locking. rStarCoupledkmSym provides ONLY SYMMETRIC solutions
+(i.e., r1* = r2*). Omega = m*omega_1 - k*omega_2 is the deviation
+of the two natural frequencies from the exact integer relationship (k:m).
+Set the optional input argument 'All' to 1 (or any nonzero value)
+to get both stable and unstable fixed points. (Default for All is 0,
+that is, rStarCoupledkm outputs only stable fixed points.)</pre><pre>stability: 1 = stable, 0 = unstable</pre><pre>stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
+1 = unstable spiral, 0 = saddle point</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Equation</a></li><li><a href="#3">Check input arguments</a></li><li><a href="#4">Find symmetric steady-state amplitudes (r1 = r2 = r)</a></li><li><a href="#5">Find corresponding relative phases</a></li><li><a href="#6">Stability analysis using Jacobian matrix</a></li><li><a href="#7">Prepare output</a></li><li><a href="#8">Calculate Jacobian matrix</a></li></ul></div><h2>Equation<a name="1"></a></h2><p><img src="rStarCoupledkm_eq04818.png" alt="$$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +&#xA;\beta_1 |z_1|^2 + \frac{\epsilon\beta_2|z_1|^4}&#xA;{1-\epsilon |z_1|^2}\right) + \epsilon^\frac{k+m-2}{2}&#xA;cz_2^k \bar{z}_1^{m-1}$$"></p><p><img src="rStarCoupledkm_eq91218.png" alt="$$\frac{dz_2}{dt} = z_2\left(\alpha + \textrm{i}\omega_2 +&#xA;\beta_1 |z_2|^2 + \frac{\epsilon\beta_2|z_2|^4}&#xA;{1-\epsilon |z_2|^2}\right) + \epsilon^\frac{k+m-2}{2}&#xA;cz_1^m \bar{z}_2^{k-1}$$"></p><p>where <img src="rStarCoupledkm_eq40811.png" alt="$z_i = r_ie^{\textrm{i}\phi_i}, \psi = m\phi_1 - k\phi_2,$"> and <img src="rStarCoupledkm_eq34179.png" alt="$\Omega = m\omega_1 - k\omega_2$"></p><pre class="codeinput"><span class="keyword">function</span> [r1Star, r2Star, psiStar, stability, stabType] = <span class="keyword">...</span>
+  rStarCoupledkm(a, b1, b2, e, c, W, k, m, All)
+</pre><pre class="codeinput">warningOn = 0; <span class="comment">% Turn on the warning on nonreal psi*</span>
+</pre><h2>Check input arguments<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> nargin &lt; 9
+  All = 0; <span class="comment">% default: only stable points</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> b2 == 0 &amp;&amp; e ~= 0
+  e = 0;
+<span class="keyword">end</span>
+<span class="keyword">if</span> mod(k,1) || mod(m,1) || k &lt;= 0 || m &lt;= 0
+  error(<span class="string">'k and m must be positive integers'</span>)
+<span class="keyword">end</span>
+</pre><h2>Find symmetric steady-state amplitudes (r1 = r2 = r)<a name="4"></a></h2><pre class="codeinput">order = max(4,k+m);
+coeff = zeros(1,order+1);
+coeff(end-4:end) = [  e^2*(b2-b1)^2, <span class="keyword">...</span>
+                      2*e*(b2-b1)*(b1-a*e), <span class="keyword">...</span>
+                      b1^2+e*(2*a*b2-4*a*b1+a^2*e+e*(W/(k+m))^2), <span class="keyword">...</span>
+                      2*(a*b1-e*a^2-e*(W/(k+m))^2), <span class="keyword">...</span>
+                      a^2+(W/(k+m))^2 ];
+coeff(end-k-m:end-k-m+2) = coeff(end-k-m:end-k-m+2) + <span class="keyword">...</span>
+  [-c^2*e^(k+m), 2*c^2*e^(k+m-1), -c^2*e^(k+m-2)];
+r = sqrt(roots(coeff));
+r = r(find(abs(imag(r)) &lt; eps(<span class="string">'single'</span>))); <span class="comment">% take only real roots</span>
+r = real(r);
+r = r(find(r ~= 0));
+r = unique(r); <span class="comment">% remove multiple roots</span>
+r = r(find(r &lt; 1/sqrt(e))); <span class="comment">% take r's below the asymptote</span>
+r1 = r; r2 = r;
+</pre><h2>Find corresponding relative phases<a name="5"></a></h2><pre class="codeinput">signPsi = (W &gt;= 0)*2 - 1;
+psi = signPsi*acos(-(a*r1+b1*r1.^3+e*b2*r1.^5./(1-e*r1.^2))./ <span class="keyword">...</span>
+  (e^((k+m-2)/2)*c*r2.^k.*r1.^(m-1)));
+
+<span class="keyword">if</span> warningOn
+  maximag = max(abs(imag(psi)));
+  <span class="keyword">if</span>  maximag &gt; eps(<span class="string">'single'</span>)*100
+    disp([<span class="string">'Warning (rStarCoupledkmSym): significant nonzero imaginary '</span><span class="keyword">...</span>
+      <span class="string">'part in psi ('</span> num2str(maximag) <span class="string">') for W = '</span> num2str(W)])
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+psi = real(psi);
+</pre><h2>Stability analysis using Jacobian matrix<a name="6"></a></h2><pre class="codeinput">stabType = zeros(size(r1));
+<span class="keyword">for</span> n = 1:length(r1)
+  J = JacobianCoupledkm(a,b1,b2,e,c,k,m,r1(n),r2(n),psi(n));
+  ev = eig(J);
+  <span class="keyword">if</span> isreal(ev) &amp;&amp; all(ev &lt; 0)
+    stabType(n) = 4; <span class="comment">% stable node</span>
+  <span class="keyword">elseif</span> all(real(ev) &lt; 0)
+    stabType(n) = 3; <span class="comment">% stable spiral</span>
+  <span class="keyword">elseif</span> isreal(ev) &amp;&amp; all(ev &gt; 0)
+    stabType(n) = 2; <span class="comment">% unstable node</span>
+  <span class="keyword">elseif</span> all(real(ev) &gt; 0)
+    stabType(n) = 1; <span class="comment">% unstable spiral</span>
+  <span class="keyword">end</span> <span class="comment">% saddle pt otherwise</span>
+<span class="keyword">end</span>
+stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable</span>
+</pre><h2>Prepare output<a name="7"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable fixed points</span>
+  r1Star = r1;
+  r2Star = r2;
+  psiStar = psi;
+<span class="keyword">else</span> <span class="comment">% only stable solutions</span>
+  indStab = find(stability);
+  r1Star = r1(indStab);
+  r2Star = r2(indStab);
+  psiStar = psi(indStab);
+  stability = stability(indStab);
+  stabType = stabType(indStab);
+<span class="keyword">end</span>
+</pre><h2>Calculate Jacobian matrix<a name="8"></a></h2><pre class="codeinput"><span class="keyword">function</span> J = JacobianCoupledkm(a, b1, b2, e, c, k, m, r1, r2, psi)
+J = zeros(3);
+J(1,1) = a + 3*b1*r1^2 + e*b2*r1^4*(5-3*e*r1^2)/(1-e*r1^2)^2 + <span class="keyword">...</span>
+  (m-1)*e^((k+m-2)/2)*c*r2^k*r1^(m-2)*cos(psi);
+J(1,2) = k*e^((k+m-2)/2)*c*r2^(k-1)*r1^(m-1)*cos(psi);
+J(1,3) = -e^((k+m-2)/2)*c*r2^k*r1^(m-1)*sin(psi);
+J(2,1) = m*e^((k+m-2)/2)*c*r1^(m-1)*r2^(k-1)*cos(psi);
+J(2,2) = a + 3*b1*r2^2 + e*b2*r2^4*(5-3*e*r2^2)/(1-e*r2^2)^2 + <span class="keyword">...</span>
+  (k-1)*e^((k+m-2)/2)*c*r1^m*r2^(k-2)*cos(psi);
+J(2,3) = -e^((k+m-2)/2)*c*r1^m*r2^(k-1)*sin(psi);
+J(3,1) = -e^((k+m-2)/2)*c*(k*m*r1^(m-1)*r2^(k-2) + <span class="keyword">...</span>
+  m*(m-2)*r1^(m-3)*r2^k)*sin(psi);
+J(3,2) = -e^((k+m-2)/2)*c*(k*(k-2)*r1^m*r2^(k-3) + <span class="keyword">...</span>
+  k*m*r1^(m-2)*r2^(k-1))*sin(psi);
+J(3,3) = -e^((k+m-2)/2)*c*r1^(m-2)*r2^(k-2)*(k*r1^2 + m*r2^2)*cos(psi);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% rStarCoupledkm
+%   [r1Star, r2Star, psiStar, stability, stabType] = rStarCoupledkm(alpha, beta1, beta2, epsilon, coupling strength, Omega, k, m, All)
+%
+%  Finds r1*, r2*, psi*, stability (1 or 0), and stability type (0-4)
+%  numerically for two canonical oscillators coupled via nonlinear monomial
+%  for k:m mode-locking. rStarCoupledkmSym provides ONLY SYMMETRIC solutions
+%  (i.e., r1* = r2*). Omega = m*omega_1 - k*omega_2 is the deviation
+%  of the two natural frequencies from the exact integer relationship (k:m).
+%  Set the optional input argument 'All' to 1 (or any nonzero value)
+%  to get both stable and unstable fixed points. (Default for All is 0,
+%  that is, rStarCoupledkm outputs only stable fixed points.)
+%
+%  stability: 1 = stable, 0 = unstable
+%
+%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
+%  1 = unstable spiral, 0 = saddle point
+
+%% Equation
+% $$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +
+% \beta_1 |z_1|^2 + \frac{\epsilon\beta_2|z_1|^4}
+% {1-\epsilon |z_1|^2}\right) + \epsilon^\frac{k+m-2}{2}
+% cz_2^k \bar{z}_1^{m-1}$$
+% 
+% $$\frac{dz_2}{dt} = z_2\left(\alpha + \textrm{i}\omega_2 +
+% \beta_1 |z_2|^2 + \frac{\epsilon\beta_2|z_2|^4}
+% {1-\epsilon |z_2|^2}\right) + \epsilon^\frac{k+m-2}{2}
+% cz_1^m \bar{z}_2^{k-1}$$
+%
+% where $z_i = r_ie^{\textrm{i}\phi_i}, \psi = m\phi_1 - k\phi_2,$
+% and $\Omega = m\omega_1 - k\omega_2$
+
+function [r1Star, r2Star, psiStar, stability, stabType] = ...
+  rStarCoupledkm(a, b1, b2, e, c, W, k, m, All)
+
+warningOn = 0; % Turn on the warning on nonreal psi*
+
+
+
+%% Check input arguments
+if nargin < 9
+  All = 0; % default: only stable points
+end
+if b2 == 0 && e ~= 0
+  e = 0;
+end
+if mod(k,1) || mod(m,1) || k <= 0 || m <= 0
+  error('k and m must be positive integers')
+end
+
+%% Find symmetric steady-state amplitudes (r1 = r2 = r)
+order = max(4,k+m);
+coeff = zeros(1,order+1);
+coeff(end-4:end) = [  e^2*(b2-b1)^2, ...
+                      2*e*(b2-b1)*(b1-a*e), ...
+                      b1^2+e*(2*a*b2-4*a*b1+a^2*e+e*(W/(k+m))^2), ...
+                      2*(a*b1-e*a^2-e*(W/(k+m))^2), ...
+                      a^2+(W/(k+m))^2 ];
+coeff(end-k-m:end-k-m+2) = coeff(end-k-m:end-k-m+2) + ...
+  [-c^2*e^(k+m), 2*c^2*e^(k+m-1), -c^2*e^(k+m-2)];
+r = sqrt(roots(coeff));
+r = r(find(abs(imag(r)) < eps('single'))); % take only real roots
+r = real(r);
+r = r(find(r ~= 0));
+r = unique(r); % remove multiple roots
+r = r(find(r < 1/sqrt(e))); % take r's below the asymptote
+r1 = r; r2 = r;
+
+%% Find corresponding relative phases
+signPsi = (W >= 0)*2 - 1;
+psi = signPsi*acos(-(a*r1+b1*r1.^3+e*b2*r1.^5./(1-e*r1.^2))./ ...
+  (e^((k+m-2)/2)*c*r2.^k.*r1.^(m-1)));
+
+if warningOn
+  maximag = max(abs(imag(psi)));
+  if  maximag > eps('single')*100
+    disp(['Warning (rStarCoupledkmSym): significant nonzero imaginary '...
+      'part in psi (' num2str(maximag) ') for W = ' num2str(W)])
+  end
+end
+psi = real(psi);
+
+%% Stability analysis using Jacobian matrix
+stabType = zeros(size(r1));
+for n = 1:length(r1)
+  J = JacobianCoupledkm(a,b1,b2,e,c,k,m,r1(n),r2(n),psi(n));
+  ev = eig(J);
+  if isreal(ev) && all(ev < 0)
+    stabType(n) = 4; % stable node
+  elseif all(real(ev) < 0)
+    stabType(n) = 3; % stable spiral
+  elseif isreal(ev) && all(ev > 0)
+    stabType(n) = 2; % unstable node
+  elseif all(real(ev) > 0)
+    stabType(n) = 1; % unstable spiral
+  end % saddle pt otherwise
+end
+stability = (stabType >= 3); % 1 = stable, 0 = unstable
+
+%% Prepare output
+if All % both stable and unstable fixed points
+  r1Star = r1;
+  r2Star = r2;
+  psiStar = psi;
+else % only stable solutions
+  indStab = find(stability);
+  r1Star = r1(indStab);
+  r2Star = r2(indStab);
+  psiStar = psi(indStab);
+  stability = stability(indStab);
+  stabType = stabType(indStab);
+end
+
+%% Calculate Jacobian matrix
+function J = JacobianCoupledkm(a, b1, b2, e, c, k, m, r1, r2, psi)
+J = zeros(3);
+J(1,1) = a + 3*b1*r1^2 + e*b2*r1^4*(5-3*e*r1^2)/(1-e*r1^2)^2 + ...
+  (m-1)*e^((k+m-2)/2)*c*r2^k*r1^(m-2)*cos(psi);
+J(1,2) = k*e^((k+m-2)/2)*c*r2^(k-1)*r1^(m-1)*cos(psi);
+J(1,3) = -e^((k+m-2)/2)*c*r2^k*r1^(m-1)*sin(psi);
+J(2,1) = m*e^((k+m-2)/2)*c*r1^(m-1)*r2^(k-1)*cos(psi);
+J(2,2) = a + 3*b1*r2^2 + e*b2*r2^4*(5-3*e*r2^2)/(1-e*r2^2)^2 + ...
+  (k-1)*e^((k+m-2)/2)*c*r1^m*r2^(k-2)*cos(psi);
+J(2,3) = -e^((k+m-2)/2)*c*r1^m*r2^(k-1)*sin(psi);
+J(3,1) = -e^((k+m-2)/2)*c*(k*m*r1^(m-1)*r2^(k-2) + ...
+  m*(m-2)*r1^(m-3)*r2^k)*sin(psi);
+J(3,2) = -e^((k+m-2)/2)*c*(k*(k-2)*r1^m*r2^(k-3) + ...
+  k*m*r1^(m-2)*r2^(k-1))*sin(psi);
+J(3,3) = -e^((k+m-2)/2)*c*r1^(m-2)*r2^(k-2)*(k*r1^2 + m*r2^2)*cos(psi);
+
+##### SOURCE END #####
+--></body></html>

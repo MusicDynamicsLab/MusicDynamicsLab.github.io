@@ -1,0 +1,936 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>STIMULUSPARSER</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="stimulusParser.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>STIMULUSPARSER</h1><!--introduction--><p>Error checker and interpolator for all user inputs to stimulusMake. Not a standalone function.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#4">Time courses and frequencies</a></li><li><a href="#5">Initial phases</a></li><li><a href="#6">Carrier waveforms</a></li><li><a href="#7">Amplitudes</a></li><li><a href="#8">Check if correct number of values for each additional attribute</a></li><li><a href="#9">Ramp</a></li><li><a href="#10">Frequency modulator</a></li><li><a href="#11">Amplitude modulator</a></li><li><a href="#12">Mask noise</a></li><li><a href="#13">Filters</a></li><li><a href="#14">Delay-and-add iteration</a></li><li><a href="#16">revision history</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> s = stimulusParser(s, varargin)
+</pre><pre class="codeinput"><span class="keyword">if</span> strcmpi(s.type,<span class="string">'fcn'</span>)
+</pre><h2>Time courses and frequencies<a name="4"></a></h2><pre class="codeinput">    <span class="keyword">if</span> size(s.ts,1) &gt; 1 &amp;&amp; size(s.fc,1) == 1
+        s.fc = repmat(s.fc,size(s.ts,1),1);
+        <span class="comment">%     warning('Frequency or complex copied to all time courses since only one was specified')</span>
+    <span class="keyword">elseif</span> size(s.fc,1) &gt; size(s.ts,1)
+        error(<span class="string">'More frequency time courses specified than time courses'</span>)
+    <span class="keyword">elseif</span> size(s.fc,1) &lt; size(s.ts,1)
+        error(<span class="string">'Less frequency time courses specified than time courses'</span>)
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> ~iscell(s.fc), s.fc = num2cell(s.fc);<span class="keyword">end</span>
+</pre><h2>Initial phases<a name="5"></a></h2><pre class="codeinput">    s.Th = zeros(size(s.fc));
+
+    <span class="keyword">if</span> length(varargin) &gt; 5 &amp;&amp; ~ischar(varargin{6})
+        s.Th = varargin{6};     <span class="comment">%initial phases of components, written here if spec'd in varargin</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> numel(s.Th) == 1 &amp;&amp; numel(s.fc) ~= 1            <span class="comment">%commence error checking for sizes, # of attribute values, etc.</span>
+        s.Th = repmat(s.Th,size(s.fc,1),size(s.fc,2));
+        <span class="comment">%     warning('Initial phase copied to all components and/or time courses since only one was specified')</span>
+    <span class="keyword">elseif</span> size(s.Th,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.Th,2) == size(s.fc,2)
+        s.Th = repmat(s.Th,size(s.fc,1),1);
+        <span class="comment">%     warning('Initial phase(s) for each component copied to all time courses since only one was specified')</span>
+    <span class="keyword">elseif</span> size(s.Th,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.Th,1) == size(s.fc,1)
+        s.Th = repmat(s.Th,1,size(s.fc,2));
+        <span class="comment">%     warning('Initial phase for each time course copied to all components since only one was specified for each')</span>
+    <span class="keyword">elseif</span> size(s.Th,1) ~= size(s.fc,1)
+        error(<span class="string">'Must specify initial phase for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+    <span class="keyword">elseif</span> size(s.Th,2) ~= size(s.fc,2)
+        error(<span class="string">'Must specify initial phase for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+    <span class="keyword">end</span>
+</pre><h2>Carrier waveforms<a name="6"></a></h2><pre class="codeinput">    <span class="keyword">if</span> numel(s.carrier) == 1 &amp;&amp; numel(s.fc) ~= 1
+        s.carrier = repmat(s.carrier,size(s.fc,1),size(s.fc,2));
+        <span class="comment">%     warning('Carrier waveform copied to all components and/or time courses since only one was specified')</span>
+    <span class="keyword">elseif</span> size(s.carrier,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.carrier,2) == size(s.fc,2)
+        s.carrier = repmat(s.carrier,size(s.fc,1),1);
+        <span class="comment">%     warning('Carrier waveforms for components copied to all time courses since only one was specified')</span>
+    <span class="keyword">elseif</span> size(s.carrier,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.carrier,1) == size(s.fc,1)
+        s.carrier = repmat(s.carrier,1,size(s.fc,2));
+        <span class="comment">%     warning('Carrier waveform for each time course copied to all components since only one was specified for each')</span>
+    <span class="keyword">elseif</span> size(s.carrier,1) ~= size(s.fc,1)
+        error(<span class="string">'Must specify carrier waveform for every component of every timecourse, or input just a single one or a vector that will be copied'</span>)
+    <span class="keyword">elseif</span> size(s.carrier,2) ~= size(s.fc,2)
+        error(<span class="string">'Must specify carrier waveform for every component of every timecourse, or input just a single one or a vector that will be copied'</span>)
+    <span class="keyword">end</span>
+</pre><h2>Amplitudes<a name="7"></a></h2><pre class="codeinput">    <span class="keyword">if</span> numel(s.ac) == 1 &amp;&amp; numel(s.fc) ~= 1
+        s.ac = repmat(s.ac,size(s.fc,1),size(s.fc,2));
+        <span class="comment">%     warning('Amplitude copied to all components and/or time courses since only one was specified')</span>
+    <span class="keyword">elseif</span> size(s.ac,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.ac,2) == size(s.fc,2)
+        s.ac = repmat(s.ac,size(s.fc,1),1);
+        <span class="comment">%     warning('Amplitudes for components copied to all time courses since only one was specified')</span>
+    <span class="keyword">elseif</span> size(s.ac,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.ac,1) == size(s.fc,1)
+        s.ac = repmat(s.ac,1,size(s.fc,2));
+        <span class="comment">%     warning('Amplitude for each time course copied to all components since only one was specified for each')</span>
+    <span class="keyword">elseif</span> size(s.ac,1) ~= size(s.fc,1)
+        error(<span class="string">'Must specify amplitude for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+    <span class="keyword">elseif</span> size(s.ac,2) ~= size(s.fc,2)
+        error(<span class="string">'Must specify amplitude for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> ~iscell(s.ac), s.ac = num2cell(s.ac);<span class="keyword">end</span>
+</pre><h2>Check if correct number of values for each additional attribute<a name="8"></a></h2><pre class="codeinput">    <span class="keyword">for</span> i = 1:length(varargin)
+        <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'ramp'</span>)
+            <span class="keyword">if</span> length(varargin) &gt; i + 1 &amp;&amp; ~ischar(varargin{i+1}) &amp;&amp; ~ischar(varargin{i+2})
+                s.sc = varargin{i+1}; <span class="comment">%ramp time in ms of beginning and end of stim</span>
+                s.sp = varargin{i+2}; <span class="comment">%ramp strength exponent, ie, larger than 1, sudden onset, smaller than one, gradual</span>
+                <span class="keyword">if</span> length(varargin) &gt; i + 2 &amp;&amp; ~ischar(varargin{i+3})
+                    error(<span class="string">'Ramp takes two variables: Length in ms and exponent of curve'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                error(<span class="string">'Ramp takes two variables: Length in ms and exponent of curve'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'fm'</span>)
+            <span class="keyword">if</span> length(varargin) &gt; i + 2 &amp;&amp; ~ischar(varargin{i+1}) &amp;&amp; ~ischar(varargin{i+2}) &amp;&amp; ~ischar(varargin{i+3})
+                s.FM = varargin{i+1};      <span class="comment">% FM modulator waveforms</span>
+                s.fFM = varargin{i+2};     <span class="comment">% FM modulation frequencies</span>
+                s.aFM = varargin{i+3};     <span class="comment">% FM modulation amplitudes</span>
+                <span class="keyword">if</span> length(varargin) &gt; i + 3 &amp;&amp; ~ischar(varargin{i+4})
+                    error(<span class="string">'FM takes three variables: Waveform, frequency and amplitude (depth)'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                error(<span class="string">'FM takes three variables: Waveform, frequency and amplitude (depth)'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'am'</span>)
+            <span class="keyword">if</span> length(varargin) &gt; i + 3 &amp;&amp; ~ischar(varargin{i+1}) &amp;&amp; ~ischar(varargin{i+2})<span class="keyword">...</span>
+                    &amp;&amp; ~ischar(varargin{i+3}) &amp;&amp; ~ischar(varargin{i+4})
+                s.AM = varargin{i+1};      <span class="comment">% AM modulator waveforms</span>
+                s.fAM = varargin{i+2};     <span class="comment">% AM modulation frequencies</span>
+                s.aAM = varargin{i+3};     <span class="comment">% AM modulation depths</span>
+                s.CfreqsAM = varargin{i+4};<span class="comment">% ampl. of carrier freqs remaining in stim (0 to 1)</span>
+                <span class="keyword">if</span> length(varargin) &gt; i + 4 &amp;&amp; ~ischar(varargin{i+5})
+                    error(<span class="string">'AM takes four variables: Waveform, frequency, amplitude (depth) and ampl. of carrier in final wave'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                error(<span class="string">'AM takes four variables: Waveform, frequency, amplitude (depth) and ampl. of carrier in final wave'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'mask'</span>)
+            <span class="keyword">if</span> length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+                s.mask = varargin{i+1};
+                <span class="keyword">if</span> length(varargin) &gt; i + 1 &amp;&amp; ~ischar(varargin{i+2})
+                    error(<span class="string">'Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                error(<span class="string">'Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'iter'</span>)
+            <span class="keyword">if</span> length(varargin) &gt; i + 1 &amp;&amp; ~ischar(varargin{i+1}) &amp;&amp; ~ischar(varargin{i+2})
+                s.iter = varargin{i+1};
+                s.Niter = varargin{i+2};
+                <span class="keyword">if</span> length(varargin) &gt; i + 2 &amp;&amp; ~ischar(varargin{i+3})
+                    error(<span class="string">'Iter takes two variables: Length in ms of delay and number of iterations'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                error(<span class="string">'Iter takes two variables: Length in ms of delay and number of iterations'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'filtstim'</span>)
+            <span class="keyword">if</span> length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+                s.filtstim = varargin{i+1};
+                <span class="keyword">if</span> length(varargin) &gt; i + 1 &amp;&amp; ~ischar(varargin{i+2})
+                    error(<span class="string">'Filtstim takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                error(<span class="string">'Filtstim takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function'</span>)
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> size(s.filtstim,2) ~= 2
+                error(<span class="string">'Filtstim takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'filtmask'</span>)
+            <span class="keyword">if</span> length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+                s.filtmask = varargin{i+1};
+                <span class="keyword">if</span> length(varargin) &gt; i + 1 &amp;&amp; ~ischar(varargin{i+2})
+                    error(<span class="string">'Filtmask takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                error(<span class="string">'Filtmask takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function'</span>)
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> size(s.filtmask,2) ~= 2
+                error(<span class="string">'Filtmask takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'maskall'</span>)
+            <span class="keyword">if</span> length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+                s.maskall = varargin{i+1};
+                <span class="keyword">if</span> length(varargin) &gt; i + 1 &amp;&amp; ~ischar(varargin{i+2})
+                    error(<span class="string">'Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                error(<span class="string">'Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)'</span>)
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> numel(s.maskall) ~= 1
+                error(<span class="string">'Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'filtmaskall'</span>)
+            <span class="keyword">if</span> length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
+                s.filtmaskall = varargin{i+1};
+                <span class="keyword">if</span> length(varargin) &gt; i + 1 &amp;&amp; ~ischar(varargin{i+2})
+                    error(<span class="string">'Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function'</span>)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                error(<span class="string">'Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function'</span>)
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> numel(s.filtmaskall) ~= 2
+                error(<span class="string">'Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function'</span>)
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><h2>Ramp<a name="9"></a></h2><pre class="codeinput">    <span class="keyword">if</span> numel(s.sc) == 1 &amp;&amp; size(s.fc,1) ~= 1
+        s.sc = repmat(s.sc,size(s.fc,1),1);
+        <span class="comment">%     warning('Ramp time copied to all time courses since only one was specified')</span>
+    <span class="keyword">elseif</span> numel(s.sc) &gt; 1 &amp;&amp; size(s.fc,1) ~= numel(s.sc)
+        error(<span class="string">'Must specify ramp time for every timecourse, or input just a scalar that will be copied'</span>)
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> numel(s.sp) == 1 &amp;&amp; size(s.fc,1) ~= 1
+        s.sp = repmat(s.sp,size(s.fc,1),1);
+        <span class="comment">%     warning('Ramp exponent copied to all time courses since only one was specified')</span>
+    <span class="keyword">elseif</span> numel(s.sp) &gt; 1 &amp;&amp; size(s.fc,1) ~= numel(s.sp)
+        error(<span class="string">'Must specify ramp exponent for every timecourse, or input just a scalar that will be copied'</span>)
+    <span class="keyword">end</span>
+</pre><h2>Frequency modulator<a name="10"></a></h2><pre class="codeinput">    <span class="keyword">if</span> isfield(s, <span class="string">'FM'</span>)
+        <span class="keyword">if</span> numel(s.fFM) == 1 &amp;&amp; numel(s.fc) ~= 1
+            s.fFM = repmat(s.fFM,size(s.fc,1),size(s.fc,2));
+            <span class="comment">%         warning('FM freq copied to all components and/or time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.fFM,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.fFM,2) == size(s.fc,2)
+            s.fFM = repmat(s.fFM,size(s.fc,1),1);
+            <span class="comment">%         warning('FM freqs for each component copied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.fFM,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.fFM,1) == size(s.fc,1)
+            s.fFM = repmat(s.fFM,1,size(s.fc,2));
+            <span class="comment">%         warning('FM freq for each time course copied to all components since only one was specified for each')</span>
+        <span class="keyword">elseif</span> size(s.fFM,1) ~= size(s.fc,1)
+            error(<span class="string">'Must specify FM freq for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">elseif</span> size(s.fFM,2) ~= size(s.fc,2)
+            error(<span class="string">'Must specify FM freq for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> ~iscell(s.fFM), s.fFM = num2cell(s.fFM);<span class="keyword">end</span>
+
+        <span class="keyword">if</span> numel(s.FM) == 1 &amp;&amp; numel(s.fc) ~= 1
+            s.FM = repmat(s.FM,size(s.fc,1),size(s.fc,2));
+            <span class="comment">%         warning('FM waveform copied to all components and/or time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.FM,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.FM,2) == size(s.fc,2)
+            s.FM = repmat(s.FM,size(s.fc,1),1);
+            <span class="comment">%         warning('FM waveforms for each component copied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.FM,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.FM,1) == size(s.fc,1)
+            s.FM = repmat(s.FM,1,size(s.fc,2));
+            <span class="comment">%         warning('FM waveform for each time course copied to all components since only one was specified for each')</span>
+        <span class="keyword">elseif</span> size(s.FM,1) ~= size(s.fc,1)
+            error(<span class="string">'Must specify FM waveform for every component of every timecourse, or input just a single one or a vector that will be copied'</span>)
+        <span class="keyword">elseif</span> size(s.FM,2) ~= size(s.fc,2)
+            error(<span class="string">'Must specify FM waveform for every component of every timecourse, or input just a single one or a vector that will be copied'</span>)
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> numel(s.aFM) == 1 &amp;&amp; numel(s.fc) ~= 1
+            s.aFM = repmat(s.aFM,size(s.fc,1),size(s.fc,2));
+            <span class="comment">%         warning('FM amplitude copied to all components and/or time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.aFM,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.aFM,2) == size(s.fc,2)
+            s.aFM = repmat(s.aFM,size(s.fc,1),1);
+            <span class="comment">%         warning('FM amplitudes for each component copied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.aFM,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.aFM,1) == size(s.fc,1)
+            s.aFM = repmat(s.aFM,1,size(s.fc,2));
+            <span class="comment">%         warning('FM amplitude for each time course copied to all components since only one was specified for each')</span>
+        <span class="keyword">elseif</span> size(s.aFM,1) ~= size(s.fc,1)
+            error(<span class="string">'Must specify FM amplitude for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">elseif</span> size(s.aFM,2) ~= size(s.fc,2)
+            error(<span class="string">'Must specify FM amplitude for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> ~iscell(s.aFM), s.aFM = num2cell(s.aFM);<span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><h2>Amplitude modulator<a name="11"></a></h2><pre class="codeinput">    <span class="keyword">if</span> isfield(s, <span class="string">'AM'</span>)
+        <span class="keyword">if</span> numel(s.fAM) == 1 &amp;&amp; numel(s.fc) ~= 1
+            s.fAM = repmat(s.fAM,size(s.fc,1),size(s.fc,2));
+            <span class="comment">%         warning('AM freq copied to all components and/or time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.fAM,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.fc,2) == size(s.fAM,2)
+            s.fAM = repmat(s.fAM,size(s.fc,1),1);
+            <span class="comment">%         warning('AM freqs for each component copied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.fAM,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.fc,1) == size(s.fAM,1)
+            s.fAM = repmat(s.fAM,1,size(s.fc,2));
+            <span class="comment">%         warning('AM freq for each time course copied to all components since only one was specified for each')</span>
+        <span class="keyword">elseif</span> size(s.fAM,1) ~= size(s.fc,1)
+            error(<span class="string">'Must specify AM freq for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">elseif</span> size(s.fAM,2) ~= size(s.fc,2)
+            error(<span class="string">'Must specify AM freq for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> ~iscell(s.fAM), s.fAM = num2cell(s.fAM);<span class="keyword">end</span>
+
+        <span class="keyword">if</span> numel(s.AM) == 1 &amp;&amp; numel(s.fc) ~= 1
+            s.AM = repmat(s.AM,size(s.fc,1),size(s.fc,2));
+            <span class="comment">%         warning('AM waveform copied to all components and/or time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.AM,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.AM,2) == size(s.fc,2)
+            s.AM = repmat(s.AM,size(s.fc,1),1);
+            <span class="comment">%         warning('AM waveforms for each component copied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.AM,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.AM,1) == size(s.fc,1)
+            s.AM = repmat(s.AM,1,size(s.fc,2));
+            <span class="comment">%         warning('AM waveform for each time course copied to all components since only one was specified for each')</span>
+        <span class="keyword">elseif</span> size(s.AM,1) ~= size(s.fc,1)
+            error(<span class="string">'Must specify AM waveform for every component of every timecourse, or input just a single one or a vector that will be copied'</span>)
+        <span class="keyword">elseif</span> size(s.AM,2) ~= size(s.fc,2)
+            error(<span class="string">'Must specify AM waveform for every component of every timecourse, or input just a single one or a vector that will be copied'</span>)
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> numel(s.aAM) == 1 &amp;&amp; numel(s.fc) ~= 1
+            s.aAM = repmat(s.aAM,size(s.fc,1),size(s.fc,2));
+            <span class="comment">%         warning('AM amplitude copied to all components and/or time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.aAM,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.aAM,2) == size(s.fc,2)
+            s.aAM = repmat(s.aAM,size(s.fc,1),1);
+            <span class="comment">%         warning('AM amplitudes for each component copied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.aAM,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.aAM,1) == size(s.fc,1)
+            s.aAM = repmat(s.aAM,1,size(s.fc,2));
+            <span class="comment">%         warning('AM amplitude for each time course copied to all components since only one was specified for each')</span>
+        <span class="keyword">elseif</span> size(s.aAM,1) ~= size(s.fc,1)
+            error(<span class="string">'Must specify AM amplitude for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">elseif</span> size(s.aAM,2) ~= size(s.fc,2)
+            error(<span class="string">'Must specify AM amplitude for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> ~iscell(s.aAM), s.aAM = num2cell(s.aAM);<span class="keyword">end</span>
+
+        <span class="keyword">if</span> numel(s.CfreqsAM) == 1 &amp;&amp; numel(s.fc) ~= 1
+            s.CfreqsAM = repmat(s.CfreqsAM,size(s.fc,1),size(s.fc,2));
+            <span class="comment">%         warning('AM carrier amplitude copied to all components and/or time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.CfreqsAM,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.CfreqsAM,2) == size(s.fc,2)
+            s.CfreqsAM = repmat(s.CfreqsAM,size(s.fc,1),1);
+            <span class="comment">%         warning('AM carrier amplitudes for each component copied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.CfreqsAM,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.CfreqsAM,1) == size(s.fc,1)
+            s.CfreqsAM = repmat(s.CfreqsAM,1,size(s.fc,2));
+            <span class="comment">%         warning('AM carrier amplitude for each time course copied to all components since only one was specified for each')</span>
+        <span class="keyword">elseif</span> size(s.CfreqsAM,1) ~= size(s.fc,1)
+            error(<span class="string">'Must specify AM carrier amplitude for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">elseif</span> size(s.CfreqsAM,2) ~= size(s.fc,2)
+            error(<span class="string">'Must specify AM carrier amplitude for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><h2>Mask noise<a name="12"></a></h2><pre class="codeinput">    <span class="keyword">if</span> isfield(s, <span class="string">'mask'</span>)
+        <span class="keyword">if</span> size(s.mask,1) ~= 1 &amp;&amp; size(s.mask,2) ~= 1
+            error(<span class="string">'Mask noise must be a scalar applying to every time course or a length(# time courses) vector with values corresponding to each time course'</span>)
+        <span class="keyword">elseif</span> size(s.mask,2) == 1 &amp;&amp; size(s.mask,1) == size(s.fc,1) &amp;&amp; numel(s.mask) ~= 1
+            s.mask = s.mask';
+        <span class="keyword">elseif</span> size(s.mask,1) == 1 &amp;&amp; size(s.mask,2) ~= size(s.fc,1) &amp;&amp; numel(s.mask) ~= 1
+            error(<span class="string">'Mask noise must be a scalar applying to every time course or a length(# time courses) vector with values corresponding to each time course'</span>)
+        <span class="keyword">elseif</span> numel(s.mask) == 1
+            s.mask = repmat(s.mask,1,size(s.fc,1));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><h2>Filters<a name="13"></a></h2><pre class="codeinput">    <span class="keyword">if</span> isfield(s, <span class="string">'filtstim'</span>)
+        <span class="keyword">if</span> size(s.filtstim,1) == 1 &amp;&amp; size(s.fc,1) ~= 1
+            s.filtstim = repmat(s.filtstim,size(s.fc,1),1);
+            <span class="comment">%         warning('Stimulus filter applied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.filtstim,1) ~= size(s.fc,1)
+            error(<span class="string">'Number of stimulus filters must equal number of time courses, or input just one that will be copied'</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> isfield(s, <span class="string">'filtmask'</span>)
+        <span class="keyword">if</span> size(s.filtmask,1) == 1 &amp;&amp; size(s.fc,1) ~= 1
+            s.filtmask = repmat(s.filtmask,size(s.fc,1),1);
+            <span class="comment">%         warning('Mask noise filter applied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.filtmask,1) ~= size(s.fc,1)
+            error(<span class="string">'Number of mask noise filters must equal number of time courses, or input just one that will be copied'</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><h2>Delay-and-add iteration<a name="14"></a></h2><pre class="codeinput">    <span class="keyword">if</span> isfield(s, <span class="string">'iter'</span>)
+        <span class="keyword">if</span> numel(s.iter) == 1 &amp;&amp; numel(s.fc) ~= 1
+            s.iter = repmat(s.iter,size(s.fc,1),size(s.fc,2));
+            <span class="comment">%         warning('Delay-Add interval copied to all components and/or time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.iter,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.iter,2) == size(s.fc,2)
+            s.iter = repmat(s.iter,size(s.fc,2),1);
+            <span class="comment">%         warning('Delay-Add intervals for each component copied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.iter,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.iter,1) == size(s.fc,1)
+            s.iter = repmat(s.iter,1,size(s.fc,2));
+            <span class="comment">%         warning('Delay-Add interval for each time course copied to all components since only one was specified for each')</span>
+        <span class="keyword">elseif</span> size(s.iter,1) ~= size(s.fc,1)
+            error(<span class="string">'Must specify Delay-Add interval for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">elseif</span> size(s.iter,2) ~= size(s.fc,2)
+            error(<span class="string">'Must specify Delay-Add interval for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> numel(s.Niter) == 1 &amp;&amp; numel(s.fc) ~= 1
+            s.Niter = repmat(s.Niter,size(s.fc,1),size(s.fc,2));
+            <span class="comment">%         warning('Number of delay iterations copied to all components and/or time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.Niter,1) == 1 &amp;&amp; size(s.fc,1) &gt; 1 &amp;&amp; size(s.Niter,2) == size(s.fc,2)
+            s.Niter = repmat(s.Niter,size(s.fc,1),1);
+            <span class="comment">%         warning('Numbers of delay iterations for each component copied to all time courses since only one was specified')</span>
+        <span class="keyword">elseif</span> size(s.Niter,2) == 1 &amp;&amp; size(s.fc,2) &gt; 1 &amp;&amp; size(s.Niter,1) == size(s.fc,1)
+            s.Niter = repmat(s.Niter,1,size(s.fc,2));
+            <span class="comment">%         warning('Number of delay iterations for each time course copied to all components since only one was specified for each')</span>
+        <span class="keyword">elseif</span> size(s.Niter,1) ~= size(s.fc,1)
+            error(<span class="string">'Must specify number of delay iterations for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">elseif</span> size(s.Niter,2) ~= size(s.fc,2)
+            error(<span class="string">'Must specify number of delay iterations for every component of every timecourse, or input just a scalar or vector that will be copied'</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">elseif</span> strcmpi(s.type,<span class="string">'wav'</span>)
+
+    s0 = 1;
+    sf = length(s.x);
+    s.ts = [s0 sf]/s.fs;
+
+    <span class="keyword">for</span> i = 1:length(varargin)
+        <span class="keyword">if</span> isstr(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'ste'</span>)
+            <span class="keyword">if</span> size(s.x,2) == 1                            <span class="comment">% Expand to stereo if mono</span>
+                s.x = [s.x s.x];
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> isstr(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'mon'</span>)
+            <span class="keyword">if</span> size(s.x,2) == 2
+                s.x = sum(s.x,2) / size(s.x,2);            <span class="comment">% Contract to mono if stereo</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">for</span> i = 1:length(varargin)
+        <span class="keyword">if</span> isstr(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'ts'</span>)
+            s.ts = varargin{i+1};
+            s0 = round(s.ts(  1)*s.fs+1); <span class="comment">%MGS - 6/28/09 Added round(...) to allow non-integer time spans</span>
+            sf = round(s.ts(end)*s.fs);   <span class="comment">%MGS - 6/28/09 Added round(...) to allow non-integer time spans</span>
+            s.x  = s.x(s0:sf,:);                           <span class="comment">% Take only specified time span</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> isstr(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'fs'</span>)
+            fs = varargin{i+1};
+            s.x = resample(s.x, fs, s.fs);
+            s.fs = fs;                                     <span class="comment">% Resample at specified sample rate</span>
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> isstr(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'gam'</span>)
+            mincf     = varargin{i+1};
+            maxcf     = varargin{i+2};
+            numChans  = varargin{i+3};
+            cfs       = MakeErbCFs(mincf,maxcf,numChans);
+            temp      = zeros(size(s.x,1),size(s.x,2) * numChans);
+            <span class="keyword">for</span> j = 1:size(s.x,2)                          <span class="comment">% Split up each channel of stim into specified number of cochlear channels</span>
+                [~,env] = gammatoneFast(s.x(:,j),cfs,s.fs);
+                index = (numChans * (j - 1) + 1):numChans * j;
+                temp(:,index) = env;                       <span class="comment">% Take only the Hilbert envelope of each channel</span>
+            <span class="keyword">end</span>
+            s.x = temp;
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">for</span> i = 1:length(varargin)
+        <span class="keyword">if</span> isstr(varargin{i}) &amp;&amp; strcmpi(varargin{i},<span class="string">'ramp'</span>)
+            s.sc = varargin{i+1};
+            s.sp = varargin{i+2};
+            s.x  = stimulusRamp(s.x,s.sc,s.sp,s.fs);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><h2>revision history<a name="16"></a></h2><p>KDL - 1/30/14 - Commenting out all warnings</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% STIMULUSPARSER
+% Error checker and interpolator for all user inputs to stimulusMake. Not a standalone function.
+%
+
+%%
+function s = stimulusParser(s, varargin)
+
+if strcmpi(s.type,'fcn')
+    
+    %% Time courses and frequencies
+    
+    if size(s.ts,1) > 1 && size(s.fc,1) == 1
+        s.fc = repmat(s.fc,size(s.ts,1),1);
+        %     warning('Frequency or complex copied to all time courses since only one was specified')
+    elseif size(s.fc,1) > size(s.ts,1)
+        error('More frequency time courses specified than time courses')
+    elseif size(s.fc,1) < size(s.ts,1)
+        error('Less frequency time courses specified than time courses')
+    end
+    if ~iscell(s.fc), s.fc = num2cell(s.fc);end
+    
+    %% Initial phases
+    
+    s.Th = zeros(size(s.fc));
+    
+    if length(varargin) > 5 && ~ischar(varargin{6})
+        s.Th = varargin{6};     %initial phases of components, written here if spec'd in varargin
+    end
+    
+    if numel(s.Th) == 1 && numel(s.fc) ~= 1            %commence error checking for sizes, # of attribute values, etc.
+        s.Th = repmat(s.Th,size(s.fc,1),size(s.fc,2));
+        %     warning('Initial phase copied to all components and/or time courses since only one was specified')
+    elseif size(s.Th,1) == 1 && size(s.fc,1) > 1 && size(s.Th,2) == size(s.fc,2)
+        s.Th = repmat(s.Th,size(s.fc,1),1);
+        %     warning('Initial phase(s) for each component copied to all time courses since only one was specified')
+    elseif size(s.Th,2) == 1 && size(s.fc,2) > 1 && size(s.Th,1) == size(s.fc,1)
+        s.Th = repmat(s.Th,1,size(s.fc,2));
+        %     warning('Initial phase for each time course copied to all components since only one was specified for each')
+    elseif size(s.Th,1) ~= size(s.fc,1)
+        error('Must specify initial phase for every component of every timecourse, or input just a scalar or vector that will be copied')
+    elseif size(s.Th,2) ~= size(s.fc,2)
+        error('Must specify initial phase for every component of every timecourse, or input just a scalar or vector that will be copied')
+    end
+    
+    %% Carrier waveforms
+    
+    if numel(s.carrier) == 1 && numel(s.fc) ~= 1
+        s.carrier = repmat(s.carrier,size(s.fc,1),size(s.fc,2));
+        %     warning('Carrier waveform copied to all components and/or time courses since only one was specified')
+    elseif size(s.carrier,1) == 1 && size(s.fc,1) > 1 && size(s.carrier,2) == size(s.fc,2)
+        s.carrier = repmat(s.carrier,size(s.fc,1),1);
+        %     warning('Carrier waveforms for components copied to all time courses since only one was specified')
+    elseif size(s.carrier,2) == 1 && size(s.fc,2) > 1 && size(s.carrier,1) == size(s.fc,1)
+        s.carrier = repmat(s.carrier,1,size(s.fc,2));
+        %     warning('Carrier waveform for each time course copied to all components since only one was specified for each')
+    elseif size(s.carrier,1) ~= size(s.fc,1)
+        error('Must specify carrier waveform for every component of every timecourse, or input just a single one or a vector that will be copied')
+    elseif size(s.carrier,2) ~= size(s.fc,2)
+        error('Must specify carrier waveform for every component of every timecourse, or input just a single one or a vector that will be copied')
+    end
+    
+    %% Amplitudes
+    
+    if numel(s.ac) == 1 && numel(s.fc) ~= 1
+        s.ac = repmat(s.ac,size(s.fc,1),size(s.fc,2));
+        %     warning('Amplitude copied to all components and/or time courses since only one was specified')
+    elseif size(s.ac,1) == 1 && size(s.fc,1) > 1 && size(s.ac,2) == size(s.fc,2)
+        s.ac = repmat(s.ac,size(s.fc,1),1);
+        %     warning('Amplitudes for components copied to all time courses since only one was specified')
+    elseif size(s.ac,2) == 1 && size(s.fc,2) > 1 && size(s.ac,1) == size(s.fc,1)
+        s.ac = repmat(s.ac,1,size(s.fc,2));
+        %     warning('Amplitude for each time course copied to all components since only one was specified for each')
+    elseif size(s.ac,1) ~= size(s.fc,1)
+        error('Must specify amplitude for every component of every timecourse, or input just a scalar or vector that will be copied')
+    elseif size(s.ac,2) ~= size(s.fc,2)
+        error('Must specify amplitude for every component of every timecourse, or input just a scalar or vector that will be copied')
+    end
+    if ~iscell(s.ac), s.ac = num2cell(s.ac);end
+    
+    %% Check if correct number of values for each additional attribute
+    
+    for i = 1:length(varargin)
+        if strcmpi(varargin{i},'ramp')
+            if length(varargin) > i + 1 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2})
+                s.sc = varargin{i+1}; %ramp time in ms of beginning and end of stim
+                s.sp = varargin{i+2}; %ramp strength exponent, ie, larger than 1, sudden onset, smaller than one, gradual
+                if length(varargin) > i + 2 && ~ischar(varargin{i+3})
+                    error('Ramp takes two variables: Length in ms and exponent of curve')
+                end
+            else
+                error('Ramp takes two variables: Length in ms and exponent of curve')
+            end
+        end
+        if strcmpi(varargin{i},'fm')
+            if length(varargin) > i + 2 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3})
+                s.FM = varargin{i+1};      % FM modulator waveforms
+                s.fFM = varargin{i+2};     % FM modulation frequencies
+                s.aFM = varargin{i+3};     % FM modulation amplitudes
+                if length(varargin) > i + 3 && ~ischar(varargin{i+4})
+                    error('FM takes three variables: Waveform, frequency and amplitude (depth)')
+                end
+            else
+                error('FM takes three variables: Waveform, frequency and amplitude (depth)')
+            end
+        end
+        if strcmpi(varargin{i},'am')
+            if length(varargin) > i + 3 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2})...
+                    && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4})
+                s.AM = varargin{i+1};      % AM modulator waveforms
+                s.fAM = varargin{i+2};     % AM modulation frequencies
+                s.aAM = varargin{i+3};     % AM modulation depths
+                s.CfreqsAM = varargin{i+4};% ampl. of carrier freqs remaining in stim (0 to 1)
+                if length(varargin) > i + 4 && ~ischar(varargin{i+5})
+                    error('AM takes four variables: Waveform, frequency, amplitude (depth) and ampl. of carrier in final wave')
+                end
+            else
+                error('AM takes four variables: Waveform, frequency, amplitude (depth) and ampl. of carrier in final wave')
+            end
+        end
+        if strcmpi(varargin{i},'mask')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.mask = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)')
+                end
+            else
+                error('Noise (for masking stim time course(s)) takes one variable: Signal-to-noise ratio (in dB)')
+            end
+        end
+        if strcmpi(varargin{i},'iter')
+            if length(varargin) > i + 1 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2})
+                s.iter = varargin{i+1};
+                s.Niter = varargin{i+2};
+                if length(varargin) > i + 2 && ~ischar(varargin{i+3})
+                    error('Iter takes two variables: Length in ms of delay and number of iterations')
+                end
+            else
+                error('Iter takes two variables: Length in ms of delay and number of iterations')
+            end
+        end
+        if strcmpi(varargin{i},'filtstim')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.filtstim = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Filtstim takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+                end
+            else
+                error('Filtstim takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+            end
+            if size(s.filtstim,2) ~= 2
+                error('Filtstim takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+            end
+        end
+        if strcmpi(varargin{i},'filtmask')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.filtmask = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Filtmask takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+                end
+            else
+                error('Filtmask takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+            end
+            if size(s.filtmask,2) ~= 2
+                error('Filtmask takes one variable: An m-by-2 array, m is # of time courses, each row is vector inputs b and a to filter() function')
+            end
+        end
+        if strcmpi(varargin{i},'maskall')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.maskall = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+                end
+            else
+                error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+            end
+            if numel(s.maskall) ~= 1
+                error('Maskall takes one scalar variable: Average signal-to-noise ratio (in dB)')
+            end
+        end
+        if strcmpi(varargin{i},'filtmaskall')
+            if length(varargin) > i && ~ischar(varargin{i+1})
+                s.filtmaskall = varargin{i+1};
+                if length(varargin) > i + 1 && ~ischar(varargin{i+2})
+                    error('Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function')
+                end
+            else
+                error('Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function')
+            end
+            if numel(s.filtmaskall) ~= 2
+                error('Filtmaskall takes one variable: A 1-by-2 array, b and a, vectors to filter() function')
+            end
+        end
+    end
+    
+    %% Ramp
+    
+    if numel(s.sc) == 1 && size(s.fc,1) ~= 1
+        s.sc = repmat(s.sc,size(s.fc,1),1);
+        %     warning('Ramp time copied to all time courses since only one was specified')
+    elseif numel(s.sc) > 1 && size(s.fc,1) ~= numel(s.sc)
+        error('Must specify ramp time for every timecourse, or input just a scalar that will be copied')
+    end
+    
+    if numel(s.sp) == 1 && size(s.fc,1) ~= 1
+        s.sp = repmat(s.sp,size(s.fc,1),1);
+        %     warning('Ramp exponent copied to all time courses since only one was specified')
+    elseif numel(s.sp) > 1 && size(s.fc,1) ~= numel(s.sp)
+        error('Must specify ramp exponent for every timecourse, or input just a scalar that will be copied')
+    end
+    
+    %% Frequency modulator
+    
+    if isfield(s, 'FM')
+        if numel(s.fFM) == 1 && numel(s.fc) ~= 1
+            s.fFM = repmat(s.fFM,size(s.fc,1),size(s.fc,2));
+            %         warning('FM freq copied to all components and/or time courses since only one was specified')
+        elseif size(s.fFM,1) == 1 && size(s.fc,1) > 1 && size(s.fFM,2) == size(s.fc,2)
+            s.fFM = repmat(s.fFM,size(s.fc,1),1);
+            %         warning('FM freqs for each component copied to all time courses since only one was specified')
+        elseif size(s.fFM,2) == 1 && size(s.fc,2) > 1 && size(s.fFM,1) == size(s.fc,1)
+            s.fFM = repmat(s.fFM,1,size(s.fc,2));
+            %         warning('FM freq for each time course copied to all components since only one was specified for each')
+        elseif size(s.fFM,1) ~= size(s.fc,1)
+            error('Must specify FM freq for every component of every timecourse, or input just a scalar or vector that will be copied')
+        elseif size(s.fFM,2) ~= size(s.fc,2)
+            error('Must specify FM freq for every component of every timecourse, or input just a scalar or vector that will be copied')
+        end
+        if ~iscell(s.fFM), s.fFM = num2cell(s.fFM);end
+        
+        if numel(s.FM) == 1 && numel(s.fc) ~= 1
+            s.FM = repmat(s.FM,size(s.fc,1),size(s.fc,2));
+            %         warning('FM waveform copied to all components and/or time courses since only one was specified')
+        elseif size(s.FM,1) == 1 && size(s.fc,1) > 1 && size(s.FM,2) == size(s.fc,2)
+            s.FM = repmat(s.FM,size(s.fc,1),1);
+            %         warning('FM waveforms for each component copied to all time courses since only one was specified')
+        elseif size(s.FM,2) == 1 && size(s.fc,2) > 1 && size(s.FM,1) == size(s.fc,1)
+            s.FM = repmat(s.FM,1,size(s.fc,2));
+            %         warning('FM waveform for each time course copied to all components since only one was specified for each')
+        elseif size(s.FM,1) ~= size(s.fc,1)
+            error('Must specify FM waveform for every component of every timecourse, or input just a single one or a vector that will be copied')
+        elseif size(s.FM,2) ~= size(s.fc,2)
+            error('Must specify FM waveform for every component of every timecourse, or input just a single one or a vector that will be copied')
+        end
+        
+        if numel(s.aFM) == 1 && numel(s.fc) ~= 1
+            s.aFM = repmat(s.aFM,size(s.fc,1),size(s.fc,2));
+            %         warning('FM amplitude copied to all components and/or time courses since only one was specified')
+        elseif size(s.aFM,1) == 1 && size(s.fc,1) > 1 && size(s.aFM,2) == size(s.fc,2)
+            s.aFM = repmat(s.aFM,size(s.fc,1),1);
+            %         warning('FM amplitudes for each component copied to all time courses since only one was specified')
+        elseif size(s.aFM,2) == 1 && size(s.fc,2) > 1 && size(s.aFM,1) == size(s.fc,1)
+            s.aFM = repmat(s.aFM,1,size(s.fc,2));
+            %         warning('FM amplitude for each time course copied to all components since only one was specified for each')
+        elseif size(s.aFM,1) ~= size(s.fc,1)
+            error('Must specify FM amplitude for every component of every timecourse, or input just a scalar or vector that will be copied')
+        elseif size(s.aFM,2) ~= size(s.fc,2)
+            error('Must specify FM amplitude for every component of every timecourse, or input just a scalar or vector that will be copied')
+        end
+        if ~iscell(s.aFM), s.aFM = num2cell(s.aFM);end
+    end
+    
+    %% Amplitude modulator
+    
+    if isfield(s, 'AM')
+        if numel(s.fAM) == 1 && numel(s.fc) ~= 1
+            s.fAM = repmat(s.fAM,size(s.fc,1),size(s.fc,2));
+            %         warning('AM freq copied to all components and/or time courses since only one was specified')
+        elseif size(s.fAM,1) == 1 && size(s.fc,1) > 1 && size(s.fc,2) == size(s.fAM,2)
+            s.fAM = repmat(s.fAM,size(s.fc,1),1);
+            %         warning('AM freqs for each component copied to all time courses since only one was specified')
+        elseif size(s.fAM,2) == 1 && size(s.fc,2) > 1 && size(s.fc,1) == size(s.fAM,1)
+            s.fAM = repmat(s.fAM,1,size(s.fc,2));
+            %         warning('AM freq for each time course copied to all components since only one was specified for each')
+        elseif size(s.fAM,1) ~= size(s.fc,1)
+            error('Must specify AM freq for every component of every timecourse, or input just a scalar or vector that will be copied')
+        elseif size(s.fAM,2) ~= size(s.fc,2)
+            error('Must specify AM freq for every component of every timecourse, or input just a scalar or vector that will be copied')
+        end
+        if ~iscell(s.fAM), s.fAM = num2cell(s.fAM);end
+        
+        if numel(s.AM) == 1 && numel(s.fc) ~= 1
+            s.AM = repmat(s.AM,size(s.fc,1),size(s.fc,2));
+            %         warning('AM waveform copied to all components and/or time courses since only one was specified')
+        elseif size(s.AM,1) == 1 && size(s.fc,1) > 1 && size(s.AM,2) == size(s.fc,2)
+            s.AM = repmat(s.AM,size(s.fc,1),1);
+            %         warning('AM waveforms for each component copied to all time courses since only one was specified')
+        elseif size(s.AM,2) == 1 && size(s.fc,2) > 1 && size(s.AM,1) == size(s.fc,1)
+            s.AM = repmat(s.AM,1,size(s.fc,2));
+            %         warning('AM waveform for each time course copied to all components since only one was specified for each')
+        elseif size(s.AM,1) ~= size(s.fc,1)
+            error('Must specify AM waveform for every component of every timecourse, or input just a single one or a vector that will be copied')
+        elseif size(s.AM,2) ~= size(s.fc,2)
+            error('Must specify AM waveform for every component of every timecourse, or input just a single one or a vector that will be copied')
+        end
+        
+        if numel(s.aAM) == 1 && numel(s.fc) ~= 1
+            s.aAM = repmat(s.aAM,size(s.fc,1),size(s.fc,2));
+            %         warning('AM amplitude copied to all components and/or time courses since only one was specified')
+        elseif size(s.aAM,1) == 1 && size(s.fc,1) > 1 && size(s.aAM,2) == size(s.fc,2)
+            s.aAM = repmat(s.aAM,size(s.fc,1),1);
+            %         warning('AM amplitudes for each component copied to all time courses since only one was specified')
+        elseif size(s.aAM,2) == 1 && size(s.fc,2) > 1 && size(s.aAM,1) == size(s.fc,1)
+            s.aAM = repmat(s.aAM,1,size(s.fc,2));
+            %         warning('AM amplitude for each time course copied to all components since only one was specified for each')
+        elseif size(s.aAM,1) ~= size(s.fc,1)
+            error('Must specify AM amplitude for every component of every timecourse, or input just a scalar or vector that will be copied')
+        elseif size(s.aAM,2) ~= size(s.fc,2)
+            error('Must specify AM amplitude for every component of every timecourse, or input just a scalar or vector that will be copied')
+        end
+        if ~iscell(s.aAM), s.aAM = num2cell(s.aAM);end
+        
+        if numel(s.CfreqsAM) == 1 && numel(s.fc) ~= 1
+            s.CfreqsAM = repmat(s.CfreqsAM,size(s.fc,1),size(s.fc,2));
+            %         warning('AM carrier amplitude copied to all components and/or time courses since only one was specified')
+        elseif size(s.CfreqsAM,1) == 1 && size(s.fc,1) > 1 && size(s.CfreqsAM,2) == size(s.fc,2)
+            s.CfreqsAM = repmat(s.CfreqsAM,size(s.fc,1),1);
+            %         warning('AM carrier amplitudes for each component copied to all time courses since only one was specified')
+        elseif size(s.CfreqsAM,2) == 1 && size(s.fc,2) > 1 && size(s.CfreqsAM,1) == size(s.fc,1)
+            s.CfreqsAM = repmat(s.CfreqsAM,1,size(s.fc,2));
+            %         warning('AM carrier amplitude for each time course copied to all components since only one was specified for each')
+        elseif size(s.CfreqsAM,1) ~= size(s.fc,1)
+            error('Must specify AM carrier amplitude for every component of every timecourse, or input just a scalar or vector that will be copied')
+        elseif size(s.CfreqsAM,2) ~= size(s.fc,2)
+            error('Must specify AM carrier amplitude for every component of every timecourse, or input just a scalar or vector that will be copied')
+        end
+    end
+    
+    %% Mask noise
+    
+    if isfield(s, 'mask')
+        if size(s.mask,1) ~= 1 && size(s.mask,2) ~= 1
+            error('Mask noise must be a scalar applying to every time course or a length(# time courses) vector with values corresponding to each time course')
+        elseif size(s.mask,2) == 1 && size(s.mask,1) == size(s.fc,1) && numel(s.mask) ~= 1
+            s.mask = s.mask';
+        elseif size(s.mask,1) == 1 && size(s.mask,2) ~= size(s.fc,1) && numel(s.mask) ~= 1
+            error('Mask noise must be a scalar applying to every time course or a length(# time courses) vector with values corresponding to each time course')
+        elseif numel(s.mask) == 1
+            s.mask = repmat(s.mask,1,size(s.fc,1));
+        end
+    end
+    
+    %% Filters
+    
+    if isfield(s, 'filtstim')
+        if size(s.filtstim,1) == 1 && size(s.fc,1) ~= 1
+            s.filtstim = repmat(s.filtstim,size(s.fc,1),1);
+            %         warning('Stimulus filter applied to all time courses since only one was specified')
+        elseif size(s.filtstim,1) ~= size(s.fc,1)
+            error('Number of stimulus filters must equal number of time courses, or input just one that will be copied')
+        end
+    end
+    
+    if isfield(s, 'filtmask')
+        if size(s.filtmask,1) == 1 && size(s.fc,1) ~= 1
+            s.filtmask = repmat(s.filtmask,size(s.fc,1),1);
+            %         warning('Mask noise filter applied to all time courses since only one was specified')
+        elseif size(s.filtmask,1) ~= size(s.fc,1)
+            error('Number of mask noise filters must equal number of time courses, or input just one that will be copied')
+        end
+    end
+    
+    %% Delay-and-add iteration
+    
+    if isfield(s, 'iter')
+        if numel(s.iter) == 1 && numel(s.fc) ~= 1
+            s.iter = repmat(s.iter,size(s.fc,1),size(s.fc,2));
+            %         warning('Delay-Add interval copied to all components and/or time courses since only one was specified')
+        elseif size(s.iter,1) == 1 && size(s.fc,1) > 1 && size(s.iter,2) == size(s.fc,2)
+            s.iter = repmat(s.iter,size(s.fc,2),1);
+            %         warning('Delay-Add intervals for each component copied to all time courses since only one was specified')
+        elseif size(s.iter,2) == 1 && size(s.fc,2) > 1 && size(s.iter,1) == size(s.fc,1)
+            s.iter = repmat(s.iter,1,size(s.fc,2));
+            %         warning('Delay-Add interval for each time course copied to all components since only one was specified for each')
+        elseif size(s.iter,1) ~= size(s.fc,1)
+            error('Must specify Delay-Add interval for every component of every timecourse, or input just a scalar or vector that will be copied')
+        elseif size(s.iter,2) ~= size(s.fc,2)
+            error('Must specify Delay-Add interval for every component of every timecourse, or input just a scalar or vector that will be copied')
+        end
+        
+        if numel(s.Niter) == 1 && numel(s.fc) ~= 1
+            s.Niter = repmat(s.Niter,size(s.fc,1),size(s.fc,2));
+            %         warning('Number of delay iterations copied to all components and/or time courses since only one was specified')
+        elseif size(s.Niter,1) == 1 && size(s.fc,1) > 1 && size(s.Niter,2) == size(s.fc,2)
+            s.Niter = repmat(s.Niter,size(s.fc,1),1);
+            %         warning('Numbers of delay iterations for each component copied to all time courses since only one was specified')
+        elseif size(s.Niter,2) == 1 && size(s.fc,2) > 1 && size(s.Niter,1) == size(s.fc,1)
+            s.Niter = repmat(s.Niter,1,size(s.fc,2));
+            %         warning('Number of delay iterations for each time course copied to all components since only one was specified for each')
+        elseif size(s.Niter,1) ~= size(s.fc,1)
+            error('Must specify number of delay iterations for every component of every timecourse, or input just a scalar or vector that will be copied')
+        elseif size(s.Niter,2) ~= size(s.fc,2)
+            error('Must specify number of delay iterations for every component of every timecourse, or input just a scalar or vector that will be copied')
+        end
+    end
+    
+elseif strcmpi(s.type,'wav')
+    
+    s0 = 1;
+    sf = length(s.x);
+    s.ts = [s0 sf]/s.fs;
+    
+    for i = 1:length(varargin)
+        if isstr(varargin{i}) && strcmpi(varargin{i},'ste')
+            if size(s.x,2) == 1                            % Expand to stereo if mono
+                s.x = [s.x s.x];
+            end
+        end
+        if isstr(varargin{i}) && strcmpi(varargin{i},'mon')
+            if size(s.x,2) == 2
+                s.x = sum(s.x,2) / size(s.x,2);            % Contract to mono if stereo
+            end
+        end
+    end
+    
+    for i = 1:length(varargin)
+        if isstr(varargin{i}) && strcmpi(varargin{i},'ts')
+            s.ts = varargin{i+1};
+            s0 = round(s.ts(  1)*s.fs+1); %MGS - 6/28/09 Added round(...) to allow non-integer time spans
+            sf = round(s.ts(end)*s.fs);   %MGS - 6/28/09 Added round(...) to allow non-integer time spans
+            s.x  = s.x(s0:sf,:);                           % Take only specified time span
+        end
+        if isstr(varargin{i}) && strcmpi(varargin{i},'fs')
+            fs = varargin{i+1};
+            s.x = resample(s.x, fs, s.fs);
+            s.fs = fs;                                     % Resample at specified sample rate
+        end
+        if isstr(varargin{i}) && strcmpi(varargin{i},'gam')
+            mincf     = varargin{i+1};
+            maxcf     = varargin{i+2};
+            numChans  = varargin{i+3};
+            cfs       = MakeErbCFs(mincf,maxcf,numChans);
+            temp      = zeros(size(s.x,1),size(s.x,2) * numChans);
+            for j = 1:size(s.x,2)                          % Split up each channel of stim into specified number of cochlear channels
+                [~,env] = gammatoneFast(s.x(:,j),cfs,s.fs);
+                index = (numChans * (j - 1) + 1):numChans * j;
+                temp(:,index) = env;                       % Take only the Hilbert envelope of each channel
+            end
+            s.x = temp;
+        end
+        
+    end
+    
+    for i = 1:length(varargin)
+        if isstr(varargin{i}) && strcmpi(varargin{i},'ramp')
+            s.sc = varargin{i+1};
+            s.sp = varargin{i+2};
+            s.x  = stimulusRamp(s.x,s.sc,s.sp,s.fs);
+        end
+    end
+    
+end
+%% revision history
+% KDL - 1/30/14 - Commenting out all warnings
+
+##### SOURCE END #####
+--></body></html>

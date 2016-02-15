@@ -1,0 +1,109 @@
+\documentclass{report}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath,amsfonts,amssymb,cite}
+
+\begin{document}
+
+\subsection*{Connection Types in GrFNN Toolbox}
+
+For notational simplicity, the zdot and cdot equations for internal connections are given here but the same equations can be used for a connection between two different networks. The frequency-scaled versions of the equations (for log-frequency networks) are shown here.
+ 
+\bigskip
+\noindent 1freq:
+\begin{equation*}
+\begin{split}
+&\frac{1}{f_i}\dot{z}_i = z_i\left(\alpha + \textrm{i}2\pi + \left(\beta_1 + \textrm{i} \delta_1\right)|z_i|^2
++ \frac{\epsilon\left(\beta_2 + \textrm{i} \delta_2\right)|z_i|^4}{1-\epsilon |z_i|^2}\right)
++ \displaystyle\sum_{j \neq i} c_{ij}z_j\\
+&\frac{2}{f_i + f_j}\dot{c}_{ij} = c_{ij}\left(\lambda_1 + \mu_1 |c_{ij}|^2
++ \frac{\epsilon_c\mu_2 |c_{ij}|^4}{1-\epsilon_c |c_{ij}|^2}\right) + \kappa z_i\bar{z}_j
+\end{split}
+\end{equation*}
+
+\bigskip \bigskip
+\noindent 2freq:
+\begin{equation*}
+\begin{split}
+&\frac{1}{f_i}\dot{z}_i = z_i\left(\alpha + \textrm{i}2\pi + \left(\beta_1 + \textrm{i} \delta_1\right)|z_i|^2
++ \frac{\epsilon\left(\beta_2 + \textrm{i} \delta_2\right)|z_i|^4}{1-\epsilon |z_i|^2}\right)
++ \displaystyle\sum_{j \neq i}\epsilon^\frac{n_{ij}+d_{ij}-2}{2} c_{ij}z_j^{n_{ij}}\bar{z}_i^{d_{ij}-1}\\
+&\frac{n_{ij}+d_{ij}}{n_{ij}f_j+d_{ij}f_i}\dot{c}_{ij} = c_{ij}\left(\lambda_1 + \mu_1 |c_{ij}|^2
++ \frac{\epsilon_c\mu_2 |c_{ij}|^4}{1-\epsilon_c |c_{ij}|^2}\right)
++ \epsilon_c^\frac{n_{ij}+d_{ij}-2}{2}\kappa z_i^{d_{ij}}\bar{z}_j^{n_{ij}}
+\end{split}
+\end{equation*}
+where $n_{ij} f_j \approx d_{ij} f_i$ ($n_{ij}$ and $d_{ij}$ are positive integers).
+
+\bigskip \bigskip
+\noindent 3freq:
+\begin{equation*}
+\begin{split}
+\frac{1}{f_i}\dot{z}_i& = z_i\left(\alpha + \textrm{i}2\pi + \left(\beta_1 + \textrm{i} \delta_1\right)|z_i|^2
++ \frac{\epsilon\left(\beta_2 + \textrm{i} \delta_2\right)|z_i|^4}{1-\epsilon |z_i|^2}\right)\\
+& \quad + \displaystyle\sum_{j}\epsilon^\frac{|n_{ij1}|+|n_{ij2}|+d_{ij}-2}{2}
+c_{ij}y_{ij1}^{|n_{ij1}|} y_{ij2}^{|n_{ij2}|}\bar{z}_i^{d_{ij}-1}\\
+\end{split}
+\end{equation*}
+\begin{equation*}
+\begin{split}
+\frac{|n_{ij1}| + |n_{ij2}| + d_{ij}}{|n_{ij1}|f_{ij1} + |n_{ij2}|f_{ij2} + d_{ij}f_i}\dot{c}_{ij}& = c_{ij}\left(\lambda_1 + \mu_1 |c_{ij}|^2 + \frac{\epsilon_c\mu_2 |c_{ij}|^4}{1-\epsilon_c |c_{ij}|^2}\right)\\
+& \quad + \epsilon_c^\frac{|n_{ij1}|+|n_{ij2}|+d_{ij}-2}{2}\kappa z_i^{d_{ij}}\bar{y}_{ij1}^{|n_{ij1}|}\bar{y}_{ij2}^{|n_{ij2}|}
+\end{split}
+\end{equation*}
+where $n_{ij1} f_{ij1} + n_{ij2} f_{ij2} \approx d_{ij} f_i$ ($n_{ij1}$ and $n_{ij2}$ are positive or negative integers and $d_{ij}$ is a positive integer). $y_{ijk}$ is $z_{ijk}$ (if $n_{ijk} > 0$) or $\bar{z}_{ijk}$ (if $n_{ijk} < 0$) where $k = 1, 2$. Here the subscript $j$ indexes significant three-frequency resonant relationships existing among oscillator frequencies.
+
+\bigskip \bigskip
+\noindent All2freq:
+\begin{equation*}
+\begin{split}
+\frac{1}{f_i}\dot{z}_i& = z_i\left(\alpha + \textrm{i}2\pi + \left(\beta_1 + \textrm{i} \delta_1\right)|z_i|^2
++ \frac{\epsilon\left(\beta_2 + \textrm{i} \delta_2\right)|z_i|^4}{1-\epsilon |z_i|^2}\right)\\
+& \quad + \displaystyle\sum_{j \neq i} c_{ij} \frac{z_j}{1-\sqrt{\epsilon}z_j} \cdot \frac{1}{1-\sqrt{\epsilon}\bar{z}_i}
+\end{split}
+\end{equation*}
+\begin{equation*}
+\begin{split}
+\frac{f_i+f_j}{2f_i f_j}\dot{c}_{ij}& = c_{ij}\left(\lambda_1 + \mu_1 |c_{ij}|^2
++ \frac{\epsilon_c\mu_2 |c_{ij}|^4}{1-\epsilon_c |c_{ij}|^2}\right)\\
+& \quad + \kappa \frac{z_i}{1-\sqrt{\epsilon_c}z_i} \cdot \frac{\bar{z}_j}{1-\sqrt{\epsilon_c}\bar{z}_j}
+\end{split}
+\end{equation*}
+The scaling factor in the cdot equation is an approximation based on that for two-frequency resonance. If we want to remove 1:1 and subsequent $n:n$ monomials from the cdot equation (i.e., when no11 = 1), we use instead
+\begin{equation*}
+\begin{split}
+\frac{f_i+f_j}{2f_i f_j}\dot{c}_{ij}& = c_{ij}\left(\lambda_1 + \mu_1 |c_{ij}|^2
++ \frac{\epsilon_c\mu_2 |c_{ij}|^4}{1-\epsilon_c |c_{ij}|^2}\right)\\
+& \quad + \kappa \left(\frac{z_i}{1-\sqrt{\epsilon_c}z_i} \cdot \frac{\bar{z}_j}{1-\sqrt{\epsilon_c}\bar{z}_j}
+- \frac{z_i\bar{z}_j}{1-\epsilon_c z_i\bar{z}_j} \right).
+\end{split}
+\end{equation*}
+Note that the ratio for the geometric series that is subtracted is $\epsilon_c$, not $\sqrt{\epsilon_c}$, since $z_i\bar{z}_j + \epsilon_c z_i^2\bar{z}_j^2 + \epsilon_c^2 z_i^3\bar{z}_j^3 + \cdots$ needs to be subtracted from $(z_i + \sqrt{\epsilon_c} z_i^2 + \epsilon_c z_i^3 + \cdots)\cdot(\bar{z}_j + \sqrt{\epsilon_c} \bar{z}_j^2 + \epsilon_c \bar{z}_j^3 + \cdots)$.
+
+
+\bigskip \bigskip
+\noindent Allfreq:
+\begin{equation*}
+\begin{split}
+\frac{1}{f_i}\dot{z}_i& = z_i\left(\alpha + \textrm{i}2\pi + \left(\beta_1 + \textrm{i} \delta_1\right)|z_i|^2
++ \frac{\epsilon\left(\beta_2 + \textrm{i} \delta_2\right)|z_i|^4}{1-\epsilon |z_i|^2}\right)\\
+& \quad + \displaystyle\sum_{j \neq i} c_{ij} \frac{z_j}{1-\sqrt{\epsilon}z_j} \cdot \frac{1}{1-\sqrt{\epsilon}\bar{z}_j} \cdot \frac{1}{1-\sqrt{\epsilon}\bar{z}_i}
+\end{split}
+\end{equation*}
+\begin{equation*}
+\begin{split}
+\frac{f_i+f_j}{2f_i f_j}\dot{c}_{ij}& = c_{ij}\left(\lambda_1 + \mu_1 |c_{ij}|^2
++ \frac{\epsilon_c\mu_2 |c_{ij}|^4}{1-\epsilon_c |c_{ij}|^2}\right)\\
+& \quad + \kappa \frac{z_i}{1-\sqrt{\epsilon_c}z_i} \cdot \frac{\bar{z}_j}{1-\sqrt{\epsilon_c}\bar{z}_j} \cdot \frac{1}{1-\sqrt{\epsilon_c}z_j}
+\end{split}
+\end{equation*}
+When no11 = 1, use
+\begin{equation*}
+\begin{split}
+\frac{f_i+f_j}{2f_i f_j}\dot{c}_{ij}& = c_{ij}\left(\lambda_1 + \mu_1 |c_{ij}|^2
++ \frac{\epsilon_c\mu_2 |c_{ij}|^4}{1-\epsilon_c |c_{ij}|^2}\right)\\
+& \quad + \kappa \left( \frac{z_i}{1-\sqrt{\epsilon_c}z_i} \cdot \frac{\bar{z}_j}{1-\sqrt{\epsilon_c}\bar{z}_j} \cdot \frac{1}{1-\sqrt{\epsilon_c}z_j} - \frac{z_i\bar{z}_j}{1-\epsilon_c z_i\bar{z}_j} \cdot \frac{1}{1-\epsilon_c |z_j|^2} \right)
+\end{split}
+\end{equation*}
+because now $z_i(\bar{z}_j + \epsilon_c |z_j|^2\bar{z}_j + \epsilon_c^2 |z_j|^4\bar{z}_j + \cdots) + \sqrt{\epsilon_c}z_i^2(\sqrt{\epsilon_c}\bar{z}_j^2 + \epsilon_c\sqrt{\epsilon_c}|z_j|^2\bar{z}_j^2 + \epsilon_c^2\sqrt{\epsilon_c}|z_j|^4\bar{z}_j^2 + \cdots) + \cdots = (z_i\bar{z}_j + \epsilon_c z_i^2\bar{z}_j^2 + \cdots) \cdot (1 + \epsilon_c |z_j|^2 + \epsilon_c^2 |z_j|^4 + \cdots)$ needs to be subtracted.
+
+\end{document}

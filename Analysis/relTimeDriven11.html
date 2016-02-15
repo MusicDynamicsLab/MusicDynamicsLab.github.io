@@ -1,0 +1,126 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>relTimeDriven11</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="relTimeDriven11.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>relTimeDriven11</h1><pre class="language-matlab">[relTime, r0, rStar] = relTimeDriven11(alpha, beta1, beta2, epsilon, F)
+</pre><pre>Calculates an appoximation of the relaxation time (relTime)
+for a canonical oscillator driven by a sinusoid at its natural frequency
+(Omega = 0), starting from its spontaneous amplitude (r0) until it
+reaches within 1 of the driven steady-state amplitude (rStar). When
+there are multiple spontaneous amplitudes, vectors are given as output.
+Only dr/dt equation is used, assuming psi = 0 throughout the trajectory.</pre><pre class="codeinput"><span class="keyword">function</span> [relTime, r0, rStar] = relTimeDriven11(a, b1, b2, e, F)
+
+r0 = spontAmp(a, b1, b2, e); <span class="comment">% spontaneous amplitude</span>
+rss = rStarDriven11(a, b1, b2, e, F, 0, 0); <span class="comment">% stable steady-state amp</span>
+rss = sort(rss); <span class="comment">% sort in ascending order</span>
+rStar = zeros(size(r0));
+relTime = zeros(size(r0));
+
+<span class="keyword">for</span> n = 1:length(r0)
+  rssBig = rss(rss &gt; r0(n)); <span class="comment">% driven amplitudes larger than r0</span>
+  rStar(n) = rssBig(1); <span class="comment">% take the one closest to r0</span>
+  R = linspace(r0(n),rStar(n),101); <span class="comment">% 100 amplitude steps between r0</span>
+                                    <span class="comment">% and rStar</span>
+  dr = R(2)-R(1); <span class="comment">% step size</span>
+  relTime(n) = dr*sum(dtdr(a, b1, b2, e, F, R(1:100))); <span class="comment">% Euler integration</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> dtdr = dtdr(a, b1, b2, e, F, r)
+dtdr = 1./(a*r + b1*r.^3 + e*b2*r.^5./(1-e*r.^2) + F);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% relTimeDriven11
+%   [relTime, r0, rStar] = relTimeDriven11(alpha, beta1, beta2, epsilon, F)
+%
+%  Calculates an appoximation of the relaxation time (relTime)
+%  for a canonical oscillator driven by a sinusoid at its natural frequency
+%  (Omega = 0), starting from its spontaneous amplitude (r0) until it
+%  reaches within 1 of the driven steady-state amplitude (rStar). When
+%  there are multiple spontaneous amplitudes, vectors are given as output.
+%  Only dr/dt equation is used, assuming psi = 0 throughout the trajectory.
+
+function [relTime, r0, rStar] = relTimeDriven11(a, b1, b2, e, F)
+
+r0 = spontAmp(a, b1, b2, e); % spontaneous amplitude
+rss = rStarDriven11(a, b1, b2, e, F, 0, 0); % stable steady-state amp
+rss = sort(rss); % sort in ascending order
+rStar = zeros(size(r0));
+relTime = zeros(size(r0));
+
+for n = 1:length(r0)
+  rssBig = rss(rss > r0(n)); % driven amplitudes larger than r0
+  rStar(n) = rssBig(1); % take the one closest to r0
+  R = linspace(r0(n),rStar(n),101); % 100 amplitude steps between r0
+                                    % and rStar
+  dr = R(2)-R(1); % step size
+  relTime(n) = dr*sum(dtdr(a, b1, b2, e, F, R(1:100))); % Euler integration
+end
+
+function dtdr = dtdr(a, b1, b2, e, F, r)
+dtdr = 1./(a*r + b1*r.^3 + e*b2*r.^5./(1-e*r.^2) + F);
+
+##### SOURCE END #####
+--></body></html>
