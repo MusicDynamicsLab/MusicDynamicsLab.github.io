@@ -1,0 +1,362 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>designDLC</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="designDLC.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>designDLC</h1><!--introduction--><pre>[alpha, beta1, beta2] = designDLC(rStar, localMax, localMin, epsilon, tolerance)</pre><pre>Finds alpha, beta1 and beta2 for a double limit cycle oscillator whose
+autonomous amplitude vector field is defined by three given points
+(rstar, peak, threshold) and epsilon.</pre><pre>Input arguments:
+rStar            Stable nonzero fixed point in autonomous amplitude
+                 vector field. Put NaN if there is none.
+localMax         Local maximum in vector field
+localMin         Local minimum in vector field
+epsilon          epsilon parameter</pre><pre>Optional input:
+tolerance        Tolerance for mismatch (.01 by default)</pre><pre>Output:
+alpha, beta1, beta2
+                 Oscillator parameters</pre><pre>Example:
+  [a, b1, b2] = designDLC(.8, .3, -.2, 1);</pre><!--/introduction--><pre class="codeinput"><span class="keyword">function</span> [alpha, beta1, beta2] = designDLC(rStar, localMax, localMin, epsilon, tolerance)
+
+<span class="keyword">if</span> nargin &lt; 5
+    tolerance = power(10,-2);
+    disp([<span class="string">'Default tolerance = '</span> num2str(tolerance)])
+<span class="keyword">end</span>
+<span class="keyword">if</span> rStar &lt; 0 || rStar &gt; 1/sqrt(epsilon)
+    error(<span class="string">'Invalid value of rstar: must be a positive number smaller than 1/sqrt(epsilon)'</span>)
+<span class="keyword">end</span>
+<span class="keyword">if</span> localMin &gt;= 0
+    error(<span class="string">'localMin must be negative'</span>)
+<span class="keyword">end</span>
+<span class="keyword">if</span> ~isnan(rStar) &amp;&amp; localMax &lt; 0
+    error(<span class="string">'peak must be positive'</span>)
+<span class="keyword">end</span>
+<span class="keyword">if</span> isnan(rStar) &amp;&amp; localMax &lt; localMin
+    error(<span class="string">'locaMax must be higher than localMin'</span>)
+<span class="keyword">end</span>
+
+<span class="comment">% Initial range of a, b1, b2</span>
+amin  = -500;   amax  = 0;
+b1min = 0;      b1max = 500;
+b2min = -500;   b2max = 0;
+N = 101; <span class="comment">% # of points in each gradient</span>
+minDev = tolerance + 1;
+disp(<span class="string">'Searching...'</span>)
+
+<span class="keyword">while</span> minDev &gt; tolerance
+
+    a = linspace(amin, amax, N);
+    b1 = linspace(b1min, b1max, N);
+    b2 = linspace(b2min, b2max, N);
+    [A, B1, B2] = meshgrid(a, b1, b2);
+
+    <span class="comment">% r at local max</span>
+    Rb = sqrt(-(power(B1 - B2,-1).*power(epsilon,-2).*<span class="keyword">...</span>
+        (4.*epsilon.*(-6.*B1 + 5.*B2 + A.*epsilon) - <span class="keyword">...</span>
+        2.*1i.*power(2,1./3).*(1i + power(3,0.5)).*power(epsilon,2).*<span class="keyword">...</span>
+        (-33.*B1.*B2 + 6.*A.*B1.*epsilon - 8.*A.*B2.*epsilon + <span class="keyword">...</span>
+        9.*power(B1,2) + 25.*power(B2,2) + power(A,2).*power(epsilon,2)).*<span class="keyword">...</span>
+        power(-27.*(7.*B2 + 2.*A.*epsilon).*power(B1,2).*power(epsilon,3) - <span class="keyword">...</span>
+        54.*power(B1,3).*power(epsilon,3) - 250.*power(B2,3).*power(epsilon,3) + <span class="keyword">...</span>
+        9.*B1.*(19.*A.*B2.*epsilon + 55.*power(B2,2) - <span class="keyword">...</span>
+        2.*power(A,2).*power(epsilon,2)).*power(epsilon,3) - <span class="keyword">...</span>
+        123.*A.*power(B2,2).*power(epsilon,4) + 24.*B2.*power(A,2).*<span class="keyword">...</span>
+        power(epsilon,5) - 2.*power(A,3).*power(epsilon,6) + 9.*power(3,0.5).*<span class="keyword">...</span>
+        power(B2.*power(B1 - B2,2).*(6.*A.*B1.*epsilon.*<span class="keyword">...</span>
+        (-115.*B2 + 12.*A.*epsilon) - 9.*(25.*B2 - 24.*A.*epsilon).*<span class="keyword">...</span>
+        power(B1,2) + 216.*power(B1,3) + A.*epsilon.*<span class="keyword">...</span>
+        (-97.*A.*B2.*epsilon + 500.*power(B2,2) + 8.*power(A,2).*<span class="keyword">...</span>
+        power(epsilon,2))).*power(epsilon,6),0.5),-1./3) + power(2,2./3).*<span class="keyword">...</span>
+        (1 + 1i.*power(3,0.5)).*power(-27.*(7.*B2 + 2.*A.*epsilon).*<span class="keyword">...</span>
+        power(B1,2).*power(epsilon,3) - 54.*power(B1,3).*power(epsilon,3) - <span class="keyword">...</span>
+        250.*power(B2,3).*power(epsilon,3) + 9.*B1.*(19.*A.*B2.*epsilon + <span class="keyword">...</span>
+        55.*power(B2,2) - 2.*power(A,2).*power(epsilon,2)).*power(epsilon,3) - <span class="keyword">...</span>
+        123.*A.*power(B2,2).*power(epsilon,4) + 24.*B2.*power(A,2).*<span class="keyword">...</span>
+        power(epsilon,5) - 2.*power(A,3).*power(epsilon,6) + 9.*power(3,0.5).*<span class="keyword">...</span>
+        power(B2.*power(B1 - B2,2).*(6.*A.*B1.*epsilon.*<span class="keyword">...</span>
+        (-115.*B2 + 12.*A.*epsilon) - 9.*(25.*B2 - 24.*A.*epsilon).*<span class="keyword">...</span>
+        power(B1,2) + 216.*power(B1,3) + A.*epsilon.*<span class="keyword">...</span>
+        (-97.*A.*B2.*epsilon + 500.*power(B2,2) + 8.*power(A,2).*<span class="keyword">...</span>
+        power(epsilon,2))).*power(epsilon,6),0.5),1./3)))./36);
+
+    <span class="comment">% r at local min</span>
+    Rc = sqrt((power(B1 - B2,-1).*power(epsilon,-2).*<span class="keyword">...</span>
+        (-4.*epsilon.*(-6.*B1 + 5.*B2 + A.*epsilon) - <span class="keyword">...</span>
+        2.*1i.*power(2,1./3).*(-1i + power(3,0.5)).*power(epsilon,2).*<span class="keyword">...</span>
+        (-33.*B1.*B2 + 6.*A.*B1.*epsilon - 8.*A.*B2.*epsilon + <span class="keyword">...</span>
+        9.*power(B1,2) + 25.*power(B2,2) + power(A,2).*power(epsilon,2)).*<span class="keyword">...</span>
+        power(-27.*(7.*B2 + 2.*A.*epsilon).*power(B1,2).*power(epsilon,3) - <span class="keyword">...</span>
+        54.*power(B1,3).*power(epsilon,3) - 250.*power(B2,3).*power(epsilon,3) + <span class="keyword">...</span>
+        9.*B1.*(19.*A.*B2.*epsilon + 55.*power(B2,2) - <span class="keyword">...</span>
+        2.*power(A,2).*power(epsilon,2)).*power(epsilon,3) - <span class="keyword">...</span>
+        123.*A.*power(B2,2).*power(epsilon,4) + 24.*B2.*power(A,2).*<span class="keyword">...</span>
+        power(epsilon,5) - 2.*power(A,3).*power(epsilon,6) + 9.*power(3,0.5).*<span class="keyword">...</span>
+        power(B2.*power(B1 - B2,2).*(6.*A.*B1.*epsilon.*<span class="keyword">...</span>
+        (-115.*B2 + 12.*A.*epsilon) - 9.*(25.*B2 - 24.*A.*epsilon).*power(B1,2) + <span class="keyword">...</span>
+        216.*power(B1,3) + A.*epsilon.*(-97.*A.*B2.*epsilon + 500.*power(B2,2) + <span class="keyword">...</span>
+        8.*power(A,2).*power(epsilon,2))).*power(epsilon,6),0.5),-1./3) +<span class="keyword">...</span>
+        1i.*power(2,2./3).*(1i + power(3,0.5)).*power(-27.*(7.*B2 + 2.*A.*epsilon).*<span class="keyword">...</span>
+        power(B1,2).*power(epsilon,3) - 54.*power(B1,3).*power(epsilon,3) - <span class="keyword">...</span>
+        250.*power(B2,3).*power(epsilon,3) + 9.*B1.*(19.*A.*B2.*epsilon + <span class="keyword">...</span>
+        55.*power(B2,2) - 2.*power(A,2).*power(epsilon,2)).*power(epsilon,3) - <span class="keyword">...</span>
+        123.*A.*power(B2,2).*power(epsilon,4) + 24.*B2.*power(A,2).*<span class="keyword">...</span>
+        power(epsilon,5) - 2.*power(A,3).*power(epsilon,6) + 9.*power(3,0.5).*<span class="keyword">...</span>
+        power(B2.*power(B1 - B2,2).*(6.*A.*B1.*epsilon.*<span class="keyword">...</span>
+        (-115.*B2 + 12.*A.*epsilon) - 9.*(25.*B2 - 24.*A.*epsilon).*<span class="keyword">...</span>
+        power(B1,2) + 216.*power(B1,3) + A.*epsilon.*(-97.*A.*B2.*epsilon + <span class="keyword">...</span>
+        500.*power(B2,2) + 8.*power(A,2).*power(epsilon,2))).*<span class="keyword">...</span>
+        power(epsilon,6),0.5),1./3)))./36);
+
+    Rb(abs(imag(Rb)) &gt; eps(<span class="string">'single'</span>)) = NaN; Rb = real(Rb);
+    Rc(abs(imag(Rc)) &gt; eps(<span class="string">'single'</span>)) = NaN; Rc = real(Rc);
+
+    EQa = A*rStar + B1*rStar^3 + epsilon*B2*rStar^5/(1-epsilon*rStar^2);
+    EQb = A.*Rb + B1.*Rb.^3 + epsilon*B2.*Rb.^5./(1-epsilon*Rb.^2) - localMax;
+    EQc = A.*Rc + B1.*Rc.^3 + epsilon*B2.*Rc.^5./(1-epsilon*Rc.^2) - localMin;
+
+    <span class="keyword">if</span> isnan(rStar) <span class="comment">% if rstar is NaN</span>
+        DEV = abs(EQb) + abs(EQc);
+    <span class="keyword">else</span>
+        DEV = abs(EQa) + abs(EQb) + abs(EQc);
+    <span class="keyword">end</span>
+    [minDev, ind] = min(DEV(:));
+
+    <span class="keyword">if</span> minDev &gt; tolerance; string = <span class="string">'&gt;'</span>;
+    <span class="keyword">elseif</span> minDev == tolerance; string = <span class="string">'='</span>;
+    <span class="keyword">else</span> string = <span class="string">'&lt;'</span>;
+    <span class="keyword">end</span>
+    disp([<span class="string">'alpha = '</span> num2str(A(ind)) <span class="string">', beta1 = '</span> num2str(B1(ind)) <span class="keyword">...</span>
+        <span class="string">', beta2 = '</span> num2str(B2(ind)) <span class="keyword">...</span>
+        <span class="string">' (deviation = '</span> num2str(minDev) <span class="string">' '</span> string <span class="string">' tolerance)'</span>])
+
+    <span class="comment">% Range of a, b1, b2 for the next interation</span>
+    narrowBy = .25; <span class="comment">% narrow ranges by this factor</span>
+    amin = A(ind) - (amax-amin)*narrowBy;
+    amax = min(0, A(ind) + (amax-amin)*narrowBy);
+    b1min = max(0, B1(ind) - (b1max-b1min)*narrowBy);
+    b1max = B1(ind) + (b1max-b1min)*narrowBy;
+    b2min = B2(ind) - (b2max-b2min)*narrowBy;
+    b2max = min(0, B2(ind) + (b2max-b2min)*narrowBy);
+<span class="keyword">end</span>
+
+alpha = A(ind);
+beta1 = B1(ind);
+beta2 = B2(ind);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% designDLC
+%  [alpha, beta1, beta2] = designDLC(rStar, localMax, localMin, epsilon, tolerance)
+%
+%  Finds alpha, beta1 and beta2 for a double limit cycle oscillator whose
+%  autonomous amplitude vector field is defined by three given points
+%  (rstar, peak, threshold) and epsilon.
+%
+%  Input arguments:
+%  rStar            Stable nonzero fixed point in autonomous amplitude
+%                   vector field. Put NaN if there is none.
+%  localMax         Local maximum in vector field
+%  localMin         Local minimum in vector field
+%  epsilon          epsilon parameter
+%
+%  Optional input:
+%  tolerance        Tolerance for mismatch (.01 by default)
+%
+%  Output:
+%  alpha, beta1, beta2
+%                   Oscillator parameters
+%
+%  Example:
+%    [a, b1, b2] = designDLC(.8, .3, -.2, 1);
+%
+
+%%
+function [alpha, beta1, beta2] = designDLC(rStar, localMax, localMin, epsilon, tolerance)
+
+if nargin < 5
+    tolerance = power(10,-2);
+    disp(['Default tolerance = ' num2str(tolerance)])
+end
+if rStar < 0 || rStar > 1/sqrt(epsilon)
+    error('Invalid value of rstar: must be a positive number smaller than 1/sqrt(epsilon)')
+end
+if localMin >= 0
+    error('localMin must be negative')
+end
+if ~isnan(rStar) && localMax < 0
+    error('peak must be positive')
+end
+if isnan(rStar) && localMax < localMin
+    error('locaMax must be higher than localMin')
+end
+
+% Initial range of a, b1, b2
+amin  = -500;   amax  = 0;
+b1min = 0;      b1max = 500;
+b2min = -500;   b2max = 0;
+N = 101; % # of points in each gradient
+minDev = tolerance + 1;
+disp('Searching...')
+
+while minDev > tolerance
+    
+    a = linspace(amin, amax, N);
+    b1 = linspace(b1min, b1max, N);
+    b2 = linspace(b2min, b2max, N);
+    [A, B1, B2] = meshgrid(a, b1, b2);
+    
+    % r at local max
+    Rb = sqrt(-(power(B1 - B2,-1).*power(epsilon,-2).*...
+        (4.*epsilon.*(-6.*B1 + 5.*B2 + A.*epsilon) - ...
+        2.*1i.*power(2,1./3).*(1i + power(3,0.5)).*power(epsilon,2).*...
+        (-33.*B1.*B2 + 6.*A.*B1.*epsilon - 8.*A.*B2.*epsilon + ...
+        9.*power(B1,2) + 25.*power(B2,2) + power(A,2).*power(epsilon,2)).*...
+        power(-27.*(7.*B2 + 2.*A.*epsilon).*power(B1,2).*power(epsilon,3) - ...
+        54.*power(B1,3).*power(epsilon,3) - 250.*power(B2,3).*power(epsilon,3) + ...
+        9.*B1.*(19.*A.*B2.*epsilon + 55.*power(B2,2) - ...
+        2.*power(A,2).*power(epsilon,2)).*power(epsilon,3) - ...
+        123.*A.*power(B2,2).*power(epsilon,4) + 24.*B2.*power(A,2).*...
+        power(epsilon,5) - 2.*power(A,3).*power(epsilon,6) + 9.*power(3,0.5).*...
+        power(B2.*power(B1 - B2,2).*(6.*A.*B1.*epsilon.*...
+        (-115.*B2 + 12.*A.*epsilon) - 9.*(25.*B2 - 24.*A.*epsilon).*...
+        power(B1,2) + 216.*power(B1,3) + A.*epsilon.*...
+        (-97.*A.*B2.*epsilon + 500.*power(B2,2) + 8.*power(A,2).*...
+        power(epsilon,2))).*power(epsilon,6),0.5),-1./3) + power(2,2./3).*...
+        (1 + 1i.*power(3,0.5)).*power(-27.*(7.*B2 + 2.*A.*epsilon).*...
+        power(B1,2).*power(epsilon,3) - 54.*power(B1,3).*power(epsilon,3) - ...
+        250.*power(B2,3).*power(epsilon,3) + 9.*B1.*(19.*A.*B2.*epsilon + ...
+        55.*power(B2,2) - 2.*power(A,2).*power(epsilon,2)).*power(epsilon,3) - ...
+        123.*A.*power(B2,2).*power(epsilon,4) + 24.*B2.*power(A,2).*...
+        power(epsilon,5) - 2.*power(A,3).*power(epsilon,6) + 9.*power(3,0.5).*...
+        power(B2.*power(B1 - B2,2).*(6.*A.*B1.*epsilon.*...
+        (-115.*B2 + 12.*A.*epsilon) - 9.*(25.*B2 - 24.*A.*epsilon).*...
+        power(B1,2) + 216.*power(B1,3) + A.*epsilon.*...
+        (-97.*A.*B2.*epsilon + 500.*power(B2,2) + 8.*power(A,2).*...
+        power(epsilon,2))).*power(epsilon,6),0.5),1./3)))./36);
+    
+    % r at local min
+    Rc = sqrt((power(B1 - B2,-1).*power(epsilon,-2).*...
+        (-4.*epsilon.*(-6.*B1 + 5.*B2 + A.*epsilon) - ...
+        2.*1i.*power(2,1./3).*(-1i + power(3,0.5)).*power(epsilon,2).*...
+        (-33.*B1.*B2 + 6.*A.*B1.*epsilon - 8.*A.*B2.*epsilon + ...
+        9.*power(B1,2) + 25.*power(B2,2) + power(A,2).*power(epsilon,2)).*...
+        power(-27.*(7.*B2 + 2.*A.*epsilon).*power(B1,2).*power(epsilon,3) - ...
+        54.*power(B1,3).*power(epsilon,3) - 250.*power(B2,3).*power(epsilon,3) + ...
+        9.*B1.*(19.*A.*B2.*epsilon + 55.*power(B2,2) - ...
+        2.*power(A,2).*power(epsilon,2)).*power(epsilon,3) - ...
+        123.*A.*power(B2,2).*power(epsilon,4) + 24.*B2.*power(A,2).*...
+        power(epsilon,5) - 2.*power(A,3).*power(epsilon,6) + 9.*power(3,0.5).*...
+        power(B2.*power(B1 - B2,2).*(6.*A.*B1.*epsilon.*...
+        (-115.*B2 + 12.*A.*epsilon) - 9.*(25.*B2 - 24.*A.*epsilon).*power(B1,2) + ...
+        216.*power(B1,3) + A.*epsilon.*(-97.*A.*B2.*epsilon + 500.*power(B2,2) + ...
+        8.*power(A,2).*power(epsilon,2))).*power(epsilon,6),0.5),-1./3) +...
+        1i.*power(2,2./3).*(1i + power(3,0.5)).*power(-27.*(7.*B2 + 2.*A.*epsilon).*...
+        power(B1,2).*power(epsilon,3) - 54.*power(B1,3).*power(epsilon,3) - ...
+        250.*power(B2,3).*power(epsilon,3) + 9.*B1.*(19.*A.*B2.*epsilon + ...
+        55.*power(B2,2) - 2.*power(A,2).*power(epsilon,2)).*power(epsilon,3) - ...
+        123.*A.*power(B2,2).*power(epsilon,4) + 24.*B2.*power(A,2).*...
+        power(epsilon,5) - 2.*power(A,3).*power(epsilon,6) + 9.*power(3,0.5).*...
+        power(B2.*power(B1 - B2,2).*(6.*A.*B1.*epsilon.*...
+        (-115.*B2 + 12.*A.*epsilon) - 9.*(25.*B2 - 24.*A.*epsilon).*...
+        power(B1,2) + 216.*power(B1,3) + A.*epsilon.*(-97.*A.*B2.*epsilon + ...
+        500.*power(B2,2) + 8.*power(A,2).*power(epsilon,2))).*...
+        power(epsilon,6),0.5),1./3)))./36);
+    
+    Rb(abs(imag(Rb)) > eps('single')) = NaN; Rb = real(Rb);
+    Rc(abs(imag(Rc)) > eps('single')) = NaN; Rc = real(Rc);
+    
+    EQa = A*rStar + B1*rStar^3 + epsilon*B2*rStar^5/(1-epsilon*rStar^2);
+    EQb = A.*Rb + B1.*Rb.^3 + epsilon*B2.*Rb.^5./(1-epsilon*Rb.^2) - localMax;
+    EQc = A.*Rc + B1.*Rc.^3 + epsilon*B2.*Rc.^5./(1-epsilon*Rc.^2) - localMin;
+    
+    if isnan(rStar) % if rstar is NaN
+        DEV = abs(EQb) + abs(EQc);
+    else
+        DEV = abs(EQa) + abs(EQb) + abs(EQc);
+    end
+    [minDev, ind] = min(DEV(:));
+    
+    if minDev > tolerance; string = '>';
+    elseif minDev == tolerance; string = '=';
+    else string = '<';
+    end
+    disp(['alpha = ' num2str(A(ind)) ', beta1 = ' num2str(B1(ind)) ...
+        ', beta2 = ' num2str(B2(ind)) ...
+        ' (deviation = ' num2str(minDev) ' ' string ' tolerance)'])
+    
+    % Range of a, b1, b2 for the next interation
+    narrowBy = .25; % narrow ranges by this factor
+    amin = A(ind) - (amax-amin)*narrowBy;
+    amax = min(0, A(ind) + (amax-amin)*narrowBy);
+    b1min = max(0, B1(ind) - (b1max-b1min)*narrowBy);
+    b1max = B1(ind) + (b1max-b1min)*narrowBy;
+    b2min = B2(ind) - (b2max-b2min)*narrowBy;
+    b2max = min(0, B2(ind) + (b2max-b2min)*narrowBy);
+end
+
+alpha = A(ind);
+beta1 = B1(ind);
+beta2 = B2(ind);
+
+##### SOURCE END #####
+--></body></html>
