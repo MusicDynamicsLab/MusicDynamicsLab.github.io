@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>canonMake</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="canonMake.m"><style type="text/css">
+      --><title>canonMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="canonMake.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +38,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -279,7 +280,7 @@ notes = [];
 
 <span class="comment">%Full stress on first note</span>
 notes(1,5) = p.strong; <span class="comment">%is set to unstressed value when 'none' passed for stress type</span>
-</pre><h2>Check Permutations<a name="14"></a></h2><p>Check for a permutation vector to use directly</p><pre class="codeinput"><span class="keyword">if</span> ~isempty(p.permV)
+</pre><h2>Check Permutations<a name="14"></a></h2><pre>Check for a permutation vector to use directly</pre><pre class="codeinput"><span class="keyword">if</span> ~isempty(p.permV)
     <span class="comment">%Check length</span>
     <span class="keyword">if</span>( length(p.permV) ~= size(notes,1) )
         error(<span class="string">'canonMake: permV vector must be length of rhythm: %d'</span>,size(notes,1));
@@ -407,7 +408,7 @@ notes(1,5) = p.strong; <span class="comment">%is set to unstressed value when 'n
               Changed 'reps' default to 1. Like above for 'endSilence'.
               Improved permutation display when set 'permCount';
               Adding 'permV' option to pass perumation mask vector
-              directly.</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+              directly.</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% canonMake
 %
@@ -618,7 +619,7 @@ if strcmpi(p.mType,'CX')
            inc = inc+1;
        end
     end
-%%%
+%%%  
 
 %% Lederal & Jackendoff
 %
@@ -677,7 +678,7 @@ end
 notes(1,5) = p.strong; %is set to unstressed value when 'none' passed for stress type
 
 %% Check Permutations
-% Check for a permutation vector to use directly
+%  Check for a permutation vector to use directly
 if ~isempty(p.permV)
     %Check length
     if( length(p.permV) ~= size(notes,1) )
@@ -761,8 +762,8 @@ if numel(p.outfile) > 0
        writemidi(notes, p.outfile, p.ticks, p.bpm, p.numer, p.denom);
    end
 end
-end
 
+end
 
 %% Utility Functions
 
@@ -815,7 +816,5 @@ end
 %                Improved permutation display when set 'permCount';
 %                Adding 'permV' option to pass perumation mask vector
 %                directly.
-
-
 ##### SOURCE END #####
 --></body></html>

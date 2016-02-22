@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>stimulusMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="stimulusMake.m"><style type="text/css">
+      --><title>stimulusMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="stimulusMake.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -67,31 +67,32 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
   </style></head><body><div class="content"><h1>stimulusMake</h1><!--introduction--><pre>Make a stimulus structure, which will include a time vector,
-signal vector, and other values for NLTFT toolbox use.</pre><pre>s = stimulusMake(type, varargin)
-type      = 'fcn', 'wav', 'mid'
+signal vector, and other values for GrFNN toolbox use.</pre><pre>s = stimulusMake(id, type, varargin)
+id        = stimulus id number
+type      = 'fcn', 'wav', 'mid', 'rfcn'
 Required varargins for type 'fcn':
 ts        = time-span [starttime, stoptime]
 fs        = sampling rate
 carrier   = {'cos'}, {'sin'}, {'exp'}, {'saw'}, {'squ'}, {'noi'}
 fc        = frequency of the carrier
 ac        = amplitude of the carrier
-s = stimulusMake('fcn', ts, fs, carrier, fc, ac)</pre><pre class="language-matlab">Examples:
+s = stimulusMake(id, 'fcn', ts, fs, carrier, fc, ac)</pre><pre class="language-matlab">Examples:
 </pre><pre class="language-matlab">Type <span class="string">'fcn'</span>
-s = stimulusMake(<span class="string">'fcn'</span>, ts, fs, carrier, fc, ac)
-s = stimulusMake(<span class="string">'fcn'</span>, ts, fs, carrier, fc, ac, startPhases, <span class="string">'ramp'</span>, 1, 2, <span class="string">'mask'</span>, 0, <span class="string">'filtmask'</span>, {b a})
+s = stimulusMake(id, <span class="string">'fcn'</span>, ts, fs, carrier, fc, ac)
+s = stimulusMake(id, <span class="string">'fcn'</span>, ts, fs, carrier, fc, ac, startPhases, <span class="string">'ramp'</span>, 1, 2, <span class="string">'mask'</span>, 0, <span class="string">'filtmask'</span>, {b a})
 </pre><pre class="language-matlab">Type <span class="string">'wav'</span>
 </pre><pre>  Note: To be safe, filename should always include the file extension,
   e.g. 'stimulus.wav'. In Matlabs prior to 2012b, @wavread is used, the
   file extension does not need to be present, but only .wav files can be
   read. In 2012b and subsequent versions, @audioread is used, and other
   audio formats such as .mp3 and .ogg can be read, but the file extension
-  must ALWAYS be specified.</pre><pre class="language-matlab">s = stimulusMake(<span class="string">'wav'</span>, filename)
-s = stimulusMake(<span class="string">'wav'</span>, filename, <span class="string">'ts'</span>, newTimeSpan, <span class="string">'fs'</span>, newSamplingFrequency)
-s = stimulusMake(<span class="string">'wav'</span>, filename, <span class="string">'ramp'</span>, 1, 1, <span class="string">'mask'</span>, 10, <span class="string">'filtstim'</span>, {b a})
+  must ALWAYS be specified.</pre><pre class="language-matlab">s = stimulusMake(id, <span class="string">'wav'</span>, filename)
+s = stimulusMake(id, <span class="string">'wav'</span>, filename, <span class="string">'ts'</span>, newTimeSpan, <span class="string">'fs'</span>, newSamplingFrequency)
+s = stimulusMake(id, <span class="string">'wav'</span>, filename, <span class="string">'ramp'</span>, 1, 1, <span class="string">'mask'</span>, 10, <span class="string">'filtstim'</span>, {b a})
 </pre><pre class="language-matlab">Type <span class="string">'mid'</span>
-s = stimulusMake(<span class="string">'mid'</span>, filename, ts {optional}, fs {optional})
-s = stimulusMake(<span class="string">'mid'</span>, nmat, ts{optional}, fs {optional}) <span class="comment">%where 'nmat'is a valid Midi Toolbox-style midi matrix.</span>
-s = stimulusMake(<span class="string">'rfcn'</span>, ts {optional}, fs {optional}, numer, denom, mType, mCode, <span class="string">'tempo_mod'</span> {optional}, {optional canonMake params})
+s = stimulusMake(id, <span class="string">'mid'</span>, filename, ts {optional}, fs {optional})
+s = stimulusMake(id, <span class="string">'mid'</span>, nmat, ts{optional}, fs {optional}) <span class="comment">%where 'nmat'is a valid Midi Toolbox-style midi matrix.</span>
+s = stimulusMake(id, <span class="string">'rfcn'</span>, ts {optional}, fs {optional}, numer, denom, mType, mCode, <span class="string">'tempo_mod'</span> {optional}, {optional canonMake params})
 <span class="comment">%see help for canonMake for a description of numer, denom, mType, and mCode as well as optional params.</span>
 </pre><pre>12/13/11 KDL
 Added serveral options for waveforms, modulators, and input syntax.</pre><pre>The following options apply only to type 'fcn' stimuli:</pre><pre>Syntax: First five inputs are same as always (after 'fcn' of course):
@@ -150,53 +151,31 @@ Does nothing if file was already mono. No additional inputs.</pre><pre>stereo: P
 Copies original channel to second channel. No additional inputs.</pre><pre>gam: Pass 'gam' to channelize a stimulus into multiple gammatone
 filter envelopes. Next THREE varargs are minimum frequency, maximum
 frequency, and number of channels. So for a simple cochlear filter
-bank, one might use ..., 'gam', 20, 20e3, 40, ...</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Call relevant 'make' function</a></li><li><a href="#4">Make type 'function'</a></li><li><a href="#7">Make type 'wave'</a></li><li><a href="#10">Make type 'midi'</a></li><li><a href="#13">Make Rhythm Function</a></li><li><a href="#16">Revision history</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> s = stimulusMake(varargin)
+bank, one might use ..., 'gam', 20, 20e3, 40, ...</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Set fields for all types</a></li><li><a href="#4">Call relevant 'make' function</a></li><li><a href="#5">Make type 'function'</a></li><li><a href="#8">Make type 'wave'</a></li><li><a href="#11">Make type 'midi'</a></li><li><a href="#14">Make Rhythm Function</a></li><li><a href="#17">Revision history</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> s = stimulusMake(varargin)
 </pre><pre class="codeinput"><span class="keyword">if</span> isscalar(varargin{1})
-
     id = varargin{1};
-    type = varargin{2};
-    temp = varargin(3:end);
-
 <span class="keyword">else</span>
-
-    id = 1;
-    type = varargin{1};
-    temp = varargin(2:end);
-
-<span class="keyword">end</span>
-</pre><h2>Call relevant 'make' function<a name="3"></a></h2><pre class="codeinput"><span class="keyword">switch</span> type
-    <span class="keyword">case</span> <span class="string">'fcn'</span>
-        s = makeFcnInput(temp{:});
-    <span class="keyword">case</span> <span class="string">'wav'</span>
-        s = makeWaveInput(temp{:});
-    <span class="keyword">case</span> <span class="string">'mid'</span>
-        s = makeMidiInput(temp{:});
-    <span class="keyword">case</span> <span class="string">'rfcn'</span>
-        s = makeRfcnInput(temp{:});
-    <span class="keyword">otherwise</span>
-        error(<span class="string">'unknown stimulus type'</span>);
+    error(<span class="string">'First input argument should be id number (integer)'</span>)
 <span class="keyword">end</span>
 
+<span class="keyword">if</span> ischar(varargin{2})
+    type = varargin{2};
+<span class="keyword">else</span>
+    error(<span class="string">'Second input argument should be stimulus type (character string)'</span>)
+<span class="keyword">end</span>
 
-<span class="comment">%Fields for all types</span>
-<span class="comment">%MS1 - added 12/19/08</span>
-s.id = id;
-s.class = <span class="string">'stim'</span>;
+temp = varargin(3:end);
+</pre><h2>Set fields for all types<a name="3"></a></h2><pre class="codeinput">s.id = id;
+s.class = <span class="string">'stimulus'</span>;
 s.nClass = 1; <span class="comment">% numerical class</span>
-s.lenx = size(s.x, 2);  <span class="comment">% stimulus length</span>
-s.N = size(s.x, 1);   <span class="comment">% number of stimulus channels</span>
-s.inputType = <span class="string">'1freq'</span>;  <span class="comment">% this field is now obsolete but kept for backward compatibility</span>
 s.dStep = 0;
 s.dispChan = 1;
-s.useDirectIndex = 0; <span class="comment">% used in stimulusRun</span>
 s.f = [];
-s.fspac = [];
+s.fspac = <span class="string">''</span>;
+s.nFspac = 0;
 s.tick = [];
 
 <span class="keyword">for</span> i = 1:length(varargin)
-    <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'inputType'</span>) <span class="comment">%&amp;&amp; length(varargin) &gt; i &amp;&amp; ischar(varargin{i+1})</span>
-        s.inputType = varargin{i+1};
-    <span class="keyword">end</span>
     <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'display'</span>) <span class="comment">%&amp;&amp; length(varargin) &gt; i &amp;&amp; ischar(varargin{i+1})</span>
         s.dStep = varargin{i+1};
     <span class="keyword">end</span>
@@ -208,16 +187,30 @@ s.tick = [];
         <span class="keyword">end</span>
     <span class="keyword">end</span>
 <span class="keyword">end</span>
+</pre><h2>Call relevant 'make' function<a name="4"></a></h2><pre class="codeinput"><span class="keyword">switch</span> type
+    <span class="keyword">case</span> <span class="string">'fcn'</span>
+        s = makeFcnInput(s, temp{:});
+    <span class="keyword">case</span> <span class="string">'wav'</span>
+        s = makeWaveInput(s, temp{:});
+    <span class="keyword">case</span> <span class="string">'mid'</span>
+        s = makeMidiInput(s, temp{:});
+    <span class="keyword">case</span> <span class="string">'rfcn'</span>
+        s = makeRfcnInput(s, temp{:});
+    <span class="keyword">otherwise</span>
+        error(<span class="string">'unknown stimulus type'</span>);
+<span class="keyword">end</span>
+
+s.lenx = size(s.x, 2);	<span class="comment">% stimulus length</span>
+s.N = size(s.x, 1);     <span class="comment">% number of stimulus channels</span>
 
 s.x = castCS(s.x);
-</pre><h2>Make type 'function'<a name="4"></a></h2><pre class="codeinput"><span class="keyword">function</span> s = makeFcnInput(varargin)
+</pre><h2>Make type 'function'<a name="5"></a></h2><pre class="codeinput"><span class="keyword">function</span> s = makeFcnInput(s, varargin)
 </pre><pre class="codeinput">s.type = <span class="string">'fcn'</span>;
 
 <span class="keyword">if</span> length(varargin) &lt; 5
     error(<span class="string">'Need at least 5 inputs for fcns: time spans, sampling freq, carrier waveforms, carrier freqs, and carrier amplitudes'</span>)
 <span class="keyword">end</span>
 
-s.analytic = 1;
 s.ts = varargin{1};         <span class="comment">% time spans</span>
 s.fs = varargin{2};         <span class="comment">% sampling frequency</span>
 s.dt = 1/s.fs;
@@ -273,10 +266,8 @@ s.x  = zeros(size(s.t));
     noise = stimulusRamp(noise, s.sc(1), s.sp(1), s.fs);
     s.x = s.x + noise;
 <span class="keyword">end</span>
-</pre><h2>Make type 'wave'<a name="7"></a></h2><pre class="codeinput"><span class="keyword">function</span> s = makeWaveInput(varargin)
+</pre><h2>Make type 'wave'<a name="8"></a></h2><pre class="codeinput"><span class="keyword">function</span> s = makeWaveInput(s, varargin)
 </pre><pre class="codeinput">s.type = <span class="string">'wav'</span>;
-
-s.analytic = 0;
 
 mver = version(<span class="string">'-release'</span>);
 <span class="keyword">if</span> str2double(mver(1:4)) &gt; 2012 || strcmp(mver,<span class="string">'2012b'</span>)
@@ -289,9 +280,9 @@ mver = version(<span class="string">'-release'</span>);
 
     <span class="keyword">for</span> numRead = 1:length(varargin{1})
 
-        s.fn{numRead} = varargin{1}{numRead};
+        s.fileName{numRead} = varargin{1}{numRead};
 
-        [temp,s.fs] = feval(readFunc, s.fn{numRead});
+        [temp,s.fs] = feval(readFunc, s.fileName{numRead});
 
         temp = mean(temp,2);
 
@@ -301,9 +292,9 @@ mver = version(<span class="string">'-release'</span>);
 
 <span class="keyword">else</span>                             <span class="comment">% else one wavread</span>
 
-    s.fn = varargin{1};
+    s.fileName = varargin{1};
 
-    [s.x,s.fs] = feval(readFunc, s.fn);
+    [s.x,s.fs] = feval(readFunc, s.fileName);
 
 <span class="keyword">end</span>
 
@@ -340,6 +331,7 @@ s.dt = 1/s.fs;
             temp(:,index) = env;                       <span class="comment">% Take only the Hilbert envelope of each channel</span>
         <span class="keyword">end</span>
         s.x = temp;
+        s.f = cfs;
     <span class="keyword">end</span>
 
     <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'ts'</span>)
@@ -380,18 +372,16 @@ s.dt = 1/s.fs;
 <span class="keyword">end</span>
 s.t  = linspace(s.ts(1),s.ts(2),size(s.x,1));
 s.x  = s.x';                     <span class="comment">% Transpose because toolbox expects row vector(s)</span>
-</pre><h2>Make type 'midi'<a name="10"></a></h2><pre class="codeinput"><span class="keyword">function</span> s = makeMidiInput(varargin)
+</pre><h2>Make type 'midi'<a name="11"></a></h2><pre class="codeinput"><span class="keyword">function</span> s = makeMidiInput(s, varargin)
 </pre><pre class="codeinput">s.type = <span class="string">'mid'</span>;
 
-s.analytic = 0;
-s.fn   = varargin{1};
-
 <span class="comment">%Parse data input type. Filename or nmat matrix</span>
-<span class="keyword">if</span> ischar(s.fn)
-    N = mdlReadMidi(s.fn);
+<span class="keyword">if</span> ischar(varargin{1})
+    s.fileName   = varargin{1};
+    N = mdlReadMidi(s.fileName);
 <span class="keyword">else</span>
     <span class="comment">%user passed in a nmat matrix directly</span>
-    N = s.fn;
+    N = varargin{1};
 <span class="keyword">end</span>
 
 <span class="comment">% Set default values for optional arguments</span>
@@ -553,10 +543,9 @@ s.Notes = N_orig;
 <span class="comment">% s.x = O./a;</span>
 
 s.x = O;
-</pre><h2>Make Rhythm Function<a name="13"></a></h2><pre>Calls canonMake and creates a time series stimulus from the matrix.
-For now, cannot enter a sample rate without time span.</pre><pre class="codeinput"><span class="keyword">function</span> s = makeRfcnInput(varargin)
+</pre><h2>Make Rhythm Function<a name="14"></a></h2><pre>Calls canonMake and creates a time series stimulus from the matrix.
+For now, cannot enter a sample rate without time span.</pre><pre class="codeinput"><span class="keyword">function</span> s = makeRfcnInput(s, varargin)
 </pre><pre class="codeinput">s.type = <span class="string">'rfcn'</span>;
-s.analytic = 0;
 
 s.ts = [];
 s.fs = 100;
@@ -652,7 +641,7 @@ s.Notes = N;
 <span class="comment">% s.x = O./a;</span>
 
 s.x = O;
-</pre><h2>Revision history<a name="16"></a></h2><pre>09/26/11 KDL Wrote stimulusRamp.m function, added functionality in here, for fcn's.
+</pre><h2>Revision history<a name="17"></a></h2><pre>09/26/11 KDL Wrote stimulusRamp.m function, added functionality in here, for fcn's.
             Default values are 100 milliseconds for each ramp, linear. These can be
             specified: Pass length in ms of ramps and exponent of strength as two
             variables AFTER all the carrier stuff OR at the end of the modulator
@@ -664,23 +653,24 @@ s.x = O;
 ##### SOURCE BEGIN #####
 %% stimulusMake
 %  Make a stimulus structure, which will include a time vector,
-%  signal vector, and other values for NLTFT toolbox use.
+%  signal vector, and other values for GrFNN toolbox use.
 %
-%  s = stimulusMake(type, varargin)
-%  type      = 'fcn', 'wav', 'mid'
+%  s = stimulusMake(id, type, varargin)
+%  id        = stimulus id number
+%  type      = 'fcn', 'wav', 'mid', 'rfcn'
 %  Required varargins for type 'fcn':
 %  ts        = time-span [starttime, stoptime]
 %  fs        = sampling rate
 %  carrier   = {'cos'}, {'sin'}, {'exp'}, {'saw'}, {'squ'}, {'noi'}
 %  fc        = frequency of the carrier
 %  ac        = amplitude of the carrier
-%  s = stimulusMake('fcn', ts, fs, carrier, fc, ac)
+%  s = stimulusMake(id, 'fcn', ts, fs, carrier, fc, ac)
 %
 %   Examples:
 %
 %   Type 'fcn'
-%   s = stimulusMake('fcn', ts, fs, carrier, fc, ac)
-%   s = stimulusMake('fcn', ts, fs, carrier, fc, ac, startPhases, 'ramp', 1, 2, 'mask', 0, 'filtmask', {b a})
+%   s = stimulusMake(id, 'fcn', ts, fs, carrier, fc, ac)
+%   s = stimulusMake(id, 'fcn', ts, fs, carrier, fc, ac, startPhases, 'ramp', 1, 2, 'mask', 0, 'filtmask', {b a})
 %
 %   Type 'wav'
 %
@@ -691,14 +681,14 @@ s.x = O;
 %    audio formats such as .mp3 and .ogg can be read, but the file extension
 %    must ALWAYS be specified.
 %
-%   s = stimulusMake('wav', filename)
-%   s = stimulusMake('wav', filename, 'ts', newTimeSpan, 'fs', newSamplingFrequency)
-%   s = stimulusMake('wav', filename, 'ramp', 1, 1, 'mask', 10, 'filtstim', {b a})
+%   s = stimulusMake(id, 'wav', filename)
+%   s = stimulusMake(id, 'wav', filename, 'ts', newTimeSpan, 'fs', newSamplingFrequency)
+%   s = stimulusMake(id, 'wav', filename, 'ramp', 1, 1, 'mask', 10, 'filtstim', {b a})
 %
 %   Type 'mid'
-%   s = stimulusMake('mid', filename, ts {optional}, fs {optional})
-%   s = stimulusMake('mid', nmat, ts{optional}, fs {optional}) %where 'nmat'is a valid Midi Toolbox-style midi matrix.
-%   s = stimulusMake('rfcn', ts {optional}, fs {optional}, numer, denom, mType, mCode, 'tempo_mod' {optional}, {optional canonMake params})
+%   s = stimulusMake(id, 'mid', filename, ts {optional}, fs {optional})
+%   s = stimulusMake(id, 'mid', nmat, ts{optional}, fs {optional}) %where 'nmat'is a valid Midi Toolbox-style midi matrix.
+%   s = stimulusMake(id, 'rfcn', ts {optional}, fs {optional}, numer, denom, mType, mCode, 'tempo_mod' {optional}, {optional canonMake params})
 %   %see help for canonMake for a description of numer, denom, mType, and mCode as well as optional params.
 %
 %
@@ -806,54 +796,32 @@ s.x = O;
 function s = stimulusMake(varargin)
 
 if isscalar(varargin{1})
-    
     id = varargin{1};
-    type = varargin{2};    
-    temp = varargin(3:end);
-        
 else
-    
-    id = 1;
-    type = varargin{1};    
-    temp = varargin(2:end);
-    
+    error('First input argument should be id number (integer)')
 end
 
-%% Call relevant 'make' function
-
-switch type
-    case 'fcn'
-        s = makeFcnInput(temp{:});
-    case 'wav'
-        s = makeWaveInput(temp{:});
-    case 'mid'
-        s = makeMidiInput(temp{:});
-    case 'rfcn'
-        s = makeRfcnInput(temp{:});
-    otherwise
-        error('unknown stimulus type');
+if ischar(varargin{2})
+    type = varargin{2};
+else
+    error('Second input argument should be stimulus type (character string)')
 end
 
+temp = varargin(3:end);
 
-%Fields for all types
-%MS1 - added 12/19/08
+%% Set fields for all types
+
 s.id = id;
-s.class = 'stim';
+s.class = 'stimulus';
 s.nClass = 1; % numerical class
-s.lenx = size(s.x, 2);  % stimulus length
-s.N = size(s.x, 1);   % number of stimulus channels
-s.inputType = '1freq';  % this field is now obsolete but kept for backward compatibility
 s.dStep = 0;
 s.dispChan = 1;
-s.useDirectIndex = 0; % used in stimulusRun
 s.f = [];
-s.fspac = [];
+s.fspac = '';
+s.nFspac = 0;
 s.tick = [];
 
 for i = 1:length(varargin)
-    if strcmpi(varargin{i},'inputType') %&& length(varargin) > i && ischar(varargin{i+1})
-        s.inputType = varargin{i+1};
-    end
     if strcmpi(varargin{i},'display') %&& length(varargin) > i && ischar(varargin{i+1})
         s.dStep = varargin{i+1};
     end
@@ -866,10 +834,28 @@ for i = 1:length(varargin)
     end
 end
 
+%% Call relevant 'make' function
+
+switch type
+    case 'fcn'
+        s = makeFcnInput(s, temp{:});
+    case 'wav'
+        s = makeWaveInput(s, temp{:});
+    case 'mid'
+        s = makeMidiInput(s, temp{:});
+    case 'rfcn'
+        s = makeRfcnInput(s, temp{:});
+    otherwise
+        error('unknown stimulus type');
+end
+
+s.lenx = size(s.x, 2);	% stimulus length
+s.N = size(s.x, 1);     % number of stimulus channels
+
 s.x = castCS(s.x);
 
 %% Make type 'function'
-function s = makeFcnInput(varargin)
+function s = makeFcnInput(s, varargin)
 
 s.type = 'fcn';
 
@@ -877,7 +863,6 @@ if length(varargin) < 5
     error('Need at least 5 inputs for fcns: time spans, sampling freq, carrier waveforms, carrier freqs, and carrier amplitudes')
 end
 
-s.analytic = 1;
 s.ts = varargin{1};         % time spans
 s.fs = varargin{2};         % sampling frequency
 s.dt = 1/s.fs;
@@ -936,11 +921,9 @@ end
 
 %% Make type 'wave'
 
-function s = makeWaveInput(varargin)
+function s = makeWaveInput(s, varargin)
 
 s.type = 'wav';
-
-s.analytic = 0;
 
 mver = version('-release');
 if str2double(mver(1:4)) > 2012 || strcmp(mver,'2012b')
@@ -953,9 +936,9 @@ if iscell(varargin{1})           % If multiple wavreads
     
     for numRead = 1:length(varargin{1})
         
-        s.fn{numRead} = varargin{1}{numRead};
+        s.fileName{numRead} = varargin{1}{numRead};
         
-        [temp,s.fs] = feval(readFunc, s.fn{numRead});
+        [temp,s.fs] = feval(readFunc, s.fileName{numRead});
         
         temp = mean(temp,2);
         
@@ -965,9 +948,9 @@ if iscell(varargin{1})           % If multiple wavreads
     
 else                             % else one wavread
     
-    s.fn = varargin{1};
+    s.fileName = varargin{1};
     
-    [s.x,s.fs] = feval(readFunc, s.fn);
+    [s.x,s.fs] = feval(readFunc, s.fileName);
     
 end
 
@@ -1004,6 +987,7 @@ for i = 1:length(varargin)
             temp(:,index) = env;                       % Take only the Hilbert envelope of each channel
         end
         s.x = temp;
+        s.f = cfs;
     end
     
     if strcmpi(varargin{i},'ts')
@@ -1047,19 +1031,17 @@ s.x  = s.x';                     % Transpose because toolbox expects row vector(
 
 %% Make type 'midi'
 
-function s = makeMidiInput(varargin)
+function s = makeMidiInput(s, varargin)
 
 s.type = 'mid';
 
-s.analytic = 0;
-s.fn   = varargin{1};
-
 %Parse data input type. Filename or nmat matrix
-if ischar(s.fn)
-    N = mdlReadMidi(s.fn);
+if ischar(varargin{1})
+    s.fileName   = varargin{1};
+    N = mdlReadMidi(s.fileName);
 else
     %user passed in a nmat matrix directly
-    N = s.fn;
+    N = varargin{1};
 end
 
 % Set default values for optional arguments
@@ -1226,10 +1208,9 @@ s.x = O;
 %% Make Rhythm Function
 %  Calls canonMake and creates a time series stimulus from the matrix.
 %  For now, cannot enter a sample rate without time span.
-function s = makeRfcnInput(varargin)
+function s = makeRfcnInput(s, varargin)
 
 s.type = 'rfcn';
-s.analytic = 0;
 
 s.ts = [];
 s.fs = 100;
