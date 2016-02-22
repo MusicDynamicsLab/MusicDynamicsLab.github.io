@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>networkMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="networkMake.m"><style type="text/css">
+      --><title>networkMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="networkMake.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -72,11 +72,6 @@ Model, such as 'hopf'                Next 6 inputs are necessary, parameters of 
                                      alpha, beta1, beta2, delta1, delta2, epsilon
 Frequency spacing, 'lin' or 'log'    Next 3 inputs are necessary, min freq of network,
                                      max freq of network, and number of oscillators</pre><pre>Optional attributes:
-'channel'                            Next input is scalar (or vector if channelizing the stimulus)
-                                     specifying which channel(s) of the stimulus this network
-                                     will receive as input. If this is not used, the network will
-                                     not receive the stimulus. This is typically specified only
-                                     for the first layer, for instance.
 'display'                            Next input is scalar which is the time step interval in
                                      between display steps as the network integrates. Default
                                      is zero.
@@ -93,17 +88,19 @@ Frequency spacing, 'lin' or 'log'    Next 3 inputs are necessary, min freq of ne
 n  = networkMake(1, <span class="string">'hopf'</span>, 0, -100, -1, 0, 0, .0025, <span class="string">'log'</span>, 20, 20000, 800, <span class="string">'save'</span>, 1, <span class="string">'channel'</span>, 1);
 </pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Set defaults and initialize variables</a></li><li><a href="#3">Parse input</a></li><li><a href="#4">Error check for necessary inputs</a></li><li><a href="#5">Define oscillator parameters</a></li><li><a href="#6">Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin</a></li><li><a href="#7">Older things not to throw away</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> n = networkMake(id, varargin)
 </pre><h2>Set defaults and initialize variables<a name="2"></a></h2><pre class="codeinput">n.id = id;
-n.class = <span class="string">'net'</span>;
+n.class = <span class="string">'network'</span>;
 n.nClass = 2; <span class="comment">% numerical class</span>
 
-models = {<span class="string">'hopf'</span>};              <span class="comment">% Can add to this array later</span>
+n.con = {}; <span class="comment">% cell array containing connections targeting this network</span>
+n.learnList = []; <span class="comment">% indices for learned connections (used in integrator)</span>
 
+models = {<span class="string">'hopf'</span>};              <span class="comment">% Can add to this array later</span>
 n.model = [];                   <span class="comment">% Initialize these to use isempty to error check later</span>
 n.fspac = [];
 
+n.nFspac= 0;
 n.dStep = 0;                    <span class="comment">% Initialize these to zero/empty in case not specified in varargin</span>
 n.sStep = 0;
-n.ext   = 0;                    <span class="comment">% Now obsolete but needed for backward compatibility</span>
 overrideInitialConditions = 0;
 n.tick  = [];
 </pre><h2>Parse input<a name="3"></a></h2><pre class="codeinput"><span class="keyword">for</span> i = 1:length(varargin)
@@ -128,13 +125,20 @@ n.tick  = [];
     <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; any(strcmpi(varargin{i}(1:3),{<span class="string">'lin'</span> <span class="string">'log'</span>})) &amp;&amp; length(varargin) &gt; i + 2 &amp;&amp; isscalar(varargin{i+1}) &amp;&amp; isscalar(varargin{i+2}) &amp;&amp; isscalar(varargin{i+3})
 
         n.fspac = lower(varargin{i}(1:3));
+        <span class="comment">% Assign nFspac integer value based on fspac string value</span>
+        <span class="keyword">if</span> strcmpi(n.fspac, <span class="string">'lin'</span>)
+            n.nFspac = 1;
+        <span class="keyword">else</span>
+            n.nFspac = 2;
+        <span class="keyword">end</span>
+
         lf   = varargin{i+1};            <span class="comment">% min freq</span>
         hf   = varargin{i+2};            <span class="comment">% max freq</span>
         N    = varargin{i+3};            <span class="comment">% number of frequency steps</span>
         n.N  = N;
-        <span class="keyword">switch</span> n.fspac
+        <span class="keyword">switch</span> n.nFspac
 
-            <span class="keyword">case</span> <span class="string">'lin'</span>
+            <span class="keyword">case</span> 1 <span class="comment">% linear spacing</span>
                 n.f  = linspace(lf,hf,N)';
                 <span class="keyword">if</span> N &gt; 1
                     n.df = abs(n.f(2)-n.f(1)); <span class="comment">% to scale for frequency density</span>
@@ -142,7 +146,7 @@ n.tick  = [];
                     n.df = 1;
                 <span class="keyword">end</span>
 
-            <span class="keyword">case</span> <span class="string">'log'</span>
+            <span class="keyword">case</span> 2 <span class="comment">% log spacing</span>
                 n.f  = logspace(log10(lf),log10(hf),N)';
                 <span class="keyword">if</span> N &gt; 1
                     n.df = abs(log2(n.f(2)/n.f(1)));          <span class="comment">% to scale for frequency density</span>
@@ -151,12 +155,6 @@ n.tick  = [];
                 <span class="keyword">end</span>
         <span class="keyword">end</span>
         n.f   = single(n.f);
-    <span class="keyword">end</span>
-
-    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'cha'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; ~ischar(varargin{i+1})
-
-        n.ext = varargin{i+1};  <span class="comment">% now obsolete but needed for backward compatibility</span>
-
     <span class="keyword">end</span>
 
     <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; isscalar(varargin{i+1})
@@ -184,48 +182,30 @@ n.tick  = [];
 
     <span class="keyword">end</span>
 
-    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; ~any(strcmpi(varargin{i},models)) &amp;&amp; ~any(strcmpi(varargin{i},{<span class="string">'lin'</span> <span class="string">'log'</span>})) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'cha'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'zna'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'tic'</span>)
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; ~any(strcmpi(varargin{i},models)) &amp;&amp; ~any(strcmpi(varargin{i},{<span class="string">'lin'</span> <span class="string">'log'</span>})) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'zna'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'tic'</span>)
 
         error([<span class="string">'Unrecognized input to networkMake: '</span> varargin{i}]);
 
     <span class="keyword">end</span>
 
 <span class="keyword">end</span>
-n.con = {}; <span class="comment">% JCK: got rid of aff/eff/int distinction</span>
-n.conLearn = []; <span class="comment">% indices for learned connections (used in integrator)</span>
 </pre><h2>Error check for necessary inputs<a name="4"></a></h2><pre class="codeinput"><span class="keyword">if</span> isempty(n.model)
 
     error(<span class="string">'Must specify a model and all parameters in networkMake'</span>)
 
 <span class="keyword">end</span>
+</pre><h2>Define oscillator parameters<a name="5"></a></h2><pre class="codeinput"><span class="keyword">switch</span> n.nFspac
 
-
-<span class="keyword">if</span> isempty(n.fspac)
-
-    error(<span class="string">'Must specify a linear or logarithmic frequency gradient in networkMake'</span>)
-
-<span class="keyword">end</span>
-</pre><h2>Define oscillator parameters<a name="5"></a></h2><pre class="codeinput"><span class="keyword">switch</span> n.fspac
-
-    <span class="keyword">case</span> <span class="string">'lin'</span>
+    <span class="keyword">case</span> 1 <span class="comment">% linear spacing</span>
         n.a  = single(alpha + 1i*2*pi.*n.f);
         n.b1 = single(beta1 + 1i*delta1);
         n.b2 = single(beta2 + 1i*delta2);
-        n.w  = 1;
 
-    <span class="keyword">case</span> <span class="string">'log'</span>
+    <span class="keyword">case</span> 2 <span class="comment">% log spacing</span>
         n.a  = single(alpha + 1i*2*pi  ).*n.f;  <span class="comment">% Redefinition of a, b1 &amp; b2</span>
         n.b1 = single(beta1 + 1i*delta1).*n.f;
         n.b2 = single(beta2 + 1i*delta2).*n.f;
-        n.w  = n.f;
 <span class="keyword">end</span>
-<span class="comment">%         if isempty(n.b2) n.b2 = n.b1; end;              % &#65533; NECESSARY ?</span>
-
-<span class="comment">%         if length(model)&gt;4</span>
-<span class="comment">%             n.e = model{7};</span>
-<span class="comment">%         else</span>
-<span class="comment">%             n.e = 1.0;</span>
-<span class="comment">%         end</span>
 
 n.e = single(epsilon);
 
@@ -257,7 +237,7 @@ n.e = single(epsilon);
 <span class="keyword">end</span>
 
 n.z = n.z0;
-</pre><h2>Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin<a name="6"></a></h2><p>Define ticks and tick labels to be used for plotting m   = ceil(n.N/2);                  % middle frequency of network switch n.fspac     case 'lin'         n.tck = floor(linspace(1, n.N,5));     case 'log'         per = floor(n.N/(log2(n.f(end))-log2(n.f(1))));</p><pre>       tckup = m:per:n.N;
+</pre><h2>Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin<a name="6"></a></h2><p>Define ticks and tick labels to be used for plotting m   = ceil(n.N/2);                  % middle frequency of network switch n.nFspac     case 'lin'         n.tck = floor(linspace(1, n.N,5));     case 'log'         per = floor(n.N/(log2(n.f(end))-log2(n.f(1))));</p><pre>       tckup = m:per:n.N;
        tckdn = m:-per:1;
        n.tck = unique([tckdn,tckup]);
 end
@@ -363,11 +343,6 @@ end</pre><h2>Older things not to throw away<a name="7"></a></h2><pre class="code
 %                                       max freq of network, and number of oscillators
 % 
 %  Optional attributes:
-%  'channel'                            Next input is scalar (or vector if channelizing the stimulus)
-%                                       specifying which channel(s) of the stimulus this network 
-%                                       will receive as input. If this is not used, the network will
-%                                       not receive the stimulus. This is typically specified only 
-%                                       for the first layer, for instance.
 %  'display'                            Next input is scalar which is the time step interval in 
 %                                       between display steps as the network integrates. Default
 %                                       is zero.
@@ -392,17 +367,19 @@ end</pre><h2>Older things not to throw away<a name="7"></a></h2><pre class="code
 function n = networkMake(id, varargin)
 %% Set defaults and initialize variables
 n.id = id;
-n.class = 'net';
+n.class = 'network';
 n.nClass = 2; % numerical class
 
-models = {'hopf'};              % Can add to this array later
+n.con = {}; % cell array containing connections targeting this network
+n.learnList = []; % indices for learned connections (used in integrator)
 
+models = {'hopf'};              % Can add to this array later
 n.model = [];                   % Initialize these to use isempty to error check later
 n.fspac = [];
 
+n.nFspac= 0;
 n.dStep = 0;                    % Initialize these to zero/empty in case not specified in varargin
 n.sStep = 0;
-n.ext   = 0;                    % Now obsolete but needed for backward compatibility
 overrideInitialConditions = 0;
 n.tick  = [];
 
@@ -429,13 +406,20 @@ for i = 1:length(varargin)
     if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
         
         n.fspac = lower(varargin{i}(1:3));
+        % Assign nFspac integer value based on fspac string value
+        if strcmpi(n.fspac, 'lin')
+            n.nFspac = 1;
+        else
+            n.nFspac = 2;
+        end
+        
         lf   = varargin{i+1};            % min freq
         hf   = varargin{i+2};            % max freq
         N    = varargin{i+3};            % number of frequency steps
         n.N  = N;
-        switch n.fspac
+        switch n.nFspac
             
-            case 'lin'
+            case 1 % linear spacing
                 n.f  = linspace(lf,hf,N)';
                 if N > 1
                     n.df = abs(n.f(2)-n.f(1)); % to scale for frequency density
@@ -443,7 +427,7 @@ for i = 1:length(varargin)
                     n.df = 1;
                 end
                 
-            case 'log'
+            case 2 % log spacing
                 n.f  = logspace(log10(lf),log10(hf),N)';
                 if N > 1
                     n.df = abs(log2(n.f(2)/n.f(1)));          % to scale for frequency density
@@ -454,12 +438,6 @@ for i = 1:length(varargin)
         n.f   = single(n.f);
     end
      
-    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'cha') && length(varargin) > i && ~ischar(varargin{i+1})
-    
-        n.ext = varargin{i+1};  % now obsolete but needed for backward compatibility
-        
-    end
-    
     if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'dis') && length(varargin) > i && isscalar(varargin{i+1})
         
         n.dStep = varargin{i+1};
@@ -485,15 +463,13 @@ for i = 1:length(varargin)
         
     end
     
-    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i},{'lin' 'log'})) && ~strcmpi(varargin{i}(1:3),'cha') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
+    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i},{'lin' 'log'})) && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
         
         error(['Unrecognized input to networkMake: ' varargin{i}]);
         
     end
     
 end
-n.con = {}; % JCK: got rid of aff/eff/int distinction
-n.conLearn = []; % indices for learned connections (used in integrator)
 
 %% Error check for necessary inputs
 if isempty(n.model)
@@ -503,34 +479,19 @@ if isempty(n.model)
 end
 
 
-if isempty(n.fspac)
-    
-    error('Must specify a linear or logarithmic frequency gradient in networkMake')
-    
-end
-
 %% Define oscillator parameters
-switch n.fspac
+switch n.nFspac
     
-    case 'lin'
+    case 1 % linear spacing
         n.a  = single(alpha + 1i*2*pi.*n.f);
         n.b1 = single(beta1 + 1i*delta1);
         n.b2 = single(beta2 + 1i*delta2);
-        n.w  = 1;
         
-    case 'log'
+    case 2 % log spacing
         n.a  = single(alpha + 1i*2*pi  ).*n.f;  % Redefinition of a, b1 & b2
         n.b1 = single(beta1 + 1i*delta1).*n.f;
         n.b2 = single(beta2 + 1i*delta2).*n.f;
-        n.w  = n.f;
 end
-%         if isempty(n.b2) n.b2 = n.b1; end;              % � NECESSARY ?
-
-%         if length(model)>4
-%             n.e = model{7};
-%         else
-%             n.e = 1.0;
-%         end
 
 n.e = single(epsilon);
 
@@ -566,7 +527,7 @@ n.z = n.z0;
 %% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin
 % Define ticks and tick labels to be used for plotting
 % m   = ceil(n.N/2);                  % middle frequency of network
-% switch n.fspac
+% switch n.nFspac
 %     case 'lin'
 %         n.tck = floor(linspace(1, n.N,5));
 %     case 'log'

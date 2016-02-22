@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>connectAdd</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="connectAdd.m"><style type="text/css">
+      --><title>connectAdd</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="connectAdd.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,10 +66,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>connectAdd</h1><!--introduction--><pre>n = connectAdd(n1, n2, C, varargin)</pre><pre>Updates and returns target network n2, with new connectivity from source
-network n1, with connectivity matrix specified by pattern C.</pre><pre>Required input argumenets:
-n1               Source network (network getting the connection input).
-n2               Target network.
+  </style></head><body><div class="content"><h1>connectAdd</h1><!--introduction--><pre>n = connectAdd(n1, n2, C, varargin)</pre><pre>Updates and returns target network, with new connectivity from source,
+with connectivity matrix specified by pattern C.</pre><pre>Required input argumenets:
+n1               Source (stimulus or network providing connection input)
+n2               Target network
 C                Connection pattern, either a scalar or a matrix of N2 by N1
                  where N1 is the number of oscillators for n1 and N2 for
                  n2. When learning is on, this is used as initial
@@ -77,7 +77,8 @@ C                Connection pattern, either a scalar or a matrix of N2 by N1
                  initial conditions are assigned).</pre><pre>Optional input arguments:
 'type'           Followed by a charater string specifying connection type.
                  Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
-                 'All2freq', and 'Allfreq' ('Allfreq' is default).
+                 'All2freq', and 'Allfreq'. '1freq' is default for stimulus
+                 source and 'Allfreq' is for network source.
 'learn'          Followed by five parameters for the learning rule:
                  lambda, mu1, mu2, epsilon, and kappa
 'weight'         Followed by a weight (scalar or column vector) to be multiplied
@@ -94,13 +95,18 @@ C                Connection pattern, either a scalar or a matrix of N2 by N1
                  connectivity matrix. Default is zero.</pre><pre>Output:
 n                Target network with the connection added</pre><pre>Example calls:</pre><pre class="language-matlab">n2 = connectAdd(n1, n2, [], <span class="string">'learn'</span>, 0, -100000000, -1, .5, .1, <span class="string">'display'</span>, 20, <span class="string">'phaseDisp'</span>, <span class="string">'type'</span>, <span class="string">'1freq'</span>);
 n2 = connectAdd(n1, n2, ones(n2.N, n1.N), <span class="string">'weight'</span>, .01);
-</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Initialize parameters</a></li><li><a href="#4">Parse input</a></li><li><a href="#5">Connection types</a></li><li><a href="#6">Scaling factors</a></li><li><a href="#7">Scale learning parameters</a></li><li><a href="#8">Connection State and Initial Conditions</a></li><li><a href="#9">Input</a></li><li><a href="#10">Masking</a></li><li><a href="#11">Return network n2</a></li><li><a href="#12">Add index to conLearn if learn</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> n = connectAdd(n1, n2, C, varargin)
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Initialize parameters</a></li><li><a href="#4">Parse input</a></li><li><a href="#5">Connection types</a></li><li><a href="#6">Scaling factors</a></li><li><a href="#7">Scale learning parameters</a></li><li><a href="#8">Connection State and Initial Conditions</a></li><li><a href="#9">Masking</a></li><li><a href="#10">Return network n2</a></li><li><a href="#11">Add index to learnList if learn</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> n = connectAdd(n1, n2, C, varargin)
 </pre><pre class="codeinput"><span class="comment">% n1 is the source (stimulus or network), n2 is the target network</span>
+con.id = length(n2.con)+1;
+con.class = <span class="string">'connection'</span>;
+con.nClass = 3;
+
 con.source = n1.id;
 con.sourceClass = n1.class;
 con.nSourceClass = n1.nClass;   <span class="comment">% numerical class (1: stimulus, 2: network)</span>
 con.sourceAxis = n1.f;
 con.sourceAxisScale = n1.fspac;
+con.nSourceAxisScale = n1.nFspac;
 con.sourceAxisTick = n1.tick;
 con.sourceN = n1.N;
 
@@ -109,9 +115,14 @@ con.targetClass = n2.class;
 con.nTargetClass = n2.nClass;
 con.targetAxis = n2.f;
 con.targetAxisScale = n2.fspac;
+con.nTargetAxisScale = n2.nFspac;
 con.targetAxisTick = n2.tick;
 con.targetN = n2.N;
-</pre><h2>Initialize parameters<a name="3"></a></h2><pre class="codeinput">con.type = <span class="string">'Allfreq'</span>;
+</pre><h2>Initialize parameters<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> con.nSourceClass == 1
+    con.type = <span class="string">'1freq'</span>;     <span class="comment">% default connection type for stimulus source</span>
+<span class="keyword">else</span>
+    con.type = <span class="string">'Allfreq'</span>;   <span class="comment">% default connection type for network source</span>
+<span class="keyword">end</span>
 con.dStep = 0;
 con.sStep = 0;
 con.no11 = 0;
@@ -267,7 +278,8 @@ kappa = 0;
         con.nType = 7;
 
 <span class="keyword">end</span>
-</pre><h2>Scaling factors<a name="6"></a></h2><pre class="codeinput"><span class="keyword">if</span> strcmpi(n2.fspac,<span class="string">'log'</span>)
+</pre><h2>Scaling factors<a name="6"></a></h2><pre class="codeinput"><span class="keyword">if</span> n2.nFspac==2 <span class="comment">% log spacing</span>
+    con.F = F;
     con.w = w.*n2.f;
 <span class="keyword">else</span>
     F = ones(size(F));
@@ -281,7 +293,7 @@ kappa = 0;
 
 con.learn = learn;
 
-<span class="keyword">if</span> strcmpi(n2.fspac,<span class="string">'log'</span>)
+<span class="keyword">if</span> n2.nFspac==2 <span class="comment">% log spacing</span>
     con.lambda = lambda.*F;
     con.mu1 = mu1.*F;
     con.mu2 = mu2.*F;
@@ -317,10 +329,7 @@ con.e = epsilon;
 <span class="keyword">end</span>
 
 con.C = con.C0;
-</pre><h2>Input<a name="9"></a></h2><pre>    n1: index into n1 (the network in the signal is coming from)
-    n2: index into n2 (the network in the signal is going to)</pre><pre class="codeinput">con.n1 = n1.id;
-con.n2 = n2.id;
-</pre><h2>Masking<a name="10"></a></h2><pre>    This process operates on the initial condition and parameter
+</pre><h2>Masking<a name="9"></a></h2><pre>    This process operates on the initial condition and parameter
     matrices to hange the way things work (i.e.</pre><pre>    mask = ~eye(size(C));          % Don't learn self-connections
                                      This could be inverted guassian
                                      too</pre><pre class="codeinput">mask = 1;
@@ -338,23 +347,22 @@ con.mu2 = con.mu2 .* mask;
 con.kappa = con.kappa .* mask;
 con.C0    = con.C0    .* mask;
 con.C     = con.C     .* mask;
-</pre><h2>Return network n2<a name="11"></a></h2><pre class="codeinput">n = n2;
-con.id = length(n.con)+1;
+</pre><h2>Return network n2<a name="10"></a></h2><pre class="codeinput">n = n2;
 n.con{con.id} = con;
-</pre><h2>Add index to conLearn if learn<a name="12"></a></h2><pre class="codeinput"><span class="keyword">if</span> con.learn
-    n.conLearn = [n.conLearn con.id];
+</pre><h2>Add index to learnList if learn<a name="11"></a></h2><pre class="codeinput"><span class="keyword">if</span> con.learn
+    n.learnList = [n.learnList con.id];
 <span class="keyword">end</span>
 </pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% connectAdd
 %  n = connectAdd(n1, n2, C, varargin)
 %
-%  Updates and returns target network n2, with new connectivity from source
-%  network n1, with connectivity matrix specified by pattern C.
+%  Updates and returns target network, with new connectivity from source,
+%  with connectivity matrix specified by pattern C.
 %
 %  Required input argumenets:
-%  n1               Source network (network getting the connection input).
-%  n2               Target network.
+%  n1               Source (stimulus or network providing connection input)
+%  n2               Target network
 %  C                Connection pattern, either a scalar or a matrix of N2 by N1
 %                   where N1 is the number of oscillators for n1 and N2 for
 %                   n2. When learning is on, this is used as initial
@@ -364,7 +372,8 @@ n.con{con.id} = con;
 %  Optional input arguments:
 %  'type'           Followed by a charater string specifying connection type.
 %                   Options are '1freq', '2freq', '3freq', '3freqAll', 'active',
-%                   'All2freq', and 'Allfreq' ('Allfreq' is default).
+%                   'All2freq', and 'Allfreq'. '1freq' is default for stimulus
+%                   source and 'Allfreq' is for network source.
 %  'learn'          Followed by five parameters for the learning rule:
 %                   lambda, mu1, mu2, epsilon, and kappa
 %  'weight'         Followed by a weight (scalar or column vector) to be multiplied
@@ -392,11 +401,16 @@ n.con{con.id} = con;
 %%
 function n = connectAdd(n1, n2, C, varargin)
 % n1 is the source (stimulus or network), n2 is the target network
+con.id = length(n2.con)+1;
+con.class = 'connection';
+con.nClass = 3;
+
 con.source = n1.id;
 con.sourceClass = n1.class;
 con.nSourceClass = n1.nClass;   % numerical class (1: stimulus, 2: network)
 con.sourceAxis = n1.f;
 con.sourceAxisScale = n1.fspac;
+con.nSourceAxisScale = n1.nFspac;
 con.sourceAxisTick = n1.tick;
 con.sourceN = n1.N;
 
@@ -405,12 +419,17 @@ con.targetClass = n2.class;
 con.nTargetClass = n2.nClass;
 con.targetAxis = n2.f;
 con.targetAxisScale = n2.fspac;
+con.nTargetAxisScale = n2.nFspac;
 con.targetAxisTick = n2.tick;
 con.targetN = n2.N;
 
 %% Initialize parameters
 
-con.type = 'Allfreq';
+if con.nSourceClass == 1
+    con.type = '1freq';     % default connection type for stimulus source
+else
+    con.type = 'Allfreq';   % default connection type for network source
+end
 con.dStep = 0;
 con.sStep = 0;
 con.no11 = 0;
@@ -574,7 +593,8 @@ end
 
 %% Scaling factors
 
-if strcmpi(n2.fspac,'log')
+if n2.nFspac==2 % log spacing
+    con.F = F;
     con.w = w.*n2.f;
 else
     F = ones(size(F));
@@ -591,7 +611,7 @@ end
 
 con.learn = learn;
 
-if strcmpi(n2.fspac,'log')
+if n2.nFspac==2 % log spacing
     con.lambda = lambda.*F;
     con.mu1 = mu1.*F;
     con.mu2 = mu2.*F;
@@ -632,14 +652,6 @@ end
 
 con.C = con.C0;
 
-
-%% Input
-%      n1: index into n1 (the network in the signal is coming from)
-%      n2: index into n2 (the network in the signal is going to)
-con.n1 = n1.id;
-con.n2 = n2.id;
-
-
 %% Masking
 %      This process operates on the initial condition and parameter
 %      matrices to hange the way things work (i.e.
@@ -666,12 +678,11 @@ con.C     = con.C     .* mask;
 
 %% Return network n2
 n = n2;
-con.id = length(n.con)+1;
 n.con{con.id} = con;
 
-%% Add index to conLearn if learn
+%% Add index to learnList if learn
 if con.learn
-    n.conLearn = [n.conLearn con.id];
+    n.learnList = [n.learnList con.id];
 end
 
 ##### SOURCE END #####

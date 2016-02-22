@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>connectMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="connectMake.m"><style type="text/css">
+      --><title>connectMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="connectMake.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -89,10 +89,10 @@ C = connectMake(n1,n2,<span class="string">'full'</span>,10);
 <span class="keyword">end</span>
 
 amp  = 1;                   <span class="comment">% Set defaults</span>
-<span class="keyword">switch</span> n2.fspac
-    <span class="keyword">case</span> <span class="string">'log'</span>
+<span class="keyword">switch</span> n2.nFspac
+    <span class="keyword">case</span> 2 <span class="comment">% log spacing</span>
         range = 1.02; <span class="comment">% freq ratio</span>
-    <span class="keyword">case</span> <span class="string">'lin'</span>
+    <span class="keyword">case</span> 1 <span class="comment">% lin spacing</span>
         range = .02; <span class="comment">% freq difference</span>
 <span class="keyword">end</span>
 complexKernel = 0;
@@ -144,13 +144,13 @@ ranges = 1;
     <span class="keyword">end</span>
 
 <span class="keyword">end</span>
-</pre><h2>Generate connectivity kernel(s)<a name="4"></a></h2><pre class="codeinput"><span class="keyword">switch</span> n2.fspac
-    <span class="keyword">case</span> <span class="string">'log'</span>
+</pre><h2>Generate connectivity kernel(s)<a name="4"></a></h2><pre class="codeinput"><span class="keyword">switch</span> n2.nFspac
+    <span class="keyword">case</span> 2
         F = log2(relFreq(n1.f, n2.f)); <span class="comment">% F: log2 of freq ratios</span>
         sigma = abs(log2(range))*ranges;
         per = floor(n1.N/(log2(n1.f(end))-log2(n1.f(1))));
         df = 1/per;
-    <span class="keyword">case</span> <span class="string">'lin'</span>
+    <span class="keyword">case</span> 1
         F = diffFreq(n1.f, n2.f); <span class="comment">% F: freq differences</span>
         sigma = range*ranges;
         df = n1.df;
@@ -247,10 +247,10 @@ if ~any(strcmpi(type,{'full' 'near' 'one' 'gaus'}))
 end
 
 amp  = 1;                   % Set defaults
-switch n2.fspac
-    case 'log'
+switch n2.nFspac
+    case 2 % log spacing
         range = 1.02; % freq ratio
-    case 'lin'
+    case 1 % lin spacing
         range = .02; % freq difference
 end
 complexKernel = 0;
@@ -308,13 +308,13 @@ end
 
 %% Generate connectivity kernel(s)
 
-switch n2.fspac
-    case 'log'
+switch n2.nFspac
+    case 2
         F = log2(relFreq(n1.f, n2.f)); % F: log2 of freq ratios
         sigma = abs(log2(range))*ranges;
         per = floor(n1.N/(log2(n1.f(end))-log2(n1.f(1))));
         df = 1/per;
-    case 'lin'
+    case 1
         F = diffFreq(n1.f, n2.f); % F: freq differences
         sigma = range*ranges;
         df = n1.df;
