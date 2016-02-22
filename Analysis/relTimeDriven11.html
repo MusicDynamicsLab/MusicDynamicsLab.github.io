@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>relTimeDriven11</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="relTimeDriven11.m"><style type="text/css">
+      --><title>relTimeDriven11</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="relTimeDriven11.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +38,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -65,13 +66,19 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>relTimeDriven11</h1><pre class="language-matlab">[relTime, r0, rStar] = relTimeDriven11(alpha, beta1, beta2, epsilon, F)
-</pre><pre>Calculates an appoximation of the relaxation time (relTime)
-for a canonical oscillator driven by a sinusoid at its natural frequency
-(Omega = 0), starting from its spontaneous amplitude (r0) until it
-reaches within 1 of the driven steady-state amplitude (rStar). When
-there are multiple spontaneous amplitudes, vectors are given as output.
-Only dr/dt equation is used, assuming psi = 0 throughout the trajectory.</pre><pre class="codeinput"><span class="keyword">function</span> [relTime, r0, rStar] = relTimeDriven11(a, b1, b2, e, F)
+  </style></head><body><div class="content"><h1>relTimeDriven11</h1><!--introduction--><pre class="language-matlab">[relTime, r0, rStar] = relTimeDriven11(alpha, beta1, beta2, epsilon, F)
+</pre><pre>Calculates an appoximation of the relaxation time for a canonical
+oscillator driven by a sinuoid at its natural frequency.
+Here relaxation time is defined as time taken from oscillator's
+spontaneous amplitude until it reaches within 1% of the steady-state
+driven amplitude. When there are multiple spontaneous amplitudes,
+vectors are given as output. Only dr/dt equation is used, assuming
+relative phase (psi) is 0 throughout the trajectory.</pre><pre>Input arguments:
+alpha, beta1, beta2, epsilon     Oscillator parameters
+F                                Sinusoidal stimulus amplitude</pre><pre>Output:
+relTime              Relaxation time(s)
+r0                   Spontaneous amplitude(s) (initial condition)
+rStar                Stable steady-state driven amplitude(s)</pre><!--/introduction--><pre class="codeinput"><span class="keyword">function</span> [relTime, r0, rStar] = relTimeDriven11(a, b1, b2, e, F)
 
 r0 = spontAmp(a, b1, b2, e); <span class="comment">% spontaneous amplitude</span>
 rss = rStarDriven11(a, b1, b2, e, F, 0, 0); <span class="comment">% stable steady-state amp</span>
@@ -88,20 +95,33 @@ relTime = zeros(size(r0));
   relTime(n) = dr*sum(dtdr(a, b1, b2, e, F, R(1:100))); <span class="comment">% Euler integration</span>
 <span class="keyword">end</span>
 
+<span class="comment">% ========================================================</span>
 <span class="keyword">function</span> dtdr = dtdr(a, b1, b2, e, F, r)
 dtdr = 1./(a*r + b1*r.^3 + e*b2*r.^5./(1-e*r.^2) + F);
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% relTimeDriven11
 %   [relTime, r0, rStar] = relTimeDriven11(alpha, beta1, beta2, epsilon, F)
 %
-%  Calculates an appoximation of the relaxation time (relTime)
-%  for a canonical oscillator driven by a sinusoid at its natural frequency
-%  (Omega = 0), starting from its spontaneous amplitude (r0) until it
-%  reaches within 1 of the driven steady-state amplitude (rStar). When
-%  there are multiple spontaneous amplitudes, vectors are given as output.
-%  Only dr/dt equation is used, assuming psi = 0 throughout the trajectory.
+%  Calculates an appoximation of the relaxation time for a canonical 
+%  oscillator driven by a sinuoid at its natural frequency.
+%  Here relaxation time is defined as time taken from oscillator's
+%  spontaneous amplitude until it reaches within 1% of the steady-state 
+%  driven amplitude. When there are multiple spontaneous amplitudes,
+%  vectors are given as output. Only dr/dt equation is used, assuming 
+%  relative phase (psi) is 0 throughout the trajectory.
+%
+%  Input arguments:
+%  alpha, beta1, beta2, epsilon     Oscillator parameters
+%  F                                Sinusoidal stimulus amplitude
+%
+%  Output:
+%  relTime              Relaxation time(s)
+%  r0                   Spontaneous amplitude(s) (initial condition)
+%  rStar                Stable steady-state driven amplitude(s)
+%
 
+%%
 function [relTime, r0, rStar] = relTimeDriven11(a, b1, b2, e, F)
 
 r0 = spontAmp(a, b1, b2, e); % spontaneous amplitude
@@ -119,6 +139,7 @@ for n = 1:length(r0)
   relTime(n) = dr*sum(dtdr(a, b1, b2, e, F, R(1:100))); % Euler integration
 end
 
+% ========================================================
 function dtdr = dtdr(a, b1, b2, e, F, r)
 dtdr = 1./(a*r + b1*r.^3 + e*b2*r.^5./(1-e*r.^2) + F);
 

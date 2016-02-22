@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>rStarCoupled11</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="rStarCoupled11.m"><style type="text/css">
+      --><title>rStarCoupled11</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="rStarCoupled11.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +38,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -65,23 +66,36 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>rStarCoupled11</h1><!--introduction--><pre class="language-matlab">[r1Star, r2Star, psiStar, stability, stabType] = rStarCoupled11(alpha, beta1, beta2, epsilon, coupling strength, Omega, All)
-</pre><pre>Finds r1*, r2*, psi*, stability (1 or 0), and stability type (0-4)
-numerically for two canonical oscillators with fixed coupling. Omega
-refers to the difference between the oscillators' natural frequencies
-in radian. Set the optional input argument 'All' to 1 (or any nonzero
-value to get both stable and unstable fixed points. (Default for All
-is 0, that is, rStarCoupled11 outputs only stable fixed points.)</pre><pre>stability: 1 = stable, 0 = unstable
-stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-1 = unstable spiral, 0 = saddle point</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Equation</a></li><li><a href="#3">Check input arguments</a></li><li><a href="#4">Find symmetric steady-state amplitudes (r1 = r2)</a></li><li><a href="#5">Find asymmetric solutions (r1 ~= r2)</a></li><li><a href="#6">Find corresponding relative phases</a></li><li><a href="#7">Exclude extraneous solutions</a></li><li><a href="#8">Calculate stability type using Jacobian matrix</a></li><li><a href="#9">Prepare output</a></li><li><a href="#10">Find asymmetric steady-state amplitudes (r^2)</a></li><li><a href="#13">Calculate Jacobian matrix</a></li></ul></div><h2>Equation<a name="1"></a></h2><p><img src="rStarCoupled11_eq65474.png" alt="$$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +&#xA;\beta_1 |z_1|^2 + \frac{\epsilon\beta_2|z_1|^4}&#xA;{1-\epsilon |z_1|^2}\right) + cz_2$$"></p><p><img src="rStarCoupled11_eq26495.png" alt="$$\frac{dz_2}{dt} = z_2\left(\alpha + \textrm{i}\omega_2 +&#xA;\beta_1 |z_2|^2 + \frac{\epsilon\beta_2|z_2|^4}&#xA;{1-\epsilon |z_2|^2}\right) + cz_1$$"></p><p>where <img src="rStarCoupled11_eq61586.png" alt="$z_i = r_ie^{\textrm{i}\phi_i}, \psi = \phi_1 - \phi_2,$"> and <img src="rStarCoupled11_eq52916.png" alt="$\Omega = \omega_1 - \omega_2$"></p><pre class="codeinput"><span class="keyword">function</span> [r1Star, r2Star, psiStar, stability, stabType] = <span class="keyword">...</span>
+  </style></head><body><div class="content"><h1>rStarCoupled11</h1><!--introduction--><pre>[r1Star, r2Star, psiStar, stability, stabType] = rStarCoupled11(alpha, beta1, beta2, epsilon, coupling strength, Omega, All)</pre><pre>Finds steady-state amplitudes (r1*, r2*) and relative phase (psi*) along
+with their stability and stability type for two canonical oscillators
+connected by fixed 1:1 coupling.</pre><pre>Input arguments:
+alpha, beta1, beta2, epsilon
+                     Oscillator parameters
+coupling strength    Coupling amplitude
+Omega                Natural frequency difference (i.e. the first
+                     oscillator's natural frequency minus the second
+                     oscilltor's frequency) in radian</pre><pre>Optional input:
+All                  Set it to 1 (or any nonzero value) to get both
+                     stable and unstable fixed points. (Default is 0,
+                     i.e., only stable fixed points are output.)</pre><pre>Output:
+r1Star               Steady-state amplitude(s) of the first oscillator
+r2Star               Steady-state amplitude(s) of the second oscillator
+psiStar              Steady-state relative phase(s) (i.e. first
+                     oscillator phase minus second oscillator phase)
+stability            Stability of steady state(s)
+                     (1 = stable, 0 = unstable)
+stabType             Stability type of steady state(s)
+                     (4 = stable node, 3 = stable spiral,
+                     2 = unstable node, 1 = unstable spiral,
+                     0 = saddle point)</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Equation</a></li><li><a href="#4">Check input arguments</a></li><li><a href="#5">Find symmetric steady-state amplitudes (r1 = r2)</a></li><li><a href="#6">Find asymmetric solutions (r1 ~= r2)</a></li><li><a href="#7">Find corresponding relative phases</a></li><li><a href="#8">Exclude extraneous solutions</a></li><li><a href="#9">Calculate stability type using Jacobian matrix</a></li><li><a href="#10">Prepare output</a></li><li><a href="#11">Find asymmetric steady-state amplitudes (r^2)</a></li><li><a href="#14">Calculate Jacobian matrix</a></li></ul></div><h2>Equation<a name="1"></a></h2><p><img src="rStarCoupled11_eq13567615949714263343.png" alt="$$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +&#xA;\beta_1 |z_1|^2 + \frac{\epsilon\beta_2|z_1|^4}&#xA;{1-\epsilon |z_1|^2}\right) + cz_2$$" style="width:299px;height:36px;"></p><p><img src="rStarCoupled11_eq04952286044915220245.png" alt="$$\frac{dz_2}{dt} = z_2\left(\alpha + \textrm{i}\omega_2 +&#xA;\beta_1 |z_2|^2 + \frac{\epsilon\beta_2|z_2|^4}&#xA;{1-\epsilon |z_2|^2}\right) + cz_1$$" style="width:298px;height:36px;"></p><p>where <img src="rStarCoupled11_eq17191601950896254372.png" alt="$z_i = r_ie^{\textrm{i}\phi_i}, \psi = \phi_1 - \phi_2,$" style="width:148px;height:18px;"> and <img src="rStarCoupled11_eq10976552692166844279.png" alt="$\Omega = \omega_1 - \omega_2$" style="width:76px;height:12px;"></p><pre class="codeinput"><span class="keyword">function</span> [r1Star, r2Star, psiStar, stability, stabType] = <span class="keyword">...</span>
   rStarCoupled11(a, b1, b2, e, c, W, All)
-</pre><h2>Check input arguments<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> nargin &lt; 7
+</pre><h2>Check input arguments<a name="4"></a></h2><pre class="codeinput"><span class="keyword">if</span> nargin &lt; 7
   All = 0; <span class="comment">% default: only stable points</span>
 <span class="keyword">end</span>
 <span class="keyword">if</span> b2 == 0 &amp;&amp; e ~= 0
   e = 0;
 <span class="keyword">end</span>
-</pre><h2>Find symmetric steady-state amplitudes (r1 = r2)<a name="4"></a></h2><pre class="codeinput">r1 = []; r2 = [];
+</pre><h2>Find symmetric steady-state amplitudes (r1 = r2)<a name="5"></a></h2><pre class="codeinput">r1 = []; r2 = [];
 r = sqrt(roots([ (b1-b2)^2*e^2,<span class="keyword">...</span>
                   -2*(b1-b2)*(b1-a*e)*e,<span class="keyword">...</span>
                   b1^2-4*a*b1*e+(2*a*b2+e*(a^2-c^2+W^2/4))*e,<span class="keyword">...</span>
@@ -95,7 +109,7 @@ r = unique(r); <span class="comment">% remove multiple roots</span>
   r = r(find(r &lt; 1/sqrt(e))); <span class="comment">% take r's below the asymptote</span>
 <span class="keyword">end</span>
 r1 = r; r2 = r;
-</pre><h2>Find asymmetric solutions (r1 ~= r2)<a name="5"></a></h2><pre class="codeinput">rr1 = sqrt(rSquaredAssym(a,b1,b2,e,c,W));
+</pre><h2>Find asymmetric solutions (r1 ~= r2)<a name="6"></a></h2><pre class="codeinput">rr1 = sqrt(rSquaredAssym(a,b1,b2,e,c,W));
 rr1 = rr1(find(abs(imag(rr1)) &lt; eps(<span class="string">'single'</span>))); <span class="comment">% take only real roots</span>
 rr1 = real(rr1);
 <span class="keyword">if</span> b2
@@ -119,15 +133,15 @@ indb = find(abs(imag(rr2b)) &lt; eps(<span class="string">'single'</span>));
 rr1b = rr1b(indb); rr2b = rr2b(indb);
 r1 = [r1; rr1a; rr1b];
 r2 = [r2; rr2a; rr2b];
-</pre><h2>Find corresponding relative phases<a name="6"></a></h2><pre class="codeinput">signPsi = (W &gt;= 0)*2 - 1;
+</pre><h2>Find corresponding relative phases<a name="7"></a></h2><pre class="codeinput">signPsi = (W &gt;= 0)*2 - 1;
 psi = signPsi*acos(-(a*r1+b1*r1.^3+e*b2*r1.^5./(1-e*r1.^2))./(c*r2));
 indpsi = find(abs(imag(psi)) &lt; 10^(-3));
 r1 = r1(indpsi); r2 = r2(indpsi); psi = psi(indpsi);
 psi = real(psi);
-</pre><h2>Exclude extraneous solutions<a name="7"></a></h2><pre class="codeinput">dev = W-c*(r1.^2+r2.^2)./(r1.*r2).*sin(psi); <span class="comment">% deviation in psi-dot eq</span>
+</pre><h2>Exclude extraneous solutions<a name="8"></a></h2><pre class="codeinput">dev = W-c*(r1.^2+r2.^2)./(r1.*r2).*sin(psi); <span class="comment">% deviation in psi-dot eq</span>
 ind = find(abs(dev) &lt; 10^(-3));
 r1 = r1(ind); r2 = r2(ind); psi = psi(ind);
-</pre><h2>Calculate stability type using Jacobian matrix<a name="8"></a></h2><pre class="codeinput">stabType = zeros(size(r1));
+</pre><h2>Calculate stability type using Jacobian matrix<a name="9"></a></h2><pre class="codeinput">stabType = zeros(size(r1));
 <span class="keyword">for</span> n = 1:length(r1)
   J = JacobianCoupled11(a,b1,b2,e,c,r1(n),r2(n),psi(n));
   ev = eig(J);
@@ -142,7 +156,7 @@ r1 = r1(ind); r2 = r2(ind); psi = psi(ind);
   <span class="keyword">end</span> <span class="comment">% saddle pt otherwise</span>
 <span class="keyword">end</span>
 stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable</span>
-</pre><h2>Prepare output<a name="9"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable solutions</span>
+</pre><h2>Prepare output<a name="10"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable solutions</span>
   r1Star = r1;
   r2Star = r2;
   psiStar = psi;
@@ -154,7 +168,7 @@ stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable
   stability = stability(indStab);
   stabType = stabType(indStab);
 <span class="keyword">end</span>
-</pre><h2>Find asymmetric steady-state amplitudes (r^2)<a name="10"></a></h2><pre class="codeinput"><span class="keyword">function</span> r2 = rSquaredAssym(a,b1,b2,e,c,W)
+</pre><h2>Find asymmetric steady-state amplitudes (r^2)<a name="11"></a></h2><pre class="codeinput"><span class="keyword">function</span> r2 = rSquaredAssym(a,b1,b2,e,c,W)
 </pre><pre class="codeinput">r2 = roots([-256*power(b1-b2,8)*power(b2,2)*power(e,17)*<span class="keyword">...</span>
 (power(b2,2)-2*a*b2*e+power(e,2)*(power(a,2)+power(W,2))),<span class="keyword">...</span>
 256*power(b1-b2,7)*power(b2,2)*power(e,16)*(8*b1-5*b2-3*a*e)*<span class="keyword">...</span>
@@ -512,7 +526,7 @@ power(a,2)*(power(b1,2)+10*power(e,2)*power(W,2)))),<span class="keyword">...</s
 (-(power(a,2)*b1)+power(a,3)*e-b1*power(W,2)+<span class="keyword">...</span>
 a*e*(8*power(c,2)+power(W,2))),<span class="keyword">...</span>
 256*power(a,2)*power(b1-b2,4)*power(b2,2)*power(c,4)*power(e,6)]);
-</pre><h2>Calculate Jacobian matrix<a name="13"></a></h2><pre class="codeinput"><span class="keyword">function</span> J = JacobianCoupled11(a, b1, b2, e, c, r1, r2, psi)
+</pre><h2>Calculate Jacobian matrix<a name="14"></a></h2><pre class="codeinput"><span class="keyword">function</span> J = JacobianCoupled11(a, b1, b2, e, c, r1, r2, psi)
 J = zeros(3);
 J(1,1) = a + 3*b1*r1^2 + e*b2*r1^4*(5-3*e*r1^2)/(1-e*r1^2)^2;
 J(1,2) = c*cos(psi);
@@ -523,21 +537,40 @@ J(2,3) = -c*r1*sin(psi);
 J(3,1) = c*(r2^2 - r1^2)/(r1^2*r2)*sin(psi);
 J(3,2) = c*(r1^2 - r2^2)/(r1*r2^2)*sin(psi);
 J(3,3) = -c*(r1^2 + r2^2)/(r1*r2)*cos(psi);
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% rStarCoupled11
-%   [r1Star, r2Star, psiStar, stability, stabType] = rStarCoupled11(alpha, beta1, beta2, epsilon, coupling strength, Omega, All)
+%  [r1Star, r2Star, psiStar, stability, stabType] = rStarCoupled11(alpha, beta1, beta2, epsilon, coupling strength, Omega, All)
 %
-%  Finds r1*, r2*, psi*, stability (1 or 0), and stability type (0-4)
-%  numerically for two canonical oscillators with fixed coupling. Omega
-%  refers to the difference between the oscillators' natural frequencies
-%  in radian. Set the optional input argument 'All' to 1 (or any nonzero
-%  value to get both stable and unstable fixed points. (Default for All
-%  is 0, that is, rStarCoupled11 outputs only stable fixed points.)
+%  Finds steady-state amplitudes (r1*, r2*) and relative phase (psi*) along
+%  with their stability and stability type for two canonical oscillators
+%  connected by fixed 1:1 coupling.
 %
-%  stability: 1 = stable, 0 = unstable
-%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-%  1 = unstable spiral, 0 = saddle point
+%  Input arguments:
+%  alpha, beta1, beta2, epsilon
+%                       Oscillator parameters
+%  coupling strength    Coupling amplitude
+%  Omega                Natural frequency difference (i.e. the first 
+%                       oscillator's natural frequency minus the second
+%                       oscilltor's frequency) in radian
+%
+%  Optional input:
+%  All                  Set it to 1 (or any nonzero value) to get both 
+%                       stable and unstable fixed points. (Default is 0,
+%                       i.e., only stable fixed points are output.)
+%
+%  Output:
+%  r1Star               Steady-state amplitude(s) of the first oscillator
+%  r2Star               Steady-state amplitude(s) of the second oscillator
+%  psiStar              Steady-state relative phase(s) (i.e. first
+%                       oscillator phase minus second oscillator phase)
+%  stability            Stability of steady state(s)
+%                       (1 = stable, 0 = unstable)
+%  stabType             Stability type of steady state(s)
+%                       (4 = stable node, 3 = stable spiral,
+%                       2 = unstable node, 1 = unstable spiral,
+%                       0 = saddle point)
+%
 
 %% Equation
 % $$\frac{dz_1}{dt} = z_1\left(\alpha + \textrm{i}\omega_1 +
@@ -551,6 +584,7 @@ J(3,3) = -c*(r1^2 + r2^2)/(r1*r2)*cos(psi);
 % where $z_i = r_ie^{\textrm{i}\phi_i}, \psi = \phi_1 - \phi_2,$
 % and $\Omega = \omega_1 - \omega_2$
 
+%%
 function [r1Star, r2Star, psiStar, stability, stabType] = ...
   rStarCoupled11(a, b1, b2, e, c, W, All)
 

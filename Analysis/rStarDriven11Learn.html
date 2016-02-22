@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>rStarDriven11Learn</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="rStarDriven11Learn.m"><style type="text/css">
+      --><title>rStarDriven11Learn</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="rStarDriven11Learn.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +38,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -65,25 +66,38 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>rStarDriven11Learn</h1><!--introduction--><pre class="language-matlab">[rStar, AStar, psiStar, stability, stabType] = rStarDriven11Learn(alpha, beta1, lambda, mu1, kappa, forcing amplitude, Omega, All)
-</pre><pre>Finds r*, A*, psi*, stability (1 or 0), and stability type (0-4)
-numerically for an oscillator (truncated after the cubic term) driven by
-a sinusoidal input via a plastic 1:1 coupling. Omega is the difference
-between the oscillator's natural frequency and the input frequency
-in radian.
-Set the optional input argument 'All' to 1 (or any nonzero value)
-to get both stable and unstable fixed points. (Default for All is 0,
-that is, rStarDriven11Learn outputs only stable fixed points.)</pre><pre>stability: 1 = stable, 0 = unstable</pre><pre>stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-1 = unstable spiral, 0 = saddle point</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Equation</a></li><li><a href="#3">Check input arguments</a></li><li><a href="#4">Get steady-state connection amplitudes numerically</a></li><li><a href="#5">Get oscillator amplitudes</a></li><li><a href="#6">Get relative phases</a></li><li><a href="#7">Eliminate extraneous solutions</a></li><li><a href="#8">Get stability type from Jacobian matrix</a></li><li><a href="#9">Prepare output</a></li></ul></div><h2>Equation<a name="1"></a></h2><p><img src="rStarDriven11Learn_eq11405.png" alt="$$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega + \beta_1 |z|^2\right)&#xA;+ cx$$"></p><p><img src="rStarDriven11Learn_eq90023.png" alt="$$\frac{dc}{dt} = c\left(\lambda + \mu_1 |c|^2\right)&#xA;+ \kappa z \bar{x}$$"></p><p>where <img src="rStarDriven11Learn_eq32524.png" alt="$z = re^{\textrm{i}\phi}, c = Ae^{\textrm{i}\theta}, x = Fe^{\textrm{i}\vartheta}, \psi = \theta - \phi + \vartheta, \vartheta = \omega_0t + \theta_0,$"> and <img src="rStarDriven11Learn_eq38587.png" alt="$\Omega = \omega - \omega_0$"></p><pre class="codeinput"><span class="keyword">function</span> [rStar, AStar, psiStar, stability, stabType] = <span class="keyword">...</span>
+  </style></head><body><div class="content"><h1>rStarDriven11Learn</h1><!--introduction--><pre>[rStar, AStar, psiStar, stability, stabType] = rStarDriven11Learn(alpha, beta1, lambda, mu1, kappa, forcing amplitude, Omega, All)</pre><pre>Finds steady-state oscillator amplitude (r*), connection amplitude (A*)
+and relative phase (psi*) along with their stability and stability type
+for a canonical oscillator driven by single sinusoidal forcing via
+plastic 1:1 coupling. Both oscillator and connection equations are
+truncated after cubic terms.</pre><pre>Input arguments:
+alpha, beta1         Oscillator parameters
+lambda, mu1, kappa   Learning parameters
+forcing amplitude    Amplitude of sinusoidal forcing
+Omega                Frequency difference (i.e. oscillator's natural
+                     frequency minus forcing frequency) in radian</pre><pre>Optional input:
+All                  Set it to 1 (or any nonzero value) to get both
+                     stable and unstable fixed points. (Default is 0,
+                     i.e., only stable fixed points are output.)</pre><pre>Output:
+rStar                Steady-state oscillator amplitude(s)
+AStar                Steady-state connection amplitude(s)
+psiStar              Steady-state relative phase(s) (i.e. connection
+                     phase minus oscillator phase plus forcing phase)
+stability            Stability of steady state(s)
+                     (1 = stable, 0 = unstable)
+stabType             Stability type of steady state(s)
+                     (4 = stable node, 3 = stable spiral,
+                     2 = unstable node, 1 = unstable spiral,
+                     0 = saddle point)</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Equation</a></li><li><a href="#4">Check input arguments</a></li><li><a href="#5">Get steady-state connection amplitudes numerically</a></li><li><a href="#6">Get oscillator amplitudes</a></li><li><a href="#7">Get relative phases</a></li><li><a href="#8">Eliminate extraneous solutions</a></li><li><a href="#9">Get stability type from Jacobian matrix</a></li><li><a href="#10">Prepare output</a></li></ul></div><h2>Equation<a name="1"></a></h2><p><img src="rStarDriven11Learn_eq17393181140095648274.png" alt="$$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega + \beta_1 |z|^2\right)&#xA;+ cx$$" style="width:186px;height:30px;"></p><p><img src="rStarDriven11Learn_eq10448930902233971010.png" alt="$$\frac{dc}{dt} = c\left(\lambda + \mu_1 |c|^2\right)&#xA;+ \kappa z \bar{x}$$" style="width:161px;height:30px;"></p><p>where <img src="rStarDriven11Learn_eq15591312657264702745.png" alt="$z = re^{\textrm{i}\phi}, c = Ae^{\textrm{i}\theta}, x = Fe^{\textrm{i}\vartheta}, \psi = \theta - \phi + \vartheta, \vartheta = \omega_0t + \theta_0,$" style="width:360px;height:18px;"> and <img src="rStarDriven11Learn_eq10743348852847204982.png" alt="$\Omega = \omega - \omega_0$" style="width:71px;height:13px;"></p><pre class="codeinput"><span class="keyword">function</span> [rStar, AStar, psiStar, stability, stabType] = <span class="keyword">...</span>
   rStarDriven11Learn(a, b1, l, m1, ka, F, W, All)
 </pre><pre class="codeinput">warning = 0;
-</pre><h2>Check input arguments<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> F &lt;= 0
+</pre><h2>Check input arguments<a name="4"></a></h2><pre class="codeinput"><span class="keyword">if</span> F &lt;= 0
   error(<span class="string">'F must be positive'</span>)
 <span class="keyword">end</span>
 <span class="keyword">if</span> nargin &lt; 8
   All = 0; <span class="comment">% default: only stable points</span>
 <span class="keyword">end</span>
-</pre><h2>Get steady-state connection amplitudes numerically<a name="4"></a></h2><pre class="codeinput">A = sqrt(roots([-(power(b1,5)*power(ka,3)*power(m1,3)*<span class="keyword">...</span>
+</pre><h2>Get steady-state connection amplitudes numerically<a name="5"></a></h2><pre class="codeinput">A = sqrt(roots([-(power(b1,5)*power(ka,3)*power(m1,3)*<span class="keyword">...</span>
   power(b1 - ka*m1,2)),<span class="keyword">...</span>
   -(power(b1,5)*power(ka,3)*power(m1,2)*(b1 - ka*m1)*<span class="keyword">...</span>
   (3*b1*l - ka*(2*a + 5*l)*m1)),<span class="keyword">...</span>
@@ -118,14 +132,14 @@ that is, rStarDriven11Learn outputs only stable fixed points.)</pre><pre>stabili
   power(F,2)*ka*power(l,2) + power(a,2)*(power(F,2)*ka - 2*power(l,2))<span class="keyword">...</span>
   -a*l*(-2*power(F,2)*ka + power(l,2) + power(W,2)))]));
 A = A(imag(A)==0);
-</pre><h2>Get oscillator amplitudes<a name="5"></a></h2><pre class="codeinput">r = [sqrt((-ka*a+sqrt(ka^2*a^2+4*ka*b1*A.^2.*(l+m1*A.^2)))/(2*ka*b1));<span class="keyword">...</span>
+</pre><h2>Get oscillator amplitudes<a name="6"></a></h2><pre class="codeinput">r = [sqrt((-ka*a+sqrt(ka^2*a^2+4*ka*b1*A.^2.*(l+m1*A.^2)))/(2*ka*b1));<span class="keyword">...</span>
   sqrt((-ka*a-sqrt(ka^2*a^2+4*ka*b1*A.^2.*(l+m1*A.^2)))/(2*ka*b1))];
 A = [A;A];
 ind = find(imag(r)==0);
 r = r(ind); A = A(ind);
-</pre><h2>Get relative phases<a name="6"></a></h2><pre class="codeinput">signPsi = -((W &gt;= 0)*2 - 1);
+</pre><h2>Get relative phases<a name="7"></a></h2><pre class="codeinput">signPsi = -((W &gt;= 0)*2 - 1);
 psi = signPsi*acos(-(a*r+b1*r.^3)./(F*A));
-</pre><h2>Eliminate extraneous solutions<a name="7"></a></h2><pre class="codeinput">ind = find(abs(a*r+b1*r.^3+F*A.*cos(psi)) &lt; eps(<span class="string">'single'</span>));
+</pre><h2>Eliminate extraneous solutions<a name="8"></a></h2><pre class="codeinput">ind = find(abs(a*r+b1*r.^3+F*A.*cos(psi)) &lt; eps(<span class="string">'single'</span>));
 r = r(ind); A = A(ind); psi = psi(ind);
 ind = find(abs(-W-F*(ka*r.^2+A.^2)./(r.*A).*sin(psi)) &lt; eps(<span class="string">'single'</span>));
 r = r(ind); A = A(ind); psi = psi(ind);
@@ -138,7 +152,7 @@ r = r(ind); A = A(ind); psi = psi(ind);
   <span class="keyword">end</span>
 <span class="keyword">end</span>
 psi = real(psi);
-</pre><h2>Get stability type from Jacobian matrix<a name="8"></a></h2><pre class="codeinput">stabType = zeros(size(r));
+</pre><h2>Get stability type from Jacobian matrix<a name="9"></a></h2><pre class="codeinput">stabType = zeros(size(r));
 <span class="keyword">for</span> n = 1:length(r)
   J = zeros(3);
   J(1,1) = a + 3*b1*r(n)^2;
@@ -164,7 +178,7 @@ psi = real(psi);
   <span class="keyword">end</span>
 <span class="keyword">end</span>
 stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable</span>
-</pre><h2>Prepare output<a name="9"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable fixed points</span>
+</pre><h2>Prepare output<a name="10"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable fixed points</span>
   rStar = r;
   AStar = A;
   psiStar = psi;
@@ -176,24 +190,41 @@ stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable
   stability = stability(indStab);
   stabType = stabType(indStab);
 <span class="keyword">end</span>
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% rStarDriven11Learn
-%   [rStar, AStar, psiStar, stability, stabType] = rStarDriven11Learn(alpha, beta1, lambda, mu1, kappa, forcing amplitude, Omega, All)
+%  [rStar, AStar, psiStar, stability, stabType] = rStarDriven11Learn(alpha, beta1, lambda, mu1, kappa, forcing amplitude, Omega, All)
 %
-%  Finds r*, A*, psi*, stability (1 or 0), and stability type (0-4)
-%  numerically for an oscillator (truncated after the cubic term) driven by
-%  a sinusoidal input via a plastic 1:1 coupling. Omega is the difference
-%  between the oscillator's natural frequency and the input frequency
-%  in radian.
-%  Set the optional input argument 'All' to 1 (or any nonzero value)
-%  to get both stable and unstable fixed points. (Default for All is 0,
-%  that is, rStarDriven11Learn outputs only stable fixed points.)
+%  Finds steady-state oscillator amplitude (r*), connection amplitude (A*)
+%  and relative phase (psi*) along with their stability and stability type
+%  for a canonical oscillator driven by single sinusoidal forcing via
+%  plastic 1:1 coupling. Both oscillator and connection equations are
+%  truncated after cubic terms.
 %
-%  stability: 1 = stable, 0 = unstable
+%  Input arguments:
+%  alpha, beta1         Oscillator parameters
+%  lambda, mu1, kappa   Learning parameters
+%  forcing amplitude    Amplitude of sinusoidal forcing
+%  Omega                Frequency difference (i.e. oscillator's natural 
+%                       frequency minus forcing frequency) in radian
 %
-%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-%  1 = unstable spiral, 0 = saddle point
+%  Optional input:
+%  All                  Set it to 1 (or any nonzero value) to get both 
+%                       stable and unstable fixed points. (Default is 0,
+%                       i.e., only stable fixed points are output.)
+%
+%  Output:
+%  rStar                Steady-state oscillator amplitude(s)
+%  AStar                Steady-state connection amplitude(s)
+%  psiStar              Steady-state relative phase(s) (i.e. connection
+%                       phase minus oscillator phase plus forcing phase)
+%  stability            Stability of steady state(s)
+%                       (1 = stable, 0 = unstable)
+%  stabType             Stability type of steady state(s)
+%                       (4 = stable node, 3 = stable spiral,
+%                       2 = unstable node, 1 = unstable spiral,
+%                       0 = saddle point)
+%
 
 %% Equation
 % $$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega + \beta_1 |z|^2\right)
@@ -206,6 +237,7 @@ stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable
 % x = Fe^{\textrm{i}\vartheta}, \psi = \theta - \phi + \vartheta,
 % \vartheta = \omega_0t + \theta_0,$ and $\Omega = \omega - \omega_0$
 
+%%
 function [rStar, AStar, psiStar, stability, stabType] = ...
   rStarDriven11Learn(a, b1, l, m1, ka, F, W, All)
 

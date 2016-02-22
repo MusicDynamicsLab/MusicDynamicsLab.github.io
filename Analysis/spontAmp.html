@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>spontAmp</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="spontAmp.m"><style type="text/css">
+      --><title>spontAmp</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="spontAmp.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +38,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -65,20 +66,25 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>spontAmp</h1><!--introduction--><pre class="language-matlab">r = spontAmp(a, b1, b2, e)
-</pre><pre>Finds spontaneous amplitude(s) of fully expanded canonical model</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Find r* numerically</a></li><li><a href="#4">Take only stable r*</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> r = spontAmp(a, b1, b2, e)
-</pre><pre class="codeinput"><span class="keyword">if</span> b2 == 0 &amp;&amp; e ~=0
+  </style></head><body><div class="content"><h1>spontAmp</h1><!--introduction--><pre>r = spontAmp(alpha, beta1, beta2, epsilon)</pre><pre>Finds spontaneous amplitude(s), r, of a canonical oscillator defined by
+parameters alpha, beta1, beta2, and epsilon.</pre><!--/introduction--><pre class="codeinput"><span class="keyword">function</span> r = spontAmp(a, b1, b2, e)
+
+<span class="keyword">if</span> b2 == 0 &amp;&amp; e ~=0
   e = 0;
   <span class="comment">%disp('spontAmp: epsilon set to 0 since b2 = 0')</span>
 <span class="keyword">end</span>
-</pre><h2>Find r* numerically<a name="3"></a></h2><pre class="codeinput">r = roots([e*(b2-b1), 0, b1-e*a, 0, a, 0]);
+
+<span class="comment">% Find r* numerically</span>
+r = roots([e*(b2-b1), 0, b1-e*a, 0, a, 0]);
 r = real(unique(r(find(abs(imag(r)) &lt; eps(<span class="string">'single'</span>)))));
                     <span class="comment">% only unique real values</span>
 r = r(find(r &gt;=0)); <span class="comment">% no negative amplitude</span>
 <span class="keyword">if</span> b2
   r = r(find(r &lt; 1/sqrt(e))); <span class="comment">% r* below the asymptote only</span>
 <span class="keyword">end</span>
-</pre><h2>Take only stable r*<a name="4"></a></h2><pre class="codeinput">ind1 = find(slope(r,a,b1,b2,e) &lt; 0);
+
+<span class="comment">% Take only stable r*</span>
+ind1 = find(slope(r,a,b1,b2,e) &lt; 0);
 ind2a = find(slope(r,a,b1,b2,e) == 0);
 ind2b = find(slope(r-eps(<span class="string">'single'</span>),a,b1,b2,e) &lt; 0);
 ind2c = find(slope(r+eps(<span class="string">'single'</span>),a,b1,b2,e) &lt; 0);
@@ -87,14 +93,17 @@ r = r([ind1; ind2]);
 r = sort(r,<span class="string">'descend'</span>);
 
 <span class="comment">% ========================================================</span>
-</pre><pre class="codeinput"><span class="keyword">function</span> drdotdr = slope(r, a, b1, b2, e)
+<span class="keyword">function</span> drdotdr = slope(r, a, b1, b2, e)
 drdotdr = a + 3*b1*r.^2 + (5*e*b2*r.^4-3*e^2*b2*r.^6)./((1-e*r.^2).^2);
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% spontAmp
-%   r = spontAmp(a, b1, b2, e)
+%  r = spontAmp(alpha, beta1, beta2, epsilon)
 %
-%  Finds spontaneous amplitude(s) of fully expanded canonical model
+%  Finds spontaneous amplitude(s), r, of a canonical oscillator defined by
+%  parameters alpha, beta1, beta2, and epsilon.
+%
+
 %%
 function r = spontAmp(a, b1, b2, e)
 
@@ -103,7 +112,7 @@ if b2 == 0 && e ~=0
   %disp('spontAmp: epsilon set to 0 since b2 = 0')
 end
 
-%% Find r* numerically
+% Find r* numerically
 r = roots([e*(b2-b1), 0, b1-e*a, 0, a, 0]);
 r = real(unique(r(find(abs(imag(r)) < eps('single')))));
                     % only unique real values
@@ -112,7 +121,7 @@ if b2
   r = r(find(r < 1/sqrt(e))); % r* below the asymptote only
 end
 
-%% Take only stable r*
+% Take only stable r*
 ind1 = find(slope(r,a,b1,b2,e) < 0);
 ind2a = find(slope(r,a,b1,b2,e) == 0);
 ind2b = find(slope(r-eps('single'),a,b1,b2,e) < 0);

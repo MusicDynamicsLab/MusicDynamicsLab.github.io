@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>rStarDrivenkm</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-11-07"><meta name="DC.source" content="rStarDrivenkm.m"><style type="text/css">
+      --><title>rStarDrivenkm</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="rStarDrivenkm.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +38,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -65,18 +66,33 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>rStarDrivenkm</h1><!--introduction--><pre class="language-matlab">[rStar, psiStar, stability, stabType] = rStarDrivenkm(alpha, beta1, beta2, epsilon, forcing amplitude, Omega, k, m, All)
-</pre><pre>Finds r*, psi*, stability (1 or 0), and stability type (0-4) numerically
-for a canonical oscillator driven by a sinusoidal input via a nonlinear
-coupling for k:m mode-locking. Omega = m*omega_osc - k*omega_input
-is the deviation from the exact integer relationship (k:m) between
-the oscillator and the input.
-Set the optional input argument 'All' to 1 (or any nonzero value)
-to get both stable and unstable fixed points. (Default for All is 0,
-that is, rStarDrivenkm outputs only stable fixed points.)</pre><pre>stability: 1 = stable, 0 = unstable</pre><pre>stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-1 = unstable spiral, 0 = saddle point</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Equation</a></li><li><a href="#3">Check input arguments</a></li><li><a href="#4">Choose r* function to use</a></li><li><a href="#5">R* FUNCTION FOR FULLY EXPANDED MODEL (NONZERO B2)</a></li><li><a href="#8">Find steady-state amplitudes numerically</a></li><li><a href="#9">Find corresponding relative phases</a></li><li><a href="#10">Get Jacobian matrix</a></li><li><a href="#11">Calculate stability type</a></li><li><a href="#12">Prepare output</a></li><li><a href="#13">R* FUNCTION FOR TRUNCATED MODEL (B2 = 0)</a></li><li><a href="#16">Find steady-state amplitudes numerically</a></li><li><a href="#17">Find corresponding relative phase</a></li><li><a href="#18">Get Jacobian matrix</a></li><li><a href="#19">Calculate stability type</a></li><li><a href="#20">Prepare output</a></li></ul></div><h2>Equation<a name="1"></a></h2><p><img src="rStarDrivenkm_eq65818.png" alt="$$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega +&#xA;\beta_1|z|^2 + \frac{\epsilon\beta_2|z|^4}&#xA;{1-\epsilon |z|^2}\right) + \epsilon^\frac{k+m-2}{2}&#xA;\left(Fe^{\textrm{i}\theta}\right)^k \bar{z}^{m-1}$$"></p><p>where <img src="rStarDrivenkm_eq63782.png" alt="$z = re^{\textrm{i}\phi}, \psi = m\phi - k\theta, \theta = \omega_0t + \theta_0,$"> and <img src="rStarDrivenkm_eq70499.png" alt="$\Omega = m\omega - k\omega_0$"></p><pre class="codeinput"><span class="keyword">function</span> [rStar, psiStar, stability, stabType] = <span class="keyword">...</span>
+  </style></head><body><div class="content"><h1>rStarDrivenkm</h1><!--introduction--><pre>[rStar, psiStar, stability, stabType] = rStarDrivenkm(alpha, beta1, beta2, epsilon, forcing amplitude, Omega, k, m, All)</pre><pre>Finds steady-state amplitude (r*) and relative phase (psi*) along with
+their stability and stability type for a canonical oscillator driven by
+single sinusoidal forcing via nonlinear coupling for k:m mode-locking.
+Mode-locking at k:m means that the oscillator makes k cycles per m
+periods of forcing.</pre><pre>Input arguments:
+alpha, beta1, beta2, epsilon
+                     Oscillator parameters
+forcing amplitude    Amplitude of sinusoidal forcing
+Omega                Frequency deviation (i.e. m times oscillator's
+                     natural frequency minus k time forcing frequency)
+                     in radian
+k                    Numerator (integer) of mode-locking ratio
+m                    Denominator (integer) of mode-locking ratio</pre><pre>Optional input:
+All                  Set it to 1 (or any nonzero value) to get both
+                     stable and unstable fixed points. (Default is 0,
+                     i.e., only stable fixed points are output.)</pre><pre>Output:
+rStar                Steady-state amplitude(s)
+psiStar              Steady-state relative phase(s) (i.e. m times
+                     oscillator phase minus k times forcing phase)
+stability            Stability of steady state(s)
+                     (1 = stable, 0 = unstable)
+stabType             Stability type of steady state(s)
+                     (4 = stable node, 3 = stable spiral,
+                     2 = unstable node, 1 = unstable spiral,
+                     0 = saddle point)</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Equation</a></li><li><a href="#4">Check input arguments</a></li><li><a href="#5">Choose r* function to use</a></li><li><a href="#6">R* FUNCTION FOR FULLY EXPANDED MODEL (NONZERO B2)</a></li><li><a href="#9">Find steady-state amplitudes numerically</a></li><li><a href="#10">Find corresponding relative phases</a></li><li><a href="#11">Get Jacobian matrix</a></li><li><a href="#12">Calculate stability type</a></li><li><a href="#13">Prepare output</a></li><li><a href="#14">R* FUNCTION FOR TRUNCATED MODEL (B2 = 0)</a></li><li><a href="#17">Find steady-state amplitudes numerically</a></li><li><a href="#18">Find corresponding relative phase</a></li><li><a href="#19">Get Jacobian matrix</a></li><li><a href="#20">Calculate stability type</a></li><li><a href="#21">Prepare output</a></li></ul></div><h2>Equation<a name="1"></a></h2><p><img src="rStarDrivenkm_eq12085645385188350844.png" alt="$$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega +&#xA;\beta_1|z|^2 + \frac{\epsilon\beta_2|z|^4}&#xA;{1-\epsilon |z|^2}\right) + \epsilon^\frac{k+m-2}{2}&#xA;\left(Fe^{\textrm{i}\theta}\right)^k \bar{z}^{m-1}$$" style="width:376px;height:36px;"></p><p>where <img src="rStarDrivenkm_eq05881673674872289980.png" alt="$z = re^{\textrm{i}\phi}, \psi = m\phi - k\theta, \theta = \omega_0t + \theta_0,$" style="width:230px;height:18px;"> and <img src="rStarDrivenkm_eq11378760848939480529.png" alt="$\Omega = m\omega - k\omega_0$" style="width:92px;height:13px;"></p><pre class="codeinput"><span class="keyword">function</span> [rStar, psiStar, stability, stabType] = <span class="keyword">...</span>
   rStarDrivenkm(a, b1, b2, e, F, W, k, m, All)
-</pre><h2>Check input arguments<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> F &lt;= 0
+</pre><h2>Check input arguments<a name="4"></a></h2><pre class="codeinput"><span class="keyword">if</span> F &lt;= 0
   error(<span class="string">'F must be positive'</span>)
 <span class="keyword">end</span>
 <span class="keyword">if</span> mod(k,1) || mod(m,1) || k &lt;= 0 || m &lt;= 0
@@ -85,17 +101,17 @@ that is, rStarDrivenkm outputs only stable fixed points.)</pre><pre>stability: 1
 <span class="keyword">if</span> nargin &lt; 9
   All = 0; <span class="comment">% default: only stable points</span>
 <span class="keyword">end</span>
-</pre><h2>Choose r* function to use<a name="4"></a></h2><pre class="codeinput"><span class="keyword">if</span> b2 <span class="comment">% for fully expanded model with nonzero b2</span>
+</pre><h2>Choose r* function to use<a name="5"></a></h2><pre class="codeinput"><span class="keyword">if</span> b2 <span class="comment">% for fully expanded model with nonzero b2</span>
   [rStar, psiStar, stability, stabType] = <span class="keyword">...</span>
     rStarDrivenkmFull(a, b1, b2, e, F, W, k, m, All);
 <span class="keyword">else</span> <span class="comment">% for truncated model with b2 = 0</span>
   [rStar, psiStar, stability, stabType] = <span class="keyword">...</span>
     rStarDrivenkmTrunc(a, b1, e, F, W, k, m, All);
 <span class="keyword">end</span>
-</pre><h2>R* FUNCTION FOR FULLY EXPANDED MODEL (NONZERO B2)<a name="5"></a></h2><pre class="codeinput"><span class="keyword">function</span> [rStar, psiStar, stability, stabType] = <span class="keyword">...</span>
+</pre><h2>R* FUNCTION FOR FULLY EXPANDED MODEL (NONZERO B2)<a name="6"></a></h2><pre class="codeinput"><span class="keyword">function</span> [rStar, psiStar, stability, stabType] = <span class="keyword">...</span>
   rStarDrivenkmFull(a, b1, b2, e, F, W, k, m, All)
 </pre><pre class="codeinput">warningOn = 0; <span class="comment">% set to 1 to get warnings on nonreal psi*</span>
-</pre><h2>Find steady-state amplitudes numerically<a name="8"></a></h2><pre class="codeinput"><span class="keyword">if</span> m == 1
+</pre><h2>Find steady-state amplitudes numerically<a name="9"></a></h2><pre class="codeinput"><span class="keyword">if</span> m == 1
   r = sqrt(roots([e^2*(b2-b1)^2,<span class="keyword">...</span>
                   2*e*(b2-b1)*(b1-e*a),<span class="keyword">...</span>
                   b1^2+e*(2*a*b2-4*a*b1+e*a^2+e*W^2),<span class="keyword">...</span>
@@ -123,7 +139,7 @@ r = r(find(r &lt; 1/sqrt(e))); <span class="comment">% take r's below the asympt
   rStar = []; psiStar = []; stability = []; stabType = [];
   <span class="keyword">return</span>
 <span class="keyword">end</span>
-</pre><h2>Find corresponding relative phases<a name="9"></a></h2><pre class="codeinput">signPsi = (W &gt;= 0)*2 - 1;
+</pre><h2>Find corresponding relative phases<a name="10"></a></h2><pre class="codeinput">signPsi = (W &gt;= 0)*2 - 1;
 psi = signPsi*acos(-(a*r + b1*r.^3 + e*b2*r.^5./(1-e*r.^2))<span class="keyword">...</span>
   ./(e^((k+m-2)/2)*F^k*r.^(m-1)));
 
@@ -136,7 +152,7 @@ psi = signPsi*acos(-(a*r + b1*r.^3 + e*b2*r.^5./(1-e*r.^2))<span class="keyword"
   <span class="keyword">end</span>
 <span class="keyword">end</span>
 psi = real(psi);
-</pre><h2>Get Jacobian matrix<a name="10"></a></h2><pre class="codeinput">J11 = a + 3*b1*r.^2 + e*b2*r.^4.*(5-3*e*r.^2)./(1-e*r.^2).^2 <span class="keyword">...</span>
+</pre><h2>Get Jacobian matrix<a name="11"></a></h2><pre class="codeinput">J11 = a + 3*b1*r.^2 + e*b2*r.^4.*(5-3*e*r.^2)./(1-e*r.^2).^2 <span class="keyword">...</span>
   + (m-1)*e^((k+m-2)/2)*F^k*r.^(m-2).*cos(psi);
 J12 = -e^((k+m-2)/2)*F^k*r.^(m-1).*sin(psi);
 J21 = -m*(m-2)*e^((k+m-2)/2)*F^k*r.^(m-3).*sin(psi);
@@ -144,11 +160,11 @@ J22 = -m*e^((k+m-2)/2)*F^k*r.^(m-2).*cos(psi);
 delta = J11.*J22 - J12.*J21; <span class="comment">% determinant of Jacobian</span>
 tau = J11 + J22; <span class="comment">% trace of Jacobian</span>
 chDet = tau.^2 - 4*delta; <span class="comment">% determinant of characteristic eq</span>
-</pre><h2>Calculate stability type<a name="11"></a></h2><p>4 = stable node, 3 = stable spiral, 2 = unstable node,  1 = unstable spiral, 0 = saddle point</p><pre class="codeinput">stabType = 2*sign(delta) -1*sign(tau) + .5*sign(chDet) + .5;
+</pre><h2>Calculate stability type<a name="12"></a></h2><p>4 = stable node, 3 = stable spiral, 2 = unstable node,  1 = unstable spiral, 0 = saddle point</p><pre class="codeinput">stabType = 2*sign(delta) -1*sign(tau) + .5*sign(chDet) + .5;
 stabType(find(stabType &lt; 0)) = 0;
 stabType(isnan(stabType)) = 0;
 stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable</span>
-</pre><h2>Prepare output<a name="12"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable fixed points</span>
+</pre><h2>Prepare output<a name="13"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable fixed points</span>
   rStar = r;
   psiStar = psi;
 <span class="keyword">else</span> <span class="comment">% only stable solutions</span>
@@ -158,10 +174,10 @@ stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable
   stability = stability(indStab);
   stabType = stabType(indStab);
 <span class="keyword">end</span>
-</pre><h2>R* FUNCTION FOR TRUNCATED MODEL (B2 = 0)<a name="13"></a></h2><pre class="codeinput"><span class="keyword">function</span> [rStar, psiStar, stability, stabType] = <span class="keyword">...</span>
+</pre><h2>R* FUNCTION FOR TRUNCATED MODEL (B2 = 0)<a name="14"></a></h2><pre class="codeinput"><span class="keyword">function</span> [rStar, psiStar, stability, stabType] = <span class="keyword">...</span>
   rStarDrivenkmTrunc(a, b1, e, F, W, k, m, All)
 </pre><pre class="codeinput">warningOn = 0; <span class="comment">% Set to 1 to get warnings on nonreal psi*</span>
-</pre><h2>Find steady-state amplitudes numerically<a name="16"></a></h2><pre class="codeinput"><span class="keyword">if</span> m == 1
+</pre><h2>Find steady-state amplitudes numerically<a name="17"></a></h2><pre class="codeinput"><span class="keyword">if</span> m == 1
   r = sqrt(roots([b1^2, 2*a*b1, a^2+(W/m)^2, -e^(k+m-2)*F^(2*k)]));
 <span class="keyword">else</span>
   order = max(2,m-2);
@@ -178,7 +194,7 @@ r = sort(unique(r),<span class="string">'descend'</span>); <span class="comment"
   rStar = []; psiStar = []; stability = []; stabType = [];
   <span class="keyword">return</span>
 <span class="keyword">end</span>
-</pre><h2>Find corresponding relative phase<a name="17"></a></h2><pre class="codeinput">signPsi = (W &gt;= 0)*2 - 1;
+</pre><h2>Find corresponding relative phase<a name="18"></a></h2><pre class="codeinput">signPsi = (W &gt;= 0)*2 - 1;
 psi = signPsi*acos(-(a*r + b1*r.^3)./(e^((k+m-2)/2)*F^k*r.^(m-1)));
 
 <span class="keyword">if</span> warningOn
@@ -190,18 +206,18 @@ psi = signPsi*acos(-(a*r + b1*r.^3)./(e^((k+m-2)/2)*F^k*r.^(m-1)));
   <span class="keyword">end</span>
 <span class="keyword">end</span>
 psi = real(psi);
-</pre><h2>Get Jacobian matrix<a name="18"></a></h2><pre class="codeinput">J11 = a + 3*b1*r.^2 + (m-1)*e^((k+m-2)/2)*F^k*r.^(m-2).*cos(psi);
+</pre><h2>Get Jacobian matrix<a name="19"></a></h2><pre class="codeinput">J11 = a + 3*b1*r.^2 + (m-1)*e^((k+m-2)/2)*F^k*r.^(m-2).*cos(psi);
 J12 = -e^((k+m-2)/2)*F^k*r.^(m-1).*sin(psi);
 J21 = -m*(m-2)*e^((k+m-2)/2)*F^k*r.^(m-3).*sin(psi);
 J22 = -m*e^((k+m-2)/2)*F^k*r.^(m-2).*cos(psi);
 delta = J11.*J22 - J12.*J21; <span class="comment">% determinant of Jacobian</span>
 tau = J11 + J22; <span class="comment">% trace of Jacobian</span>
 chDet = tau.^2 - 4*delta; <span class="comment">% determinant of characteristic eq</span>
-</pre><h2>Calculate stability type<a name="19"></a></h2><p>4 = stable node, 3 = stable spiral, 2 = unstable node, 1 = unstable spiral, 0 = saddle point</p><pre class="codeinput">stabType = 2*sign(delta) -1*sign(tau) + .5*sign(chDet) + .5;
+</pre><h2>Calculate stability type<a name="20"></a></h2><p>4 = stable node, 3 = stable spiral, 2 = unstable node, 1 = unstable spiral, 0 = saddle point</p><pre class="codeinput">stabType = 2*sign(delta) -1*sign(tau) + .5*sign(chDet) + .5;
 stabType(find(stabType &lt; 0)) = 0;
 stabType(isnan(stabType)) = 0;
 stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable</span>
-</pre><h2>Prepare output<a name="20"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable fixed points</span>
+</pre><h2>Prepare output<a name="21"></a></h2><pre class="codeinput"><span class="keyword">if</span> All <span class="comment">% both stable and unstable fixed points</span>
   rStar = r;
   psiStar = psi;
 <span class="keyword">else</span> <span class="comment">% stable solutions only</span>
@@ -211,24 +227,43 @@ stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable
   stability = stability(indStab);
   stabType = stabType(indStab);
 <span class="keyword">end</span>
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% rStarDrivenkm
-%   [rStar, psiStar, stability, stabType] = rStarDrivenkm(alpha, beta1, beta2, epsilon, forcing amplitude, Omega, k, m, All)
+%  [rStar, psiStar, stability, stabType] = rStarDrivenkm(alpha, beta1, beta2, epsilon, forcing amplitude, Omega, k, m, All)
 %
-%  Finds r*, psi*, stability (1 or 0), and stability type (0-4) numerically
-%  for a canonical oscillator driven by a sinusoidal input via a nonlinear
-%  coupling for k:m mode-locking. Omega = m*omega_osc - k*omega_input
-%  is the deviation from the exact integer relationship (k:m) between
-%  the oscillator and the input.
-%  Set the optional input argument 'All' to 1 (or any nonzero value)
-%  to get both stable and unstable fixed points. (Default for All is 0,
-%  that is, rStarDrivenkm outputs only stable fixed points.)
+%  Finds steady-state amplitude (r*) and relative phase (psi*) along with
+%  their stability and stability type for a canonical oscillator driven by
+%  single sinusoidal forcing via nonlinear coupling for k:m mode-locking.
+%  Mode-locking at k:m means that the oscillator makes k cycles per m
+%  periods of forcing.
 %
-%  stability: 1 = stable, 0 = unstable
+%  Input arguments:
+%  alpha, beta1, beta2, epsilon
+%                       Oscillator parameters
+%  forcing amplitude    Amplitude of sinusoidal forcing
+%  Omega                Frequency deviation (i.e. m times oscillator's 
+%                       natural frequency minus k time forcing frequency)
+%                       in radian
+%  k                    Numerator (integer) of mode-locking ratio
+%  m                    Denominator (integer) of mode-locking ratio
 %
-%  stabType: 4 = stable node, 3 = stable spiral, 2 = unstable node,
-%  1 = unstable spiral, 0 = saddle point
+%  Optional input:
+%  All                  Set it to 1 (or any nonzero value) to get both 
+%                       stable and unstable fixed points. (Default is 0,
+%                       i.e., only stable fixed points are output.)
+%
+%  Output:
+%  rStar                Steady-state amplitude(s)
+%  psiStar              Steady-state relative phase(s) (i.e. m times
+%                       oscillator phase minus k times forcing phase)
+%  stability            Stability of steady state(s)
+%                       (1 = stable, 0 = unstable)
+%  stabType             Stability type of steady state(s)
+%                       (4 = stable node, 3 = stable spiral,
+%                       2 = unstable node, 1 = unstable spiral,
+%                       0 = saddle point)
+%
 
 %% Equation
 % $$\frac{dz}{dt} = z\left(\alpha + \textrm{i}\omega +
@@ -239,6 +274,7 @@ stability = (stabType &gt;= 3); <span class="comment">% 1 = stable, 0 = unstable
 % where $z = re^{\textrm{i}\phi}, \psi = m\phi - k\theta,
 % \theta = \omega_0t + \theta_0,$ and $\Omega = m\omega - k\omega_0$
 
+%%
 function [rStar, psiStar, stability, stabType] = ...
   rStarDrivenkm(a, b1, b2, e, F, W, k, m, All)
 
