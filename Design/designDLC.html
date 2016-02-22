@@ -68,7 +68,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
   </style></head><body><div class="content"><h1>designDLC</h1><!--introduction--><pre>[alpha, beta1, beta2] = designDLC(rStar, localMax, localMin, epsilon, tolerance)</pre><pre>Finds alpha, beta1 and beta2 for a double limit cycle oscillator whose
 autonomous amplitude vector field is defined by three given points
-(rstar, peak, threshold) and epsilon.</pre><pre>Input arguments:
+(rStar, localMax, localMin) and epsilon.</pre><pre>Input arguments:
 rStar            Stable nonzero fixed point in autonomous amplitude
                  vector field. Put NaN if there is none.
 localMax         Local maximum in vector field
@@ -210,7 +210,7 @@ beta2 = B2(ind);
 %
 %  Finds alpha, beta1 and beta2 for a double limit cycle oscillator whose
 %  autonomous amplitude vector field is defined by three given points
-%  (rstar, peak, threshold) and epsilon.
+%  (rStar, localMax, localMin) and epsilon.
 %
 %  Input arguments:
 %  rStar            Stable nonzero fixed point in autonomous amplitude
