@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>zdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-10"><meta name="DC.source" content="zdot.m"><style type="text/css">
+      --><title>zdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="zdot.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -135,7 +135,7 @@ e   = n.e;
 
     <span class="keyword">end</span>
 <span class="keyword">end</span>
-</pre><h2>The differential equation<a name="4"></a></h2><p><img src="zdot_eq12160180045654424728.png" alt="$\dot{z} = z \left( \alpha + \beta_1 |z|^2 + \frac{\epsilon \beta_2 |z|^4}{1-\epsilon |z|^2} \right) + x$"></p><pre class="codeinput">dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
+</pre><h2>The differential equation<a name="4"></a></h2><p><img src="zdot_eq16661828854861159828.png" alt="$\dot{z} = z \left( \alpha + \textrm{i}\omega + (\beta_1 + \textrm{i}\delta_1) |z|^2 + \frac{\epsilon (\beta_2 + \textrm{i}\delta_2) |z|^4}{1-\epsilon |z|^2} \right) + x$" style="width:300px;height:26px;"></p><pre class="codeinput">dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
 </pre><h2>Nonlinear Function Definitions<a name="5"></a></h2><pre class="codeinput"><span class="keyword">function</span> y = P(epsilon, x)
 y = ( x ./ (1 - sqrt(epsilon)*x) );
 
@@ -243,7 +243,7 @@ for cx = 1:length(n.con)
 end
 
 %% The differential equation
-% $\dot{z} = z \left( \alpha + \beta_1 |z|^2 + \frac{\epsilon \beta_2 |z|^4}{1-\epsilon |z|^2} \right) + x$
+% $\dot{z} = z \left( \alpha + \textrm{i}\omega + (\beta_1 + \textrm{i}\delta_1) |z|^2 + \frac{\epsilon (\beta_2 + \textrm{i}\delta_2) |z|^4}{1-\epsilon |z|^2} \right) + x$
 dzdt = z.*(a + b1.*abs(z).^2 + e*b2.*(abs(z).^4)./(1-e*abs(z).^2)) + x;
 
 %%  Nonlinear Function Definitions
