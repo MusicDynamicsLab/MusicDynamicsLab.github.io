@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>example2P.m</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-15"><meta name="DC.source" content="example2P.m"><style type="text/css">
+      --><title>example2P.m</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-23"><meta name="DC.source" content="example2P.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>example2P.m</h1><!--introduction--><p>A simple afferent chain network with plastic internal connections</p><p>https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/7.-Example-2-Plastic</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Parameters</a></li><li><a href="#2">Make the model</a></li><li><a href="#3">Run the network</a></li><li><a href="#4">Display the output</a></li></ul></div><h2>Parameters<a name="1"></a></h2><pre class="codeinput">alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; <span class="comment">% Layer 1</span>
+  </style></head><body><div class="content"><h1>example2P.m</h1><!--introduction--><p>A simple afferent chain network with plastic internal connections</p><p>https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/07.-Example-2-Plastic</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Parameters</a></li><li><a href="#2">Make the model</a></li><li><a href="#3">Run the network</a></li><li><a href="#4">Display the output</a></li></ul></div><h2>Parameters<a name="1"></a></h2><pre class="codeinput">alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; <span class="comment">% Layer 1</span>
 alpha2 =   -1; beta21 =  4; beta22 =   -3; neps2 = 1; <span class="comment">% Layer 2</span>
 w = .025;
 lambda =  0; mu1 = -1; mu2 = -1; ceps = 1; kappa = 1; <span class="comment">% Learning rule</span>
@@ -105,7 +105,7 @@ outputDisplay(M,<span class="string">'net'</span>,1,a1,<span class="string">'amp
 %
 % A simple afferent chain network with plastic internal connections
 %
-% https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/7.-Example-2-Plastic
+% https://github.com/MusicDynamicsLab/GrFNNToolbox/wiki/07.-Example-2-Plastic
 
 %% Parameters
 alpha1 = 0.01; beta11 = -1; beta12 =  -10; neps1 = 1; % Layer 1
