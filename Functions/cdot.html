@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>cdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="cdot.m"><style type="text/css">
+      --><title>cdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-24"><meta name="DC.source" content="cdot.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -111,7 +111,8 @@ z   = M.n{con.target}.z;
         Y = repmat(y', con.targetN, 1); <span class="comment">% conjugate transpose is what we want</span>
         Z = repmat(z , 1, con.sourceN);
         NUM = con.NUM; DEN = con.DEN;
-        X  = kappa.*con.epsc.*((Z.^DEN) .* (Y.^NUM));
+        X  = kappa.* ((sqrt(e)*Z).^DEN .* (sqrt(e)*Y).^NUM) /e;
+
 
     <span class="keyword">case</span> 5  <span class="comment">% active</span>
         <span class="keyword">if</span> no11
@@ -125,10 +126,10 @@ z   = M.n{con.target}.z;
         Y2 = y(con.IDX2); Y2(~con.CON2) = conj(Y2(~con.CON2));
         Z  = z(con.IDXZ);
         NUM1 = con.NUM1; NUM2 = con.NUM2; DEN = con.DEN;
-        Y1NUM1 = (Y1.^NUM1);
-        Y2NUM2 = (Y2.^NUM2);
-        ZDEN  = (Z .^DEN);
-        X = kappa.*con.epsc.*ZDEN.*Y1NUM1.*Y2NUM2;
+        Y1NUM1 = (sqrt(e).*Y1).^NUM1;
+        Y2NUM2 = (sqrt(e).*Y2).^NUM2;
+        ZDEN  = (sqrt(e).*Z).^DEN;
+        X = kappa.*ZDEN.*Y1NUM1.*Y2NUM2/e;
 
 <span class="keyword">end</span>
 
@@ -221,7 +222,8 @@ switch nType    % cases ordered by frequency of use
         Y = repmat(y', con.targetN, 1); % conjugate transpose is what we want
         Z = repmat(z , 1, con.sourceN);
         NUM = con.NUM; DEN = con.DEN;
-        X  = kappa.*con.epsc.*((Z.^DEN) .* (Y.^NUM));
+        X  = kappa.* ((sqrt(e)*Z).^DEN .* (sqrt(e)*Y).^NUM) /e;
+
         
     case 5  % active
         if no11
@@ -235,10 +237,10 @@ switch nType    % cases ordered by frequency of use
         Y2 = y(con.IDX2); Y2(~con.CON2) = conj(Y2(~con.CON2));
         Z  = z(con.IDXZ);
         NUM1 = con.NUM1; NUM2 = con.NUM2; DEN = con.DEN;
-        Y1NUM1 = (Y1.^NUM1);
-        Y2NUM2 = (Y2.^NUM2);
-        ZDEN  = (Z .^DEN);
-        X = kappa.*con.epsc.*ZDEN.*Y1NUM1.*Y2NUM2;
+        Y1NUM1 = (sqrt(e).*Y1).^NUM1;
+        Y2NUM2 = (sqrt(e).*Y2).^NUM2;
+        ZDEN  = (sqrt(e).*Z).^DEN;
+        X = kappa.*ZDEN.*Y1NUM1.*Y2NUM2/e;
         
 end
 

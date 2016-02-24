@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>zdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="zdot.m"><style type="text/css">
+      --><title>zdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-24"><meta name="DC.source" content="zdot.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -110,10 +110,9 @@ e   = n.e;
         <span class="keyword">case</span> 2  <span class="comment">% 2freq</span>
             NUM = con.NUM;
             DEN = con.DEN;
-            Y = repmat(    y.', con.targetN, 1).^ NUM;
-            Z = repmat(conj(z) , 1, con.sourceN).^(DEN-1);
-            x = x + con.w .* <span class="keyword">...</span>
-                sum(con.C.*con.epsn.*Y.*Z,2);
+            Y = repmat(sqrt(e)*y.', con.targetN, 1).^ NUM;
+            Z = repmat(sqrt(e)*conj(z) , 1, con.sourceN).^(DEN-1);
+            x = x + con.w .* sum(con.C.*Y.*Z,2)/sqrt(e);
 
         <span class="keyword">case</span> 5  <span class="comment">% active</span>
             <span class="keyword">if</span> con.no11
@@ -123,14 +122,13 @@ e   = n.e;
             <span class="keyword">end</span>
 
         <span class="keyword">otherwise</span> <span class="comment">% 3freq and 3freqall</span>
-            Y1 = y(con.IDX1); Y1(con.CON1) = conj(Y1(con.CON1));
-            Y2 = y(con.IDX2); Y2(con.CON2) = conj(Y2(con.CON2));
-            Z  = conj(z(con.IDXZ));
+            Y1 = sqrt(e)*y(con.IDX1); Y1(con.CON1) = conj(Y1(con.CON1));
+            Y2 = sqrt(e)*y(con.IDX2); Y2(con.CON2) = conj(Y2(con.CON2));
+            Z  = sqrt(e)*conj(z(con.IDXZ));
             NUM1 = con.NUM1;
             NUM2 = con.NUM2;
             DEN = con.DEN;
-            x_int = con.C.*con.epsn.*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1));
-            <span class="comment">% had to conjugate to make it work right</span>
+            x_int = con.C.*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1))/sqrt(e);
             x = x + con.w .* sum(x_int,2);
 
     <span class="keyword">end</span>
@@ -216,10 +214,9 @@ for cx = 1:length(n.con)
         case 2  % 2freq
             NUM = con.NUM;
             DEN = con.DEN;
-            Y = repmat(    y.', con.targetN, 1).^ NUM;
-            Z = repmat(conj(z) , 1, con.sourceN).^(DEN-1);
-            x = x + con.w .* ...
-                sum(con.C.*con.epsn.*Y.*Z,2);
+            Y = repmat(sqrt(e)*y.', con.targetN, 1).^ NUM;
+            Z = repmat(sqrt(e)*conj(z) , 1, con.sourceN).^(DEN-1);
+            x = x + con.w .* sum(con.C.*Y.*Z,2)/sqrt(e);
             
         case 5  % active
             if con.no11
@@ -229,14 +226,13 @@ for cx = 1:length(n.con)
             end
             
         otherwise % 3freq and 3freqall
-            Y1 = y(con.IDX1); Y1(con.CON1) = conj(Y1(con.CON1));
-            Y2 = y(con.IDX2); Y2(con.CON2) = conj(Y2(con.CON2));
-            Z  = conj(z(con.IDXZ));
+            Y1 = sqrt(e)*y(con.IDX1); Y1(con.CON1) = conj(Y1(con.CON1));
+            Y2 = sqrt(e)*y(con.IDX2); Y2(con.CON2) = conj(Y2(con.CON2));
+            Z  = sqrt(e)*conj(z(con.IDXZ));
             NUM1 = con.NUM1;
             NUM2 = con.NUM2;
             DEN = con.DEN;
-            x_int = con.C.*con.epsn.*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1));
-            % had to conjugate to make it work right
+            x_int = con.C.*(Y1.^NUM1).*(Y2.^NUM2).*(Z.^(DEN-1))/sqrt(e);
             x = x + con.w .* sum(x_int,2);
             
     end

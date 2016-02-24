@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>stimulusMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="stimulusMake.m"><style type="text/css">
+      --><title>stimulusMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-24"><meta name="DC.source" content="stimulusMake.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -362,7 +362,7 @@ s.dt = 1/s.fs;
             s.x = resample(s.x, new, old);
         <span class="keyword">end</span>
         s.fs = new;                                     <span class="comment">% Resample at specified sample rate</span>
-        clear(<span class="string">'s.newFS'</span>);
+        s = rmfield(s,<span class="string">'newFS'</span>);
     <span class="keyword">end</span>
 
     <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'ramp'</span>)
@@ -398,7 +398,7 @@ user_fs = 0;
 user_ramp = 0;
 
 <span class="comment">% Parse arguments</span>
-<span class="keyword">for</span> i=2:nargin
+<span class="keyword">for</span> i=2:length(varargin)
     <span class="keyword">if</span> ischar(varargin{i})
         <span class="keyword">switch</span> varargin{i}
             <span class="keyword">case</span> <span class="string">'tempo_mod'</span>
@@ -526,9 +526,9 @@ O  = zeros(num_stim_chans, length(s.t));
     note_on = round(N(n,6)*s.fs) - s0;
 
     <span class="keyword">if</span> user_ramp
-        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)), <span class="string">'ramp'</span>, ramp_time, ramp_power);
+        note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)), <span class="string">'ramp'</span>, ramp_time, ramp_power);
     <span class="keyword">else</span>
-        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)));
+        note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)));
     <span class="keyword">end</span>
     xb = note.x;
     <span class="comment">%required because makeFcnInput sometimes returns .x one sample short</span>
@@ -625,7 +625,7 @@ O  = zeros( 1, length(s.t));
 <span class="keyword">for</span> n = 1:final_note_ind
     note_on = round(N(n,6)*s.fs) - s0;
 
-    note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, {<span class="string">'pls'</span>}, freq, dB2Pa(N(n,5)));
+    note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, {<span class="string">'pls'</span>}, freq, dB2Pa(N(n,5)));
     xb = note.x;
     <span class="comment">%required because makeFcnInput sometimes returns .x one sample short</span>
     note_off = note_on+length(xb);
@@ -1018,7 +1018,7 @@ for i = 1:length(varargin)
             s.x = resample(s.x, new, old);
         end
         s.fs = new;                                     % Resample at specified sample rate
-        clear('s.newFS');
+        s = rmfield(s,'newFS');
     end
     
     if strcmpi(varargin{i},'ramp')
@@ -1058,7 +1058,7 @@ user_fs = 0;
 user_ramp = 0;
 
 % Parse arguments
-for i=2:nargin
+for i=2:length(varargin)
     if ischar(varargin{i})
         switch varargin{i}
             case 'tempo_mod'
@@ -1186,9 +1186,9 @@ for n = 1:final_note_ind
     note_on = round(N(n,6)*s.fs) - s0;
     
     if user_ramp
-        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)), 'ramp', ramp_time, ramp_power);
+        note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)), 'ramp', ramp_time, ramp_power);
     else
-        note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)));
+        note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, out_type, freq(n), dB2Pa(N(n,5)));
     end
     xb = note.x;
     %required because makeFcnInput sometimes returns .x one sample short
@@ -1290,7 +1290,7 @@ O  = zeros( 1, length(s.t));
 for n = 1:final_note_ind
     note_on = round(N(n,6)*s.fs) - s0;
     
-    note = makeFcnInput([0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, dB2Pa(N(n,5)));
+    note = makeFcnInput(s, [0 (N(n,7)-s.dt)], s.fs, {'pls'}, freq, dB2Pa(N(n,5)));
     xb = note.x;
     %required because makeFcnInput sometimes returns .x one sample short
     note_off = note_on+length(xb);
