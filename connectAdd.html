@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>connectAdd</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="connectAdd.m"><style type="text/css">
+      --><title>connectAdd</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-26"><meta name="DC.source" content="connectAdd.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -135,11 +135,12 @@ mu1 = 0;
 mu2 = 0;
 epsilon = 0;
 kappa = 0;
-</pre><h2>Parse input<a name="4"></a></h2><pre class="codeinput">types = {<span class="string">'1freq'</span> <span class="string">'2freq'</span> <span class="string">'3freq'</span> <span class="string">'3freqAll'</span> <span class="string">'All2freq'</span> <span class="string">'Allfreq'</span> <span class="string">'active'</span>};         <span class="comment">% Can add to this array later; default to 'Allfreq' for now</span>
+</pre><h2>Parse input<a name="4"></a></h2><pre class="codeinput">types = {<span class="string">'1freq'</span> <span class="string">'2freq'</span> <span class="string">'3freq'</span> <span class="string">'3freqAll'</span> <span class="string">'All2freq'</span> <span class="string">'Allfreq'</span> <span class="string">'active'</span>};
 
 <span class="keyword">for</span> i = 1:length(varargin)
 
-    <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'learn'</span>) &amp;&amp; length(varargin) &gt; i + 4 &amp;&amp; ~ischar(varargin{i+1}) &amp;&amp; ~ischar(varargin{i+2}) &amp;&amp; ~ischar(varargin{i+3}) &amp;&amp; ~ischar(varargin{i+4}) &amp;&amp; ~ischar(varargin{i+5})
+    <span class="keyword">if</span> strcmpi(varargin{i},<span class="string">'learn'</span>) &amp;&amp; length(varargin) &gt; i + 4 &amp;&amp; ~ischar(varargin{i+1}) <span class="keyword">...</span>
+            &amp;&amp; ~ischar(varargin{i+2}) &amp;&amp; ~ischar(varargin{i+3}) &amp;&amp; ~ischar(varargin{i+4}) &amp;&amp; ~ischar(varargin{i+5})
         learn = 1;
         lambda   = varargin{i+1};
         mu1      = varargin{i+2};
@@ -177,7 +178,9 @@ kappa = 0;
         con.phaseDisp = 1;
     <span class="keyword">end</span>
 
-    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; ~strcmpi(varargin{i},<span class="string">'learn'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'typ'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'wei'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) &amp;&amp; ~any(strcmpi(varargin{i},types)) &amp;&amp; ~strcmpi(varargin{i},<span class="string">'no11'</span>) &amp;&amp; ~strcmpi(varargin{i},<span class="string">'phasedisp'</span>)
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; ~strcmpi(varargin{i},<span class="string">'learn'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'typ'</span>) <span class="keyword">...</span>
+            &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'wei'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) <span class="keyword">...</span>
+            &amp;&amp; ~any(strcmpi(varargin{i},types)) &amp;&amp; ~strcmpi(varargin{i},<span class="string">'no11'</span>) &amp;&amp; ~strcmpi(varargin{i},<span class="string">'phasedisp'</span>)
         error([<span class="string">'Unrecognized input to connectAdd: '</span> varargin{i}])
     <span class="keyword">end</span>
 
@@ -208,10 +211,6 @@ kappa = 0;
         con.NUM = NUM;
         con.DEN = DEN;
         F = (NUM.*F1 + DEN.*F2)./(NUM + DEN);
-        <span class="keyword">if</span> n1.nClass == 2 <span class="comment">% if network source</span>
-            con.epsn = n1.e.^((NUM+DEN-2)/2); <span class="comment">% used in zdot</span>
-        <span class="keyword">end</span>
-        con.epsc = epsilon.^((NUM+DEN-2)/2);  <span class="comment">% used in cdot</span>
         con.nType = 2;
 
     <span class="keyword">case</span> <span class="string">'3freq'</span> <span class="comment">% three-frequency monomials ALL MONONMIALS, UP TO SPECIFIED ORDER</span>
@@ -232,11 +231,9 @@ kappa = 0;
         <span class="keyword">if</span> n1.nClass == 1 <span class="comment">% if stimulus source</span>
             F = repmat(n2.f, 1, size(DEN, 2));
         <span class="keyword">else</span>
-            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) <span class="keyword">...</span>
-                ./(abs(NUM1) + abs(NUM2) + DEN);
-            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); <span class="comment">% used in zdot</span>
+            F = (NUM1.*n1.f(X1i) + NUM2.*n1.f(X2i) + DEN.*n2.f(Zi)) <span class="keyword">...</span>
+                ./(NUM1 + NUM2 + DEN);
         <span class="keyword">end</span>
-        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  <span class="comment">% used in cdot</span>
         con.nType = 3;
 
     <span class="keyword">case</span> <span class="string">'3freqall'</span> <span class="comment">% three-frequency monomials ALL FREQUENCIES, LOWEST ORDER MONOMIAL</span>
@@ -252,17 +249,18 @@ kappa = 0;
         con.IDXZ  = Zi;
         con.CON1 = (NUM1&lt;0);
         con.CON2 = (NUM2&lt;0);
-        con.NUM1 = abs(NUM1);
-        con.NUM2 = abs(NUM2);
+        NUM1 = abs(NUM1);
+        NUM2 = abs(NUM2);
+        con.NUM1 = NUM1;
+        con.NUM2 = NUM2;
         con.DEN = DEN;
+        con.mask = (NUM1 + NUM2 &gt; 0);   <span class="comment">% exclude connections with no resonant monomial within tolerance</span>
         <span class="keyword">if</span> n1.nClass == 1 <span class="comment">% if stimulus source</span>
             F = repmat(n2.f, 1, size(DEN, 2));
         <span class="keyword">else</span>
-            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) <span class="keyword">...</span>
-                ./(abs(NUM1) + abs(NUM2) + DEN);
-            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); <span class="comment">% used in zdot</span>
+            F = (NUM1.*n1.f(X1i) + NUM2.*n1.f(X2i) + DEN.*n2.f(Zi)) <span class="keyword">...</span>
+                ./(NUM1 + NUM2 + DEN);
         <span class="keyword">end</span>
-        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  <span class="comment">% used in cdot</span>
         con.nType = 4;
 
     <span class="keyword">case</span> <span class="string">'active'</span> <span class="comment">% Full series of active nonlinearities</span>
@@ -278,22 +276,16 @@ kappa = 0;
         con.nType = 7;
 
 <span class="keyword">end</span>
-</pre><h2>Scaling factors<a name="6"></a></h2><pre class="codeinput"><span class="keyword">if</span> n2.nFspac==2 <span class="comment">% log spacing</span>
+</pre><h2>Scaling factors<a name="6"></a></h2><pre class="codeinput"><span class="keyword">if</span> n2.nFspac == 2 <span class="comment">% log spacing</span>
     con.F = F;
     con.w = w.*n2.f;
 <span class="keyword">else</span>
     F = ones(size(F));
     con.w = w;
 <span class="keyword">end</span>
-</pre><h2>Scale learning parameters<a name="7"></a></h2><pre class="codeinput"><span class="comment">% if any(kappa) % JCK: replaces if sum(sum(kappa))</span>
-<span class="comment">%     con.learn = 1;</span>
-<span class="comment">% else</span>
-<span class="comment">%     con.learn = 0;</span>
-<span class="comment">% end</span>
+</pre><h2>Scale learning parameters<a name="7"></a></h2><pre class="codeinput">con.learn = learn;
 
-con.learn = learn;
-
-<span class="keyword">if</span> n2.nFspac==2 <span class="comment">% log spacing</span>
+<span class="keyword">if</span> n2.nFspac == 2 <span class="comment">% log spacing</span>
     con.lambda = lambda.*F;
     con.mu1 = mu1.*F;
     con.mu2 = mu2.*F;
@@ -329,15 +321,12 @@ con.e = epsilon;
 <span class="keyword">end</span>
 
 con.C = con.C0;
-</pre><h2>Masking<a name="9"></a></h2><pre>    This process operates on the initial condition and parameter
-    matrices to hange the way things work (i.e.</pre><pre>    mask = ~eye(size(C));          % Don't learn self-connections
-                                     This could be inverted guassian
-                                     too</pre><pre class="codeinput">mask = 1;
-<span class="keyword">if</span> strcmpi(con.type, <span class="string">'2freq'</span>) &amp;&amp; con.no11
+</pre><h2>Masking<a name="9"></a></h2><pre class="codeinput">mask = 1;
+<span class="keyword">if</span> con.nType == 2 &amp;&amp; con.no11   <span class="comment">% 2freq with no11</span>
     mask = ~(con.NUM == 1 &amp; con.DEN == 1);
-<span class="keyword">elseif</span> strcmpi(con.type, <span class="string">'3freq'</span>)
+<span class="keyword">elseif</span> con.nType == 3 || con.nType == 4     <span class="comment">% 3freq or 3freqAll</span>
     mask = con.mask;
-<span class="keyword">elseif</span> con.source == con.target &amp;&amp; con.nSourceClass == 2
+<span class="keyword">elseif</span> con.source == con.target &amp;&amp; con.nSourceClass == 2    <span class="comment">% internal connection</span>
     mask = ~eye(size(con.C));          <span class="comment">% ... Won't learn self-connections</span>
 <span class="keyword">end</span>
 
@@ -444,11 +433,12 @@ epsilon = 0;
 kappa = 0;
 
 %% Parse input
-types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};         % Can add to this array later; default to 'Allfreq' for now
+types = {'1freq' '2freq' '3freq' '3freqAll' 'All2freq' 'Allfreq' 'active'};
 
 for i = 1:length(varargin)
     
-    if strcmpi(varargin{i},'learn') && length(varargin) > i + 4 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5})
+    if strcmpi(varargin{i},'learn') && length(varargin) > i + 4 && ~ischar(varargin{i+1}) ...
+            && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5})
         learn = 1;
         lambda   = varargin{i+1};
         mu1      = varargin{i+2};
@@ -486,7 +476,9 @@ for i = 1:length(varargin)
         con.phaseDisp = 1;
     end
     
-    if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp')
+    if ischar(varargin{i}) && ~strcmpi(varargin{i},'learn') && ~strcmpi(varargin{i}(1:3),'typ') ...
+            && ~strcmpi(varargin{i}(1:3),'wei') && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') ...
+            && ~any(strcmpi(varargin{i},types)) && ~strcmpi(varargin{i},'no11') && ~strcmpi(varargin{i},'phasedisp')
         error(['Unrecognized input to connectAdd: ' varargin{i}])
     end
     
@@ -520,10 +512,6 @@ switch lower(con.type)
         con.NUM = NUM;
         con.DEN = DEN;
         F = (NUM.*F1 + DEN.*F2)./(NUM + DEN);
-        if n1.nClass == 2 % if network source
-            con.epsn = n1.e.^((NUM+DEN-2)/2); % used in zdot
-        end
-        con.epsc = epsilon.^((NUM+DEN-2)/2);  % used in cdot
         con.nType = 2;
         
     case '3freq' % three-frequency monomials ALL MONONMIALS, UP TO SPECIFIED ORDER
@@ -544,11 +532,9 @@ switch lower(con.type)
         if n1.nClass == 1 % if stimulus source
             F = repmat(n2.f, 1, size(DEN, 2));
         else
-            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) ...
-                ./(abs(NUM1) + abs(NUM2) + DEN);
-            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); % used in zdot
+            F = (NUM1.*n1.f(X1i) + NUM2.*n1.f(X2i) + DEN.*n2.f(Zi)) ...
+                ./(NUM1 + NUM2 + DEN);
         end
-        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  % used in cdot
         con.nType = 3;
         
     case '3freqall' % three-frequency monomials ALL FREQUENCIES, LOWEST ORDER MONOMIAL
@@ -564,17 +550,18 @@ switch lower(con.type)
         con.IDXZ  = Zi;
         con.CON1 = (NUM1<0);
         con.CON2 = (NUM2<0);
-        con.NUM1 = abs(NUM1);
-        con.NUM2 = abs(NUM2);
+        NUM1 = abs(NUM1);
+        NUM2 = abs(NUM2);
+        con.NUM1 = NUM1;
+        con.NUM2 = NUM2;
         con.DEN = DEN;
+        con.mask = (NUM1 + NUM2 > 0);   % exclude connections with no resonant monomial within tolerance
         if n1.nClass == 1 % if stimulus source
             F = repmat(n2.f, 1, size(DEN, 2));
         else
-            F = (abs(NUM1).*n1.f(X1i) + abs(NUM2).*n1.f(X2i) + DEN.*n2.f(Zi)) ...
-                ./(abs(NUM1) + abs(NUM2) + DEN);
-            con.epsn = n1.e.^((NUM1+NUM2+DEN-2)/2); % used in zdot
+            F = (NUM1.*n1.f(X1i) + NUM2.*n1.f(X2i) + DEN.*n2.f(Zi)) ...
+                ./(NUM1 + NUM2 + DEN);
         end
-        con.epsc = epsilon.^((NUM1+NUM2+DEN-2)/2);  % used in cdot
         con.nType = 4;
         
     case 'active' % Full series of active nonlinearities
@@ -593,7 +580,7 @@ end
 
 %% Scaling factors
 
-if n2.nFspac==2 % log spacing
+if n2.nFspac == 2 % log spacing
     con.F = F;
     con.w = w.*n2.f;
 else
@@ -603,15 +590,9 @@ end
 
 %% Scale learning parameters
 
-% if any(kappa) % JCK: replaces if sum(sum(kappa))
-%     con.learn = 1;
-% else
-%     con.learn = 0;
-% end
-
 con.learn = learn;
 
-if n2.nFspac==2 % log spacing
+if n2.nFspac == 2 % log spacing
     con.lambda = lambda.*F;
     con.mu1 = mu1.*F;
     con.mu2 = mu2.*F;
@@ -653,19 +634,13 @@ end
 con.C = con.C0;
 
 %% Masking
-%      This process operates on the initial condition and parameter
-%      matrices to hange the way things work (i.e.
-%
-%      mask = ~eye(size(C));          % Don't learn self-connections
-%                                       This could be inverted guassian
-%                                       too
 
 mask = 1;
-if strcmpi(con.type, '2freq') && con.no11
+if con.nType == 2 && con.no11   % 2freq with no11
     mask = ~(con.NUM == 1 & con.DEN == 1);
-elseif strcmpi(con.type, '3freq')
+elseif con.nType == 3 || con.nType == 4     % 3freq or 3freqAll
     mask = con.mask;
-elseif con.source == con.target && con.nSourceClass == 2
+elseif con.source == con.target && con.nSourceClass == 2    % internal connection
     mask = ~eye(size(con.C));          % ... Won't learn self-connections
 end
 
