@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>networkMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="networkMake.m"><style type="text/css">
+      --><title>networkMake</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-29"><meta name="DC.source" content="networkMake.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -67,11 +67,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
   </style></head><body><div class="content"><h1>networkMake</h1><!--introduction--><pre>n = networkMake(idNumber, varargin)</pre><pre>Makes an oscillator network structure for a model
-idNumber: is a layer id, should match model structure index</pre><pre>Attributes can come in any order.</pre><pre>Necessary attributes
+idNumber: is a layer id, should match model structure index</pre><pre>Attributes can come in any order.</pre><pre>Necessary attributes:
 Model, such as 'hopf'                Next 6 inputs are necessary, parameters of the network:
                                      alpha, beta1, beta2, delta1, delta2, epsilon
 Frequency spacing, 'lin' or 'log'    Next 3 inputs are necessary, min freq of network,
                                      max freq of network, and number of oscillators</pre><pre>Optional attributes:
+'scale', 'noScale'                   Use these to specify whether or not to scale parameters
+                                     by natural frequencies. No additional argument.
 'display'                            Next input is scalar which is the time step interval in
                                      between display steps as the network integrates. Default
                                      is zero.
@@ -85,8 +87,8 @@ Frequency spacing, 'lin' or 'log'    Next 3 inputs are necessary, min freq of ne
                                      for all oscillators.
 'tick'                               Next input is a vector of axis ticks to be used for this network
                                      for plotting, if 'display' is nonzero.</pre><pre>Example calls:</pre><pre class="language-matlab">n  = networkMake(3, <span class="string">'hopf'</span>, .1, -10, -1, 0, 0, 1, <span class="string">'log'</span>, 100, 1300, 400, <span class="string">'display'</span>, 20, <span class="string">'save'</span>, 1, <span class="string">'znaught'</span>, z0{3});
-n  = networkMake(1, <span class="string">'hopf'</span>, 0, -100, -1, 0, 0, .0025, <span class="string">'log'</span>, 20, 20000, 800, <span class="string">'save'</span>, 1, <span class="string">'channel'</span>, 1);
-</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Set defaults and initialize variables</a></li><li><a href="#3">Parse input</a></li><li><a href="#4">Error check for necessary inputs</a></li><li><a href="#5">Define oscillator parameters</a></li><li><a href="#6">Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin</a></li><li><a href="#7">Older things not to throw away</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> n = networkMake(id, varargin)
+n  = networkMake(1, <span class="string">'hopf'</span>, 0, -100, -1, 0, 0, .0025, <span class="string">'log'</span>, 20, 20000, 800, <span class="string">'noScale'</span>, <span class="string">'save'</span>, 1, <span class="string">'channel'</span>, 1);
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Set defaults and initialize variables</a></li><li><a href="#3">Parse input</a></li><li><a href="#4">Error check for necessary inputs</a></li><li><a href="#5">Define oscillator parameters</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> n = networkMake(id, varargin)
 </pre><h2>Set defaults and initialize variables<a name="2"></a></h2><pre class="codeinput">n.id = id;
 n.class = <span class="string">'network'</span>;
 n.nClass = 2; <span class="comment">% numerical class</span>
@@ -101,11 +103,13 @@ n.fspac = [];
 n.nFspac= 0;
 n.dStep = 0;                    <span class="comment">% Initialize these to zero/empty in case not specified in varargin</span>
 n.sStep = 0;
-overrideInitialConditions = 0;
 n.tick  = [];
+overrideInitialConditions = 0;
+userScale = [];
 </pre><h2>Parse input<a name="3"></a></h2><pre class="codeinput"><span class="keyword">for</span> i = 1:length(varargin)
 
-    <span class="keyword">if</span> any(strcmpi(varargin{i},models)) &amp;&amp; length(varargin) &gt; i + 5 &amp;&amp; ~ischar(varargin{i+1}) &amp;&amp; ~ischar(varargin{i+2}) &amp;&amp; ~ischar(varargin{i+3}) &amp;&amp; ~ischar(varargin{i+4}) &amp;&amp; ~ischar(varargin{i+5}) &amp;&amp; ~ischar(varargin{i+6})
+    <span class="keyword">if</span> any(strcmpi(varargin{i},models)) &amp;&amp; length(varargin) &gt; i + 5 &amp;&amp; ~ischar(varargin{i+1}) &amp;&amp; ~ischar(varargin{i+2}) <span class="keyword">...</span>
+            &amp;&amp; ~ischar(varargin{i+3}) &amp;&amp; ~ischar(varargin{i+4}) &amp;&amp; ~ischar(varargin{i+5}) &amp;&amp; ~ischar(varargin{i+6})
 
         n.model = lower(varargin{i});
 
@@ -122,39 +126,47 @@ n.tick  = [];
         <span class="keyword">end</span>
     <span class="keyword">end</span>
 
-    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; any(strcmpi(varargin{i}(1:3),{<span class="string">'lin'</span> <span class="string">'log'</span>})) &amp;&amp; length(varargin) &gt; i + 2 &amp;&amp; isscalar(varargin{i+1}) &amp;&amp; isscalar(varargin{i+2}) &amp;&amp; isscalar(varargin{i+3})
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; any(strcmpi(varargin{i}(1:3),{<span class="string">'lin'</span> <span class="string">'log'</span>})) &amp;&amp; length(varargin) &gt; i + 2 <span class="keyword">...</span>
+            &amp;&amp; isscalar(varargin{i+1}) &amp;&amp; isscalar(varargin{i+2}) &amp;&amp; isscalar(varargin{i+3})
 
         n.fspac = lower(varargin{i}(1:3));
-        <span class="comment">% Assign nFspac integer value based on fspac string value</span>
-        <span class="keyword">if</span> strcmpi(n.fspac, <span class="string">'lin'</span>)
-            n.nFspac = 1;
-        <span class="keyword">else</span>
-            n.nFspac = 2;
-        <span class="keyword">end</span>
-
         lf   = varargin{i+1};            <span class="comment">% min freq</span>
         hf   = varargin{i+2};            <span class="comment">% max freq</span>
         N    = varargin{i+3};            <span class="comment">% number of frequency steps</span>
         n.N  = N;
-        <span class="keyword">switch</span> n.nFspac
 
-            <span class="keyword">case</span> 1 <span class="comment">% linear spacing</span>
-                n.f  = linspace(lf,hf,N)';
-                <span class="keyword">if</span> N &gt; 1
-                    n.df = abs(n.f(2)-n.f(1)); <span class="comment">% to scale for frequency density</span>
-                <span class="keyword">else</span>
-                    n.df = 1;
-                <span class="keyword">end</span>
-
-            <span class="keyword">case</span> 2 <span class="comment">% log spacing</span>
-                n.f  = logspace(log10(lf),log10(hf),N)';
-                <span class="keyword">if</span> N &gt; 1
-                    n.df = abs(log2(n.f(2)/n.f(1)));          <span class="comment">% to scale for frequency density</span>
-                <span class="keyword">else</span>
-                    n.df = 1;
-                <span class="keyword">end</span>
+        <span class="keyword">if</span> strcmpi(n.fspac, <span class="string">'lin'</span>)
+            n.nFspac = 1;       <span class="comment">% numerical frequency spacing type</span>
+            n.scale = 0;
+            n.f  = linspace(lf,hf,N)';
+            <span class="keyword">if</span> N &gt; 1
+                n.df = abs(n.f(2)-n.f(1)); <span class="comment">% to scale for frequency density</span>
+            <span class="keyword">else</span>
+                n.df = 1;
+            <span class="keyword">end</span>
+        <span class="keyword">else</span>
+            n.nFspac = 2;
+            n.scale = 1;
+            n.f  = logspace(log10(lf),log10(hf),N)';
+            <span class="keyword">if</span> N &gt; 1
+                n.df = abs(log2(n.f(2)/n.f(1)));          <span class="comment">% to scale for frequency density</span>
+            <span class="keyword">else</span>
+                n.df = 1;
+            <span class="keyword">end</span>
         <span class="keyword">end</span>
         n.f   = single(n.f);
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'sca'</span>)
+
+        userScale = 1;
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'nos'</span>)
+
+        userScale = 0;
+
     <span class="keyword">end</span>
 
     <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; length(varargin) &gt; i &amp;&amp; isscalar(varargin{i+1})
@@ -182,7 +194,9 @@ n.tick  = [];
 
     <span class="keyword">end</span>
 
-    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; ~any(strcmpi(varargin{i},models)) &amp;&amp; ~any(strcmpi(varargin{i},{<span class="string">'lin'</span> <span class="string">'log'</span>})) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'zna'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'tic'</span>)
+    <span class="keyword">if</span> ischar(varargin{i}) &amp;&amp; ~any(strcmpi(varargin{i},models)) &amp;&amp; ~any(strcmpi(varargin{i}(1:3),{<span class="string">'lin'</span> <span class="string">'log'</span>})) <span class="keyword">...</span>
+            &amp;&amp; ~any(strcmpi(varargin{i}(1:3),{<span class="string">'sca'</span> <span class="string">'nos'</span>})) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'dis'</span>) <span class="keyword">...</span>
+            &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'sav'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'zna'</span>) &amp;&amp; ~strcmpi(varargin{i}(1:3),<span class="string">'tic'</span>)
 
         error([<span class="string">'Unrecognized input to networkMake: '</span> varargin{i}]);
 
@@ -194,14 +208,18 @@ n.tick  = [];
     error(<span class="string">'Must specify a model and all parameters in networkMake'</span>)
 
 <span class="keyword">end</span>
-</pre><h2>Define oscillator parameters<a name="5"></a></h2><pre class="codeinput"><span class="keyword">switch</span> n.nFspac
+</pre><h2>Define oscillator parameters<a name="5"></a></h2><pre class="codeinput"><span class="keyword">if</span> ~isempty(userScale)
+    n.scale = userScale;    <span class="comment">% use user-specified scale flag if any</span>
+<span class="keyword">end</span>
 
-    <span class="keyword">case</span> 1 <span class="comment">% linear spacing</span>
+<span class="keyword">switch</span> n.scale
+
+    <span class="keyword">case</span> 0 <span class="comment">% no frequency scaling</span>
         n.a  = single(alpha + 1i*2*pi.*n.f);
         n.b1 = single(beta1 + 1i*delta1);
         n.b2 = single(beta2 + 1i*delta2);
 
-    <span class="keyword">case</span> 2 <span class="comment">% log spacing</span>
+    <span class="keyword">case</span> 1 <span class="comment">% frequency scaling</span>
         n.a  = single(alpha + 1i*2*pi  ).*n.f;  <span class="comment">% Redefinition of a, b1 &amp; b2</span>
         n.b1 = single(beta1 + 1i*delta1).*n.f;
         n.b2 = single(beta2 + 1i*delta2).*n.f;
@@ -237,18 +255,33 @@ n.e = single(epsilon);
 <span class="keyword">end</span>
 
 n.z = n.z0;
-</pre><h2>Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin<a name="6"></a></h2><p>Define ticks and tick labels to be used for plotting m   = ceil(n.N/2);                  % middle frequency of network switch n.nFspac     case 'lin'         n.tck = floor(linspace(1, n.N,5));     case 'log'         per = floor(n.N/(log2(n.f(end))-log2(n.f(1))));</p><pre>       tckup = m:per:n.N;
-       tckdn = m:-per:1;
-       n.tck = unique([tckdn,tckup]);
-end
-n.tckl = {};
-for tt = 1:length(n.tck)
-   if n.f(m) &lt; 10
-       n.tckl{tt} = sprintf('%5.1f', n.f(n.tck(tt)));
-   else
-       n.tckl{tt} = sprintf('%d', round(n.f(n.tck(tt))));
-   end
-end</pre><h2>Older things not to throw away<a name="7"></a></h2><pre class="codeinput"><span class="comment">% model is oscillator-level model-type {'vrd', 'wils', 'hopf'} + model</span>
+
+<span class="comment">% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin</span>
+<span class="comment">%</span>
+<span class="comment">% Define ticks and tick labels to be used for plotting</span>
+<span class="comment">% m   = ceil(n.N/2);                  % middle frequency of network</span>
+<span class="comment">% switch n.nFspac</span>
+<span class="comment">%     case 'lin'</span>
+<span class="comment">%         n.tck = floor(linspace(1, n.N,5));</span>
+<span class="comment">%     case 'log'</span>
+<span class="comment">%         per = floor(n.N/(log2(n.f(end))-log2(n.f(1))));</span>
+<span class="comment">%</span>
+<span class="comment">%         tckup = m:per:n.N;</span>
+<span class="comment">%         tckdn = m:-per:1;</span>
+<span class="comment">%         n.tck = unique([tckdn,tckup]);</span>
+<span class="comment">% end</span>
+<span class="comment">% n.tckl = {};</span>
+<span class="comment">% for tt = 1:length(n.tck)</span>
+<span class="comment">%     if n.f(m) &lt; 10</span>
+<span class="comment">%         n.tckl{tt} = sprintf('%5.1f', n.f(n.tck(tt)));</span>
+<span class="comment">%     else</span>
+<span class="comment">%         n.tckl{tt} = sprintf('%d', round(n.f(n.tck(tt))));</span>
+<span class="comment">%     end</span>
+<span class="comment">% end</span>
+
+<span class="comment">% Older things not to throw away</span>
+
+<span class="comment">% model is oscillator-level model-type {'vrd', 'wils', 'hopf'} + model</span>
 <span class="comment">% parameters</span>
 <span class="comment">% -for W-C: model = {'wils', a, b, omega, xstar, ystar}</span>
 <span class="comment">%  parameters c, d of W-C are calcaulated internally based on omega, and</span>
@@ -336,13 +369,15 @@ end</pre><h2>Older things not to throw away<a name="7"></a></h2><pre class="code
 %  
 %  Attributes can come in any order.
 % 
-%  Necessary attributes 
+%  Necessary attributes:
 %  Model, such as 'hopf'                Next 6 inputs are necessary, parameters of the network: 
 %                                       alpha, beta1, beta2, delta1, delta2, epsilon
 %  Frequency spacing, 'lin' or 'log'    Next 3 inputs are necessary, min freq of network, 
 %                                       max freq of network, and number of oscillators
 % 
 %  Optional attributes:
+%  'scale', 'noScale'                   Use these to specify whether or not to scale parameters
+%                                       by natural frequencies. No additional argument.
 %  'display'                            Next input is scalar which is the time step interval in 
 %                                       between display steps as the network integrates. Default
 %                                       is zero.
@@ -360,7 +395,7 @@ end</pre><h2>Older things not to throw away<a name="7"></a></h2><pre class="code
 %  Example calls:
 % 
 %   n  = networkMake(3, 'hopf', .1, -10, -1, 0, 0, 1, 'log', 100, 1300, 400, 'display', 20, 'save', 1, 'znaught', z0{3});
-%   n  = networkMake(1, 'hopf', 0, -100, -1, 0, 0, .0025, 'log', 20, 20000, 800, 'save', 1, 'channel', 1);
+%   n  = networkMake(1, 'hopf', 0, -100, -1, 0, 0, .0025, 'log', 20, 20000, 800, 'noScale', 'save', 1, 'channel', 1);
 %
 
 %%
@@ -380,13 +415,15 @@ n.fspac = [];
 n.nFspac= 0;
 n.dStep = 0;                    % Initialize these to zero/empty in case not specified in varargin
 n.sStep = 0;
-overrideInitialConditions = 0;
 n.tick  = [];
+overrideInitialConditions = 0;
+userScale = [];
 
 %% Parse input
 for i = 1:length(varargin)
     
-    if any(strcmpi(varargin{i},models)) && length(varargin) > i + 5 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5}) && ~ischar(varargin{i+6})
+    if any(strcmpi(varargin{i},models)) && length(varargin) > i + 5 && ~ischar(varargin{i+1}) && ~ischar(varargin{i+2}) ...
+            && ~ischar(varargin{i+3}) && ~ischar(varargin{i+4}) && ~ischar(varargin{i+5}) && ~ischar(varargin{i+6})
         
         n.model = lower(varargin{i});
         
@@ -403,41 +440,49 @@ for i = 1:length(varargin)
         end
     end
     
-    if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
+    if ischar(varargin{i}) && any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) && length(varargin) > i + 2 ...
+            && isscalar(varargin{i+1}) && isscalar(varargin{i+2}) && isscalar(varargin{i+3})
         
         n.fspac = lower(varargin{i}(1:3));
-        % Assign nFspac integer value based on fspac string value
-        if strcmpi(n.fspac, 'lin')
-            n.nFspac = 1;
-        else
-            n.nFspac = 2;
-        end
-        
         lf   = varargin{i+1};            % min freq
         hf   = varargin{i+2};            % max freq
         N    = varargin{i+3};            % number of frequency steps
         n.N  = N;
-        switch n.nFspac
-            
-            case 1 % linear spacing
-                n.f  = linspace(lf,hf,N)';
-                if N > 1
-                    n.df = abs(n.f(2)-n.f(1)); % to scale for frequency density
-                else
-                    n.df = 1;
-                end
-                
-            case 2 % log spacing
-                n.f  = logspace(log10(lf),log10(hf),N)';
-                if N > 1
-                    n.df = abs(log2(n.f(2)/n.f(1)));          % to scale for frequency density
-                else
-                    n.df = 1;
-                end
+        
+        if strcmpi(n.fspac, 'lin')
+            n.nFspac = 1;       % numerical frequency spacing type
+            n.scale = 0;
+            n.f  = linspace(lf,hf,N)';
+            if N > 1
+                n.df = abs(n.f(2)-n.f(1)); % to scale for frequency density
+            else
+                n.df = 1;
+            end
+        else
+            n.nFspac = 2;
+            n.scale = 1;
+            n.f  = logspace(log10(lf),log10(hf),N)';
+            if N > 1
+                n.df = abs(log2(n.f(2)/n.f(1)));          % to scale for frequency density
+            else
+                n.df = 1;
+            end
         end
         n.f   = single(n.f);
     end
-     
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'sca')
+        
+        userScale = 1;
+        
+    end
+    
+    if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'nos')
+        
+        userScale = 0;
+        
+    end
+    
     if ischar(varargin{i}) && strcmpi(varargin{i}(1:3),'dis') && length(varargin) > i && isscalar(varargin{i+1})
         
         n.dStep = varargin{i+1};
@@ -463,7 +508,9 @@ for i = 1:length(varargin)
         
     end
     
-    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i},{'lin' 'log'})) && ~strcmpi(varargin{i}(1:3),'dis') && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
+    if ischar(varargin{i}) && ~any(strcmpi(varargin{i},models)) && ~any(strcmpi(varargin{i}(1:3),{'lin' 'log'})) ...
+            && ~any(strcmpi(varargin{i}(1:3),{'sca' 'nos'})) && ~strcmpi(varargin{i}(1:3),'dis') ...
+            && ~strcmpi(varargin{i}(1:3),'sav') && ~strcmpi(varargin{i}(1:3),'zna') && ~strcmpi(varargin{i}(1:3),'tic')
         
         error(['Unrecognized input to networkMake: ' varargin{i}]);
         
@@ -480,14 +527,18 @@ end
 
 
 %% Define oscillator parameters
-switch n.nFspac
+if ~isempty(userScale)
+    n.scale = userScale;    % use user-specified scale flag if any
+end
+
+switch n.scale
     
-    case 1 % linear spacing
+    case 0 % no frequency scaling
         n.a  = single(alpha + 1i*2*pi.*n.f);
         n.b1 = single(beta1 + 1i*delta1);
         n.b2 = single(beta2 + 1i*delta2);
         
-    case 2 % log spacing
+    case 1 % frequency scaling
         n.a  = single(alpha + 1i*2*pi  ).*n.f;  % Redefinition of a, b1 & b2
         n.b1 = single(beta1 + 1i*delta1).*n.f;
         n.b2 = single(beta2 + 1i*delta2).*n.f;
@@ -524,7 +575,8 @@ end
 
 n.z = n.z0;
 
-%% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin
+% Commenting out all former tick stuff and letting matlab decide if not spec'd in varargin
+%
 % Define ticks and tick labels to be used for plotting
 % m   = ceil(n.N/2);                  % middle frequency of network
 % switch n.nFspac
@@ -546,7 +598,7 @@ n.z = n.z0;
 %     end
 % end
 
-%% Older things not to throw away
+% Older things not to throw away
 
 % model is oscillator-level model-type {'vrd', 'wils', 'hopf'} + model
 % parameters
