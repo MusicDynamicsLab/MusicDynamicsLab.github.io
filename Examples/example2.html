@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>example2.m</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-23"><meta name="DC.source" content="example2.m"><style type="text/css">
+      --><title>example2.m</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-03-07"><meta name="DC.source" content="example2.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -72,11 +72,11 @@ alpha2 =   -1; beta21 =  4; beta22 =  -3; neps2 = 1; <span class="comment">% Lay
     <span class="string">'display'</span>, 10);
 
 n1 = networkMake(1, <span class="string">'hopf'</span>, alpha1, beta11,  beta12,  0, 0, neps1, <span class="keyword">...</span>
-    <span class="string">'log'</span>, 50, 200, 200, <span class="string">'save'</span>, 1, <span class="keyword">...</span>
+    <span class="string">'log'</span>, 50, 200, 201, <span class="string">'save'</span>, 1, <span class="keyword">...</span>
     <span class="string">'display'</span>, 10, <span class="string">'Tick'</span>, [50 67 75 100 133 150 200]);
 
 n2 = networkMake(2, <span class="string">'hopf'</span>, alpha2, beta21,  beta22,  0, 0, neps2, <span class="keyword">...</span>
-    <span class="string">'log'</span>, 50, 200, 200, <span class="string">'save'</span>, 1, <span class="keyword">...</span>
+    <span class="string">'log'</span>, 50, 200, 201, <span class="string">'save'</span>, 1, <span class="keyword">...</span>
     <span class="string">'display'</span>, 10, <span class="string">'Tick'</span>, [50 67 75 100 133 150 200]);
 
 n1 = connectAdd(s, n1, 1); <span class="comment">% '1freq' connection type by default</span>
@@ -116,11 +116,11 @@ s = stimulusMake(1, 'fcn', [0 1], 4000, {'exp'}, [100], .025, 0, 'ramp', 0.01, 1
     'display', 10);
 
 n1 = networkMake(1, 'hopf', alpha1, beta11,  beta12,  0, 0, neps1, ...
-    'log', 50, 200, 200, 'save', 1, ...
+    'log', 50, 200, 201, 'save', 1, ...
     'display', 10, 'Tick', [50 67 75 100 133 150 200]);
 
 n2 = networkMake(2, 'hopf', alpha2, beta21,  beta22,  0, 0, neps2, ...
-    'log', 50, 200, 200, 'save', 1, ...
+    'log', 50, 200, 201, 'save', 1, ...
     'display', 10, 'Tick', [50 67 75 100 133 150 200]);
 
 n1 = connectAdd(s, n1, 1); % '1freq' connection type by default

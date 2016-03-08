@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>cdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-24"><meta name="DC.source" content="cdot.m"><style type="text/css">
+      --><title>cdot</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-03-07"><meta name="DC.source" content="cdot.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -132,8 +132,6 @@ z   = M.n{con.target}.z;
         X = kappa.*ZDEN.*Y1NUM1.*Y2NUM2/e;
 
 <span class="keyword">end</span>
-
-X = single(X);
 </pre><h2>The differential equation<a name="5"></a></h2><p><img src="cdot_eq10220624966087766672.png" alt="$\dot{C} = C \left( \lambda + \mu_1 |C|^2+ \frac{\epsilon \mu_2 |C|^4}{1-\epsilon |C|^2} \right) + X$" style="width:216px;height:26px;"></p><pre class="codeinput">dCdt = C.*(lambda + mu1.*abs(C).^2 + e*mu2.*(abs(C).^4)./(1-e*abs(C).^2)) + X;
 </pre><h2>Nonlinear Function Definitions<a name="6"></a></h2><pre class="codeinput"><span class="keyword">function</span> y = P(epsilon, x)
 y = ( x ./ (1 - sqrt(epsilon)*x) );
@@ -244,7 +242,6 @@ switch nType    % cases ordered by frequency of use
         
 end
 
-X = single(X);
 
 %% The differential equation
 % $\dot{C} = C \left( \lambda + \mu_1 |C|^2+ \frac{\epsilon \mu_2 |C|^4}{1-\epsilon |C|^2} \right) + X$

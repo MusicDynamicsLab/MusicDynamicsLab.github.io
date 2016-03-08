@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>odeRK4fs</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-02-22"><meta name="DC.source" content="odeRK4fs.m"><style type="text/css">
+      --><title>odeRK4fs</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-03-07"><meta name="DC.source" content="odeRK4fs.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -68,22 +68,18 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
   </style></head><body><div class="content"><h1>odeRK4fs</h1><!--introduction--><pre class="language-matlab">M = odeRK4fs(M)
 </pre><pre>Integrates a model, M, using fixed-step 4th-order Runge-Kutta method.
-Steps by direct indexing of stimulus vector.</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Error checking</a></li><li><a href="#4">Display stimulus and initial conditions if dStep &gt; 0</a></li><li><a href="#5">Integration loop</a></li><li><a href="#7">Get Runge-Kutta k-values</a></li><li><a href="#9">First update stimulus values</a></li><li><a href="#10">Get k-values for each network</a></li><li><a href="#12">... and for each learned connection to the network</a></li><li><a href="#14">Update z, C and ind for the next k-step</a></li><li><a href="#17">function: computes one 4th-order Runge-Kutta step</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> M = odeRK4fs(M)
+Steps by direct indexing of stimulus vector.</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">Display stimulus and initial conditions if dStep &gt; 0</a></li><li><a href="#4">Integration loop</a></li><li><a href="#6">Get Runge-Kutta k-values</a></li><li><a href="#8">First update stimulus values</a></li><li><a href="#9">Get k-values for each network</a></li><li><a href="#11">... and for each learned connection to the network</a></li><li><a href="#13">Update z, C and ind for the next k-step</a></li><li><a href="#16">function: computes one 4th-order Runge-Kutta step</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> M = odeRK4fs(M)
 </pre><pre class="codeinput">load(<span class="string">'MyColormaps'</span>, <span class="string">'IF_colormap'</span>);
 circular = IF_colormap;
 
 zfun = M.zfun;
 cfun = M.cfun;
-ispan = [1 length(M.t)];
-</pre><h2>Error checking<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span>( ~isa(zfun,<span class="string">'function_handle'</span>) )
-    error(<span class="string">'odeRK4fs: odefun param must be a function handle'</span>);
-<span class="keyword">end</span>
-
-step = single(1);
-h = single(M.dt);                   <span class="comment">% step size</span>
+iSpan = M.iSpan;
+iStep = M.iStep;
+h = M.dt;                   <span class="comment">% step size</span>
 stimList = M.stimList;
 netList = M.netList;
-</pre><h2>Display stimulus and initial conditions if dStep &gt; 0<a name="4"></a></h2><pre class="codeinput"><span class="keyword">for</span> sx = stimList
+</pre><h2>Display stimulus and initial conditions if dStep &gt; 0<a name="3"></a></h2><pre class="codeinput"><span class="keyword">for</span> sx = stimList
     <span class="keyword">if</span> M.s{sx}.dStep
         stimulusLiveDisplay(M.s{sx}, 0, M.t(1));
     <span class="keyword">end</span>
@@ -99,21 +95,21 @@ netList = M.netList;
         <span class="keyword">end</span>
     <span class="keyword">end</span>
 <span class="keyword">end</span>
-</pre><h2>Integration loop<a name="5"></a></h2><pre class="codeinput"><span class="keyword">for</span> ix = ispan(1) : step : ispan(2)-step
+</pre><h2>Integration loop<a name="4"></a></h2><pre class="codeinput"><span class="keyword">for</span> ix = iSpan(1) : iStep : iSpan(2)-iStep
 </pre><pre class="codeinput">    ind = ix; <span class="comment">% time step for which to calculate k1</span>
-</pre><h2>Get Runge-Kutta k-values<a name="7"></a></h2><pre class="codeinput">    <span class="keyword">for</span> kx = 1:4
-</pre><h2>First update stimulus values<a name="9"></a></h2><pre class="codeinput">        <span class="keyword">if</span> kx == 2 || kx == 4
+</pre><h2>Get Runge-Kutta k-values<a name="6"></a></h2><pre class="codeinput">    <span class="keyword">for</span> kx = 1:4
+</pre><h2>First update stimulus values<a name="8"></a></h2><pre class="codeinput">        <span class="keyword">if</span> kx == 2 || kx == 4
             <span class="keyword">for</span> sx = stimList
                 M.s{sx}.z = stimulusRun(M.s{sx}, ind);
             <span class="keyword">end</span>
         <span class="keyword">end</span>
-</pre><h2>Get k-values for each network<a name="10"></a></h2><pre class="codeinput">        <span class="keyword">for</span> nx = netList
+</pre><h2>Get k-values for each network<a name="9"></a></h2><pre class="codeinput">        <span class="keyword">for</span> nx = netList
 </pre><pre class="codeinput">            M.n{nx}.k{kx} = h*zfun(M, nx);
-</pre><h2>... and for each learned connection to the network<a name="12"></a></h2><pre class="codeinput">            <span class="keyword">for</span> cx = M.n{nx}.learnList
+</pre><h2>... and for each learned connection to the network<a name="11"></a></h2><pre class="codeinput">            <span class="keyword">for</span> cx = M.n{nx}.learnList
                 M.n{nx}.con{cx}.k{kx} = h*cfun(M, nx, cx);
             <span class="keyword">end</span>
 </pre><pre class="codeinput">        <span class="keyword">end</span>
-</pre><h2>Update z, C and ind for the next k-step<a name="14"></a></h2><pre class="codeinput">        <span class="keyword">switch</span> kx
+</pre><h2>Update z, C and ind for the next k-step<a name="13"></a></h2><pre class="codeinput">        <span class="keyword">switch</span> kx
             <span class="keyword">case</span> 1
                 <span class="keyword">for</span> nx = netList
                     M.n{nx}.zPrev = M.n{nx}.z;
@@ -123,7 +119,7 @@ netList = M.netList;
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{1}/2;
                     <span class="keyword">end</span>
                 <span class="keyword">end</span>
-                ind = ix + step/2; <span class="comment">% time step for k2 and k3</span>
+                ind = ix + iStep/2; <span class="comment">% time step for k2 and k3</span>
             <span class="keyword">case</span> 2
                 <span class="keyword">for</span> nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + M.n{nx}.k{2}/2;
@@ -138,7 +134,7 @@ netList = M.netList;
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{3};
                     <span class="keyword">end</span>
                 <span class="keyword">end</span>
-                ind = ix + step; <span class="comment">% time step for k4</span>
+                ind = ix + iStep; <span class="comment">% time step for k4</span>
             <span class="keyword">case</span> 4
                 <span class="keyword">for</span> nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + <span class="keyword">...</span>
@@ -169,7 +165,7 @@ netList = M.netList;
         <span class="keyword">end</span>
 </pre><pre class="codeinput">    <span class="keyword">end</span>
 </pre><pre class="codeinput"><span class="keyword">end</span>
-</pre><h2>function: computes one 4th-order Runge-Kutta step<a name="17"></a></h2><pre class="language-matlab">See <span class="string">http://www.physics.utah.edu/~detar/phys6720/handouts/ode/ode/node6.html</span>
+</pre><h2>function: computes one 4th-order Runge-Kutta step<a name="16"></a></h2><pre class="language-matlab">See <span class="string">http://www.physics.utah.edu/~detar/phys6720/handouts/ode/ode/node6.html</span>
 </pre><pre>k1 = h*f(ti, yi)
 k2 = h*f(ti+h/2, yi+k1/2)
 k3 = h*f(ti+h/2, yi+k2/2)
@@ -190,15 +186,9 @@ circular = IF_colormap;
 
 zfun = M.zfun;
 cfun = M.cfun;
-ispan = [1 length(M.t)];
-
-%% Error checking
-if( ~isa(zfun,'function_handle') )
-    error('odeRK4fs: odefun param must be a function handle');
-end
-
-step = single(1);
-h = single(M.dt);                   % step size
+iSpan = M.iSpan;
+iStep = M.iStep;
+h = M.dt;                   % step size
 stimList = M.stimList;
 netList = M.netList;
 
@@ -221,7 +211,7 @@ for nx = netList
 end
 
 %% Integration loop
-for ix = ispan(1) : step : ispan(2)-step
+for ix = iSpan(1) : iStep : iSpan(2)-iStep
     ind = ix; % time step for which to calculate k1
     
     %% Get Runge-Kutta k-values
@@ -255,7 +245,7 @@ for ix = ispan(1) : step : ispan(2)-step
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{1}/2;
                     end
                 end
-                ind = ix + step/2; % time step for k2 and k3
+                ind = ix + iStep/2; % time step for k2 and k3
             case 2
                 for nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + M.n{nx}.k{2}/2;
@@ -270,7 +260,7 @@ for ix = ispan(1) : step : ispan(2)-step
                         M.n{nx}.con{cx}.C = M.n{nx}.con{cx}.CPrev + M.n{nx}.con{cx}.k{3};
                     end
                 end
-                ind = ix + step; % time step for k4
+                ind = ix + iStep; % time step for k4
             case 4
                 for nx = netList
                     M.n{nx}.z = M.n{nx}.zPrev + ...
